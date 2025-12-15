@@ -71,7 +71,7 @@ class _SplashScreenState extends State<SplashScreen> {
               const CircularProgressIndicator(
                 strokeWidth: 2,
                 valueColor: AlwaysStoppedAnimation<Color>(
-                  Colors.greenAccent,
+                  AppColors.accent,
                 ),
               ),
 
@@ -80,7 +80,7 @@ class _SplashScreenState extends State<SplashScreen> {
               //Version
               Text("v1.0.2",
                 style: TextStyle(
-                  color: Colors.white60,
+                  color: AppColors.white60,
                   fontSize: 12,
                 ),
               ),

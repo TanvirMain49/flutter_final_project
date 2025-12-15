@@ -13,6 +13,13 @@ class AppLogo extends StatelessWidget {
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(20),
         color: AppColors.secondary,
+        boxShadow: [
+          BoxShadow(
+            color: AppColors.accent,
+            blurRadius: 25,
+            spreadRadius: 2
+          )
+        ]
       ),
       child: const Icon(
         Icons.school_rounded,
