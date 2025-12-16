@@ -1,4 +1,5 @@
 import 'package:_6th_sem_project/core/constants/colors.dart';
+import 'package:_6th_sem_project/core/services/auth_service.dart';
 import 'package:_6th_sem_project/core/widgets/app_logo.dart';
 import 'package:_6th_sem_project/core/widgets/gradient_background.dart';
 import 'package:_6th_sem_project/core/widgets/input_field.dart';
@@ -14,12 +15,68 @@ class SignupScreen extends StatefulWidget {
 }
 
 class _SignupScreenState extends State<SignupScreen> {
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+  final TextEditingController _confirmPasswordController = TextEditingController();
+
+  ///State variable for button loading status
+  bool _isLoading = false;
+
+  @override
+  void dispose() {
+    _emailController.dispose();
+    _passwordController.dispose();
+    _confirmPasswordController.dispose();
+    super.dispose();
+  }
+
+  void _signUp() async {
+    final email = _emailController.text.trim();
+    final password = _passwordController.text.trim();
+    final confirmPassword = _confirmPasswordController.text.trim();
+    final authService = AuthService();
+
+    if (password != confirmPassword) {
+      ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Confirm password did not match"))
+      );
+      return;
+    }
+
+    // /Set loading state to true
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      await authService.signUpWithEmailAndPassword(email, password);
+
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("User registered successfully"))
+      );
+
+      Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const LoginScreen())
+      );
+
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Error in signup: $e"))
+      );
+
+      /// Set loading state back to false on failure
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    final _emailController = TextEditingController();
-    final _passwordController = TextEditingController();
-    final _confirmPasswordController = TextEditingController();
-
     return Scaffold(
       body: GradientBackground(
         child: SafeArea(
@@ -98,8 +155,9 @@ class _SignupScreenState extends State<SignupScreen> {
                   // Signup Button
                   PrimaryButton(
                     text: "Sign Up",
+                    isLoading: _isLoading,
                     onPressed: () {
-                      // handle signup
+                      _isLoading ? null : _signUp();
                     },
                   ),
 

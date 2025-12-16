@@ -12,8 +12,6 @@ class LoginScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
 
-    final _emailController = TextEditingController();
-
     return Scaffold(
       body: GradientBackground(
         child: SafeArea(
