@@ -17,26 +17,25 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
   final SignInController controller = SignInController();
 
-  void dispose(){
+  @override
+  void dispose() {
     controller.dispose();
     super.dispose();
   }
 
   bool _isLoading = false;
 
-  void _signIn() async{
+  void _signIn() async {
     await controller.signIn(
-        context: context,
-        onStart: ()=> setState(() {
-          _isLoading = true;
-        }),
-        onEnd: ()=>  setState(() {
-          _isLoading = false;
-        })
+      context: context,
+      onStart: () => setState(() {
+        _isLoading = true;
+      }),
+      onEnd: () => setState(() {
+        _isLoading = false;
+      }),
     );
-
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -111,40 +110,41 @@ class _LoginScreenState extends State<LoginScreen> {
                         text: "Log In",
                         isLoading: _isLoading,
                         onPressed: () {
-                          _isLoading? null : _signIn();
+                          _isLoading ? null : _signIn();
                         },
                       ),
 
-                      const SizedBox(height: 32,),
+                      const SizedBox(height: 32),
 
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Text("Don't have an account,",
-                          style: TextStyle(
-                            color: AppColors.white60,
-                            fontSize: 14
-                          ),
+                          Text(
+                            "Don't have an account,",
+                            style: TextStyle(
+                              color: AppColors.white60,
+                              fontSize: 14,
+                            ),
                           ),
                           TextButton(
-                              onPressed: (){
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (context)=>const SignupScreen()
-                                  )
-                                );
-                              },
-                              child: Text(
-                                "Sign Up",
-                                style: TextStyle(
-                                  color: AppColors.accent,
-                                  fontSize: 14
-                                )
-                              )
-                          )
+                            onPressed: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => const SignupScreen(),
+                                ),
+                              );
+                            },
+                            child: Text(
+                              "Sign Up",
+                              style: TextStyle(
+                                color: AppColors.accent,
+                                fontSize: 14,
+                              ),
+                            ),
+                          ),
                         ],
-                      )
+                      ),
                     ],
                   ),
                 ),
@@ -154,6 +154,5 @@ class _LoginScreenState extends State<LoginScreen> {
         ),
       ),
     );
-
   }
 }
