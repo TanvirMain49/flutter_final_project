@@ -1,9 +1,9 @@
 import 'package:_6th_sem_project/core/constants/colors.dart';
-import 'package:_6th_sem_project/core/services/auth_service.dart';
 import 'package:_6th_sem_project/core/widgets/app_logo.dart';
 import 'package:_6th_sem_project/core/widgets/gradient_background.dart';
 import 'package:_6th_sem_project/core/widgets/input_field.dart';
 import 'package:_6th_sem_project/core/widgets/primary_button.dart';
+import 'package:_6th_sem_project/features/auth/controller/auth.controller.dart';
 import 'package:_6th_sem_project/features/auth/screen/signup_student.dart';
 import 'package:flutter/material.dart';
 
@@ -15,57 +15,27 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
+  final SignInController controller = SignInController();
 
-  final TextEditingController _emailController = TextEditingController();
-  final TextEditingController _passwordController = TextEditingController();
-  final authService = AuthService();
-
-  void _snackBar(String text){
-    ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(text))
-    );
-  }
-
-  bool _isLoading = false;
-  @override
   void dispose(){
-    _emailController.dispose();
-    _passwordController.dispose();
+    controller.dispose();
     super.dispose();
   }
 
+  bool _isLoading = false;
+
   void _signIn() async{
-
-    setState(() {
-      _isLoading = true;
-    });
-
-
-    final email = _emailController.text.trim();
-    final password = _passwordController.text.trim();
-
-    try{
-        await authService.signInWithEmailAndPassword(email, password);
-
-        if(!mounted) return;
-
-        _snackBar("User logged in successfully");
-
-        Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(builder: (context) => const SignupScreen())
-        );
-
-    }catch(e){
-      if(!mounted) return;
-      _snackBar("Error in login: $e");
-    }
-    setState(() {
-      _isLoading = false;
-    });
+    await controller.signIn(
+        context: context,
+        onStart: ()=> setState(() {
+          _isLoading = true;
+        }),
+        onEnd: ()=>  setState(() {
+          _isLoading = false;
+        })
+    );
 
   }
-
 
 
   @override
@@ -118,7 +88,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         label: "Email address",
                         hint: "name@example.com",
                         icon: Icons.email_outlined,
-                        controller: _emailController,
+                        controller: controller.emailController,
                         keyboardType: TextInputType.emailAddress,
                         obscureText: false,
                       ),
@@ -130,7 +100,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         label: "Password",
                         hint: "Enter your password",
                         icon: Icons.lock_outline,
-                        controller: _passwordController,
+                        controller: controller.passwordController,
                         obscureText: true,
                       ),
 
