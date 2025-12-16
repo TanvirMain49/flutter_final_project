@@ -1,4 +1,5 @@
 import 'package:_6th_sem_project/core/services/auth_service.dart';
+import 'package:_6th_sem_project/features/home/app_mainScreen.dart';
 import 'package:_6th_sem_project/features/student/screen/student_home.dart';
 import 'package:flutter/material.dart';
 
@@ -29,10 +30,11 @@ class SignInController {
     try {
       onStart();
       await _authService.signInWithEmailAndPassword(email, password);
-      if(!context.mounted) return;
+      if (!context.mounted) return;
       _snackBar(context, "User logged in successfully");
-      Navigator.push(context,
-          MaterialPageRoute(builder: (context) => const StudentHomeScreen())
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => const AppMainScreen()),
       );
     } catch (e) {
       _snackBar(context, "Login failed: $e");
@@ -42,16 +44,14 @@ class SignInController {
   }
 
   void _snackBar(BuildContext context, String text) {
-    ScaffoldMessenger.of(context)
-        .showSnackBar(SnackBar(content: Text(text)));
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(text)));
   }
 }
 
 class SignUpController {
-
-  final  emailController = TextEditingController();
-  final  passwordController = TextEditingController();
-  final  confirmPasswordController = TextEditingController();
+  final emailController = TextEditingController();
+  final passwordController = TextEditingController();
+  final confirmPasswordController = TextEditingController();
 
   void dispose() {
     emailController.dispose();
@@ -85,8 +85,9 @@ class SignUpController {
       await authService.signUpWithEmailAndPassword(email, password);
       if (!context.mounted) return;
       _snackBar(context, "User registered successfully");
-      Navigator.push(context,
-          MaterialPageRoute(builder: (context) => const StudentHomeScreen())
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => const AppMainScreen()),
       );
     } catch (e) {
       if (!context.mounted) return;
@@ -97,8 +98,6 @@ class SignUpController {
   }
 
   void _snackBar(BuildContext context, String text) {
-    ScaffoldMessenger.of(context)
-        .showSnackBar(SnackBar(content: Text(text))
-    );
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(text)));
   }
 }
