@@ -3,6 +3,7 @@ import 'package:_6th_sem_project/core/widgets/app_logo.dart';
 import 'package:_6th_sem_project/core/widgets/gradient_background.dart';
 import 'package:_6th_sem_project/core/widgets/input_field.dart';
 import 'package:_6th_sem_project/core/widgets/primary_button.dart';
+import 'package:_6th_sem_project/features/auth/screen/signup_student.dart';
 import 'package:flutter/material.dart';
 
 class LoginScreen extends StatelessWidget {
@@ -36,7 +37,7 @@ class LoginScreen extends StatelessWidget {
                         textAlign: TextAlign.center,
                         style: TextStyle(
                           color: AppColors.white,
-                          fontSize: 34, // slightly reduced
+                          fontSize: 34,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
@@ -49,7 +50,7 @@ class LoginScreen extends StatelessWidget {
                         textAlign: TextAlign.center,
                         style: TextStyle(
                           color: AppColors.white60,
-                          fontSize: 16, // better readability
+                          fontSize: 16,
                           height: 1.4,
                         ),
                       ),
@@ -83,6 +84,37 @@ class LoginScreen extends StatelessWidget {
                         text: "Log In",
                         onPressed: () {},
                       ),
+
+                      const SizedBox(height: 32,),
+
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text("Don't have an account,",
+                          style: TextStyle(
+                            color: AppColors.white60,
+                            fontSize: 14
+                          ),
+                          ),
+                          TextButton(
+                              onPressed: (){
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context)=>const SignupScreen()
+                                  )
+                                );
+                              },
+                              child: Text(
+                                "Sign Up",
+                                style: TextStyle(
+                                  color: AppColors.accent,
+                                  fontSize: 14
+                                )
+                              )
+                          )
+                        ],
+                      )
                     ],
                   ),
                 ),
