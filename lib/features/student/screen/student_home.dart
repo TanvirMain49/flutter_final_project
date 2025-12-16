@@ -24,10 +24,10 @@ class StudentHomeScreen extends StatelessWidget {
         ? userEmail.split('@')[0]
         : userEmail;
 
-    return GradientBackground(child: student_TopBar(displayName));
+    return GradientBackground(child: studentTopBar(displayName));
   }
 
-  Center student_TopBar(String displayName) {
+  Center studentTopBar(String displayName) {
     return Center(
       child: Column(
         children: [
