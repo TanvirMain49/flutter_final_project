@@ -1,8 +1,6 @@
 import 'package:_6th_sem_project/core/constants/colors.dart';
-import 'package:_6th_sem_project/core/widgets/gradient_background.dart';
 import 'package:_6th_sem_project/features/student/screen/student_home.dart';
 import 'package:flutter/material.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 
 class AppMainScreen extends StatefulWidget {
   const AppMainScreen({super.key});

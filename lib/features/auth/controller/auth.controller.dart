@@ -1,6 +1,5 @@
 import 'package:_6th_sem_project/core/services/auth_service.dart';
 import 'package:_6th_sem_project/features/home/app_mainScreen.dart';
-import 'package:_6th_sem_project/features/student/screen/student_home.dart';
 import 'package:flutter/material.dart';
 
 class SignInController {

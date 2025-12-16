@@ -11,7 +11,13 @@ class GradientBackground extends StatelessWidget {
     return Container(
       width: double.infinity,
       height: double.infinity,
-      color: AppColors.primaryDark,
+      decoration: const BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [AppColors.primary, AppColors.primaryDark],
+        ),
+      ),
       child: child,
     );
   }

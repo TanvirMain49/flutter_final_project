@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 import '../constants/colors.dart';
 
-
-class CustomInputField extends StatelessWidget{
-
+class CustomInputField extends StatelessWidget {
   final String label;
   final String hint;
   final IconData icon;
@@ -27,7 +25,6 @@ class CustomInputField extends StatelessWidget{
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-
         //label
         Text(
           label,
@@ -38,38 +35,29 @@ class CustomInputField extends StatelessWidget{
           ),
         ),
 
-        const SizedBox(height: 8,),
-        
+        const SizedBox(height: 8),
+
         Container(
           decoration: BoxDecoration(
             color: AppColors.inputBackground,
-            borderRadius: BorderRadius.circular(12)
+            borderRadius: BorderRadius.circular(12),
           ),
 
           child: TextField(
             controller: controller,
             keyboardType: keyboardType,
             obscureText: obscureText,
-            style: TextStyle(
-              color: AppColors.white,
-              fontSize: 16,
-            ),
+            style: TextStyle(color: AppColors.white, fontSize: 16),
             decoration: InputDecoration(
               border: InputBorder.none,
               hintText: hint,
-              hintStyle: TextStyle(
-                color: AppColors.white60,
-              ),
-              prefixIcon: Icon(
-                  icon,
-                  color: AppColors.white60,
-              ),
-              contentPadding:
-                const EdgeInsets.symmetric(vertical: 18),
-              ),
+              hintStyle: TextStyle(color: AppColors.white60),
+              prefixIcon: Icon(icon, color: AppColors.white60),
+              contentPadding: const EdgeInsets.symmetric(vertical: 18),
             ),
           ),
-        ],
+        ),
+      ],
     );
   }
 }
