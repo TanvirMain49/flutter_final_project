@@ -1,4 +1,5 @@
 import 'package:_6th_sem_project/core/constants/colors.dart';
+import 'package:_6th_sem_project/core/services/auth_service.dart';
 import 'package:_6th_sem_project/core/widgets/app_logo.dart';
 import 'package:_6th_sem_project/core/widgets/gradient_background.dart';
 import 'package:_6th_sem_project/core/widgets/input_field.dart';
@@ -6,12 +7,69 @@ import 'package:_6th_sem_project/core/widgets/primary_button.dart';
 import 'package:_6th_sem_project/features/auth/screen/signup_student.dart';
 import 'package:flutter/material.dart';
 
-class LoginScreen extends StatelessWidget {
+class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  State<LoginScreen> createState() => _LoginScreenState();
+}
 
+class _LoginScreenState extends State<LoginScreen> {
+
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+  final authService = AuthService();
+
+  void _snackBar(String text){
+    ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(text))
+    );
+  }
+
+  bool _isLoading = false;
+  @override
+  void dispose(){
+    _emailController.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
+
+  void _signIn() async{
+
+    setState(() {
+      _isLoading = true;
+    });
+
+
+    final email = _emailController.text.trim();
+    final password = _passwordController.text.trim();
+
+    try{
+        await authService.signInWithEmailAndPassword(email, password);
+
+        if(!mounted) return;
+
+        _snackBar("User logged in successfully");
+
+        Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => const SignupScreen())
+        );
+
+    }catch(e){
+      if(!mounted) return;
+      _snackBar("Error in login: $e");
+    }
+    setState(() {
+      _isLoading = false;
+    });
+
+  }
+
+
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       body: GradientBackground(
         child: SafeArea(
@@ -72,6 +130,7 @@ class LoginScreen extends StatelessWidget {
                         label: "Password",
                         hint: "Enter your password",
                         icon: Icons.lock_outline,
+                        controller: _passwordController,
                         obscureText: true,
                       ),
 
@@ -80,7 +139,10 @@ class LoginScreen extends StatelessWidget {
                       // Login Button
                       PrimaryButton(
                         text: "Log In",
-                        onPressed: () {},
+                        isLoading: _isLoading,
+                        onPressed: () {
+                          _isLoading? null : _signIn();
+                        },
                       ),
 
                       const SizedBox(height: 32,),
