@@ -13,6 +13,7 @@ class AppColors {
 
   static const Color white = Colors.white;
   static const Color white60 = Colors.white60;
+  static const Color black = Colors.black;
   static const Color textMuted = Color(0xFF9FB8AE);
 
   static const Color success = Color(0xFF4CAF84);

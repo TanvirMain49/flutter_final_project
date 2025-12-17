@@ -35,12 +35,38 @@ class StudentHomeScreen extends StatelessWidget {
             SearchField(),
             const SizedBox(height: 20),
             findTutorCard(),
+            const SizedBox(height: 20,),
+            Row(
+              children: [
+                Expanded(
+                  child: simpleCard(
+                    icon: Icons.group,
+                    title: 'Browse Tutors',
+                    subtitle: 'Explore profiles',
+                    iconColor: Color(0xFFDBEAFE),
+                    iconBgColor: Color(0xFF3658C5)
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: simpleCard(
+                    icon: Icons.post_add,
+                    title: 'My Posts',
+                    subtitle: 'View active requests',
+                    iconColor: Color(0xFFDBEAFE),
+                    iconBgColor: Colors.purple,
+                  ),
+                ),
+              ],
+            ),
           ],
         ),
       ),
     );
   }
 
+
+  // Find a Tutor card
   Container findTutorCard() {
     return Container(
       width: double.infinity,
@@ -75,11 +101,47 @@ class StudentHomeScreen extends StatelessWidget {
               height: 1.5,
             ),
           ),
+
+          const Spacer(),
+
+          Row(
+            children: [
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.accent,
+                  foregroundColor: Colors.black,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  padding: const EdgeInsets.symmetric( horizontal: 20, vertical: 12, ),
+                ),
+                  onPressed: (){},
+                  child: const Row(
+                    children: [
+                      Text(
+                        "Post Request",
+                        style: TextStyle(
+                          color: Colors.black,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      SizedBox(width: 6),
+                      Icon(Icons.arrow_forward,
+                          size: 18,
+                          color: Colors.black
+                      ),
+                    ],
+                )
+              )
+            ],
+          )
         ],
       ),
     );
   }
 
+
+  // Student top Navbar
   Center studentTopBar(String displayName) {
     return Center(
       child: Column(
@@ -146,4 +208,56 @@ class StudentHomeScreen extends StatelessWidget {
       ),
     );
   }
+}
+
+//Browse Tutor and Post simple card
+Widget simpleCard({
+  required String subtitle,
+  Color iconColor = Colors.black12,
+  required Color iconBgColor,
+  required IconData icon,
+  required String title,
+}){
+  return Container(
+    padding: const EdgeInsets.all(16),
+    decoration: BoxDecoration(
+      color: AppColors.primary,
+      borderRadius: BorderRadius.circular(16),
+    ),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          width: 50,
+          height: 50,
+          decoration: BoxDecoration(
+            color: iconBgColor,
+            shape: BoxShape.circle,
+          ),
+          child: Icon(
+            icon,
+            color: iconColor,
+            size: 28,
+          ),
+        ),
+        const SizedBox(height: 12),
+        Text(
+          title,
+          style: const TextStyle(
+            color: Colors.white,
+            fontSize: 18,
+            fontWeight: FontWeight.w800,
+          ),
+        ),
+        const SizedBox(height: 3),
+        Text(
+          subtitle,
+          style: TextStyle(
+            color: Colors.white.withOpacity(0.7),
+            fontSize: 13,
+          ),
+        ),
+      ],
+    )
+  );
 }
