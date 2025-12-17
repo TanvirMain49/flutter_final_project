@@ -1,9 +1,52 @@
 import 'package:_6th_sem_project/core/constants/colors.dart';
 import 'package:_6th_sem_project/core/widgets/gradient_background.dart';
 import 'package:_6th_sem_project/core/widgets/search_field.dart';
+import 'package:_6th_sem_project/core/widgets/tutor_home_card.dart';
 import 'package:_6th_sem_project/features/auth/screen/login_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+
+
+final List<Map<String, dynamic>> tutorsData = [
+  {
+    'name': 'Sarah K.',
+    'subject': 'Mathematics',
+    'price': 25,
+    'rating': 4.9,
+    'imageUrl': 'https://randomuser.me/api/portraits/women/44.jpg',
+  },
+  {
+    'name': 'John D.',
+    'subject': 'Physics',
+    'price': 30,
+    'rating': 4.7,
+    'imageUrl': 'https://randomuser.me/api/portraits/men/34.jpg',
+  },
+  {
+    'name': 'Emma W.',
+    'subject': 'Chemistry',
+    'price': 28,
+    'rating': 4.8,
+    'imageUrl': 'https://randomuser.me/api/portraits/women/55.jpg',
+  },
+  {
+    'name': 'Mike B.',
+    'subject': 'English',
+    'price': 20,
+    'rating': 4.6,
+    'imageUrl': 'https://randomuser.me/api/portraits/men/45.jpg',
+  },
+  {
+    'name': 'Lucy A.',
+    'subject': 'Biology',
+    'price': 27,
+    'rating': 4.9,
+    'imageUrl': 'https://randomuser.me/api/portraits/women/66.jpg',
+  },
+];
+
+
+
 
 class StudentHomeScreen extends StatelessWidget {
   const StudentHomeScreen({super.key});
@@ -48,6 +91,7 @@ class StudentHomeScreen extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(width: 12),
+
                 Expanded(
                   child: simpleCard(
                     icon: Icons.post_add,
@@ -59,6 +103,10 @@ class StudentHomeScreen extends StatelessWidget {
                 ),
               ],
             ),
+
+            const SizedBox(height: 22,),
+            recentTutor(),
+
           ],
         ),
       ),
@@ -261,3 +309,55 @@ Widget simpleCard({
     )
   );
 }
+
+// Recent Tutor
+Column recentTutor(){
+  return Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            "Recent Tutor",
+            style: TextStyle(
+              color: AppColors.white,
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+
+          TextButton(
+              onPressed: (){},
+              child: Text(
+                "See all",
+                style: TextStyle(
+                  color: AppColors.accent,
+                  fontSize: 14,
+                ),)
+          )
+        ],
+      ),
+
+      const SizedBox(height: 8),
+      SizedBox(
+        height: 110,
+        child: ListView.builder(
+          scrollDirection: Axis.horizontal,
+          itemCount: tutorsData.length,
+          itemBuilder: (context, index) {
+            final tutor = tutorsData[index];
+            return TutorHomeCard(
+                name: tutor['name'],
+                subject: tutor['subject'],
+                price: (tutor['price'] as num).toDouble(),
+                rating: tutor['rating'],
+                imageUrl: tutor['imageUrl'],
+              );
+          },
+        ),
+      ),
+    ],
+  );
+}
+
