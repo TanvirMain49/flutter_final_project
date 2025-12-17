@@ -1,7 +1,7 @@
 import 'package:_6th_sem_project/core/constants/colors.dart';
 import 'package:flutter/material.dart';
 
-class TutorHomeCard extends StatelessWidget{
+class TutorHomeCard extends StatelessWidget {
   final String name;
   final String subject;
   final double price;
@@ -18,77 +18,108 @@ class TutorHomeCard extends StatelessWidget{
   });
 
   @override
-  Widget build(BuildContext context){
+  Widget build(BuildContext context) {
     return Container(
-      width: 260,
-      margin: EdgeInsets.only(right: 16),
-      padding: EdgeInsets.all(12),
+      width: 240,
+      margin: const EdgeInsets.only(right: 16),
+      padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: AppColors.primaryDark, // dark blue-gray Color(0xFF1F2937)
-        borderRadius: BorderRadius.circular(16),
+        color: AppColors.primaryDark,
+        borderRadius: BorderRadius.circular(14),
       ),
       child: Row(
         children: [
+          // Avatar
           Container(
-            width: 60,
-            height: 60,
+            width: 54,
+            height: 54,
             decoration: BoxDecoration(
-              image: DecorationImage(image: NetworkImage(imageUrl), fit:BoxFit.cover),
-              borderRadius: BorderRadius.circular(12)
-            )
+              borderRadius: BorderRadius.circular(10),
+              image: DecorationImage(
+                image: NetworkImage(imageUrl),
+                fit: BoxFit.cover,
+              ),
+            ),
           ),
 
-          SizedBox(width: 12),
+          const SizedBox(width: 12),
 
+          // Info
           Expanded(
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                // Name
                 Text(
                   name,
-                  style: TextStyle(
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
                     color: Colors.white,
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
+                    fontSize: 15,
+                    fontWeight: FontWeight.w600,
                   ),
                 ),
-                SizedBox(height: 4),
-                Text(
-                  '$subject • \$${price.toStringAsFixed(0)}/hr',
-                  style: TextStyle(
-                    color: Colors.white.withOpacity(0.7),
-                    fontSize: 14,
-                  ),
-                ),
-                SizedBox(height: 4),
 
+                const SizedBox(height: 2),
+
+                // Subject
+                Row(
+                  children: [
+                    const Icon(
+                      Icons.school,
+                      size: 14,
+                      color: Colors.white60,
+                    ),
+                    const SizedBox(width: 8,),
+                    Text(
+                      subject,
+                      style: TextStyle(
+                        color: Colors.white.withOpacity(0.6),
+                        fontSize: 13,
+                      ),
+                    ),
+
+                  ]
+                ),
+
+                const SizedBox(height: 6),
+
+                // Rating + Price
                 Row(
                   children: [
                     const Icon(
                       Icons.star,
-                      color: Colors.yellow,
-                      size: 16,
+                      size: 14,
+                      color: Colors.amber,
                     ),
-
-                    SizedBox(width: 4),
-
+                    const SizedBox(width: 4),
                     Text(
                       rating.toStringAsFixed(1),
                       style: TextStyle(
-                        color: Colors.white.withOpacity(0.7),
-                        fontSize: 14,
+                        color: Colors.white.withOpacity(0.8),
+                        fontSize: 13,
                       ),
-                    )
+                    ),
+
+                    const Spacer(),
+
+                    Text(
+                      '\$${price.toStringAsFixed(0)}/hr',
+                      style: const TextStyle(
+                        color: AppColors.accent,
+                        fontSize: 13,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
                   ],
                 )
               ],
             ),
-          )
-
+          ),
         ],
-      )
+      ),
     );
   }
-
 }

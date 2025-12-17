@@ -1,11 +1,11 @@
 import 'package:_6th_sem_project/core/constants/colors.dart';
 import 'package:_6th_sem_project/core/widgets/gradient_background.dart';
 import 'package:_6th_sem_project/core/widgets/search_field.dart';
+import 'package:_6th_sem_project/core/widgets/student_home_cart.dart';
 import 'package:_6th_sem_project/core/widgets/tutor_home_card.dart';
 import 'package:_6th_sem_project/features/auth/screen/login_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-
 
 final List<Map<String, dynamic>> tutorsData = [
   {
@@ -45,8 +45,58 @@ final List<Map<String, dynamic>> tutorsData = [
   },
 ];
 
-
-
+final List<Map<String, dynamic>> tuitionData = [
+  {
+    'title': "Need Math Tutor",
+    'location': "Dhanmondi, Dhaka",
+    'studyDays': ["Sun", "Tue", "Thu"],
+    'studyType': "offline",
+    'subject': "Mathematics",
+    'price': 25,
+    'imageUrl': 'https://randomuser.me/api/portraits/women/44.jpg',
+    'rating': 4.9,
+  },
+  {
+    'title': "Need Physics Tutor",
+    'location': "Gulshan, Dhaka",
+    'studyDays': ["Mon", "Wed", "Fri"],
+    'studyType': "online",
+    'subject': "Physics",
+    'price': 30,
+    'imageUrl': 'https://randomuser.me/api/portraits/men/34.jpg',
+    'rating': 4.7,
+  },
+  {
+    'title': "Need Chemistry Tutor",
+    'location': "Banani, Dhaka",
+    'studyDays': ["Tue", "Thu"],
+    'studyType': "offline",
+    'subject': "Chemistry",
+    'price': 28,
+    'imageUrl': 'https://randomuser.me/api/portraits/women/55.jpg',
+    'rating': 4.8,
+  },
+  {
+    'title': "Need English Tutor",
+    'location': "Dhanmondi, Dhaka",
+    'studyDays': ["Sun", "Wed", "Fri"],
+    'studyType': "online",
+    'subject': "English",
+    'price': 20,
+    'imageUrl': 'https://randomuser.me/api/portraits/men/45.jpg',
+    'rating': 4.6,
+  },
+  {
+    'title': "Need Biology Tutor",
+    'location': "Uttara, Dhaka",
+    'studyDays': ["Mon", "Thu"],
+    'studyType': "offline",
+    'subject': "Biology",
+    'price': 27,
+    'imageUrl': 'https://randomuser.me/api/portraits/women/66.jpg',
+    'rating': 4.9,
+  },
+];
 
 class StudentHomeScreen extends StatelessWidget {
   const StudentHomeScreen({super.key});
@@ -78,7 +128,7 @@ class StudentHomeScreen extends StatelessWidget {
             SearchField(),
             const SizedBox(height: 20),
             findTutorCard(),
-            const SizedBox(height: 20,),
+            const SizedBox(height: 20),
             Row(
               children: [
                 Expanded(
@@ -87,7 +137,7 @@ class StudentHomeScreen extends StatelessWidget {
                     title: 'Browse Tutors',
                     subtitle: 'Explore profiles',
                     iconColor: Color(0xFFDBEAFE),
-                    iconBgColor: Color(0xFF3658C5)
+                    iconBgColor: Color(0xFF3658C5),
                   ),
                 ),
                 const SizedBox(width: 12),
@@ -104,15 +154,17 @@ class StudentHomeScreen extends StatelessWidget {
               ],
             ),
 
-            const SizedBox(height: 22,),
+            const SizedBox(height: 32),
             recentTutor(),
-
+            const SizedBox(height: 38),
+            get20Off(),
+            const SizedBox(height: 32),
+            recentStudentReq(),
           ],
         ),
       ),
     );
   }
-
 
   // Find a Tutor card
   Container findTutorCard() {
@@ -161,35 +213,34 @@ class StudentHomeScreen extends StatelessWidget {
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
                   ),
-                  padding: const EdgeInsets.symmetric( horizontal: 20, vertical: 12, ),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 20,
+                    vertical: 12,
+                  ),
                 ),
-                  onPressed: (){},
-                  child: const Row(
-                    children: [
-                      Text(
-                        "Post Request",
-                        style: TextStyle(
-                          color: Colors.black,
-                          fontWeight: FontWeight.bold,
-                        ),
+                onPressed: () {},
+                child: const Row(
+                  children: [
+                    Text(
+                      "Post Request",
+                      style: TextStyle(
+                        color: Colors.black,
+                        fontWeight: FontWeight.bold,
                       ),
-                      SizedBox(width: 6),
-                      Icon(Icons.arrow_forward,
-                          size: 18,
-                          color: Colors.black
-                      ),
-                    ],
-                )
-              )
+                    ),
+                    SizedBox(width: 6),
+                    Icon(Icons.arrow_forward, size: 18, color: Colors.black),
+                  ],
+                ),
+              ),
             ],
-          )
+          ),
         ],
       ),
     );
   }
 
-
-  // Student top Navbar
+  //Student top Navbar
   Center studentTopBar(String displayName) {
     return Center(
       child: Column(
@@ -265,7 +316,7 @@ Widget simpleCard({
   required Color iconBgColor,
   required IconData icon,
   required String title,
-}){
+}) {
   return Container(
     padding: const EdgeInsets.all(16),
     decoration: BoxDecoration(
@@ -278,15 +329,8 @@ Widget simpleCard({
         Container(
           width: 50,
           height: 50,
-          decoration: BoxDecoration(
-            color: iconBgColor,
-            shape: BoxShape.circle,
-          ),
-          child: Icon(
-            icon,
-            color: iconColor,
-            size: 28,
-          ),
+          decoration: BoxDecoration(color: iconBgColor, shape: BoxShape.circle),
+          child: Icon(icon, color: iconColor, size: 28),
         ),
         const SizedBox(height: 12),
         Text(
@@ -300,18 +344,15 @@ Widget simpleCard({
         const SizedBox(height: 3),
         Text(
           subtitle,
-          style: TextStyle(
-            color: Colors.white.withOpacity(0.7),
-            fontSize: 13,
-          ),
+          style: TextStyle(color: Colors.white.withOpacity(0.7), fontSize: 13),
         ),
       ],
-    )
+    ),
   );
 }
 
 // Recent Tutor
-Column recentTutor(){
+Column recentTutor() {
   return Column(
     crossAxisAlignment: CrossAxisAlignment.start,
     children: [
@@ -328,14 +369,12 @@ Column recentTutor(){
           ),
 
           TextButton(
-              onPressed: (){},
-              child: Text(
-                "See all",
-                style: TextStyle(
-                  color: AppColors.accent,
-                  fontSize: 14,
-                ),)
-          )
+            onPressed: () {},
+            child: Text(
+              "See all",
+              style: TextStyle(color: AppColors.accent, fontSize: 14),
+            ),
+          ),
         ],
       ),
 
@@ -345,15 +384,17 @@ Column recentTutor(){
         child: ListView.builder(
           scrollDirection: Axis.horizontal,
           itemCount: tutorsData.length,
+          shrinkWrap: true,
+          physics: const BouncingScrollPhysics(),
           itemBuilder: (context, index) {
             final tutor = tutorsData[index];
             return TutorHomeCard(
-                name: tutor['name'],
-                subject: tutor['subject'],
-                price: (tutor['price'] as num).toDouble(),
-                rating: tutor['rating'],
-                imageUrl: tutor['imageUrl'],
-              );
+              name: tutor['name'],
+              subject: tutor['subject'],
+              price: (tutor['price'] as num).toDouble(),
+              rating: tutor['rating'],
+              imageUrl: tutor['imageUrl'],
+            );
           },
         ),
       ),
@@ -361,3 +402,119 @@ Column recentTutor(){
   );
 }
 
+//Tuition card
+Widget recentStudentReq() {
+  return Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            "Student Requests",
+            style: TextStyle(
+              color: AppColors.white,
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+
+          TextButton(
+            style: TextButton.styleFrom(
+              padding: EdgeInsets.zero, // Removes internal button padding
+              tapTargetSize:
+                  MaterialTapTargetSize.shrinkWrap, // Shrinks the hit area
+            ),
+            onPressed: () {},
+            child: Text(
+              "View all",
+              style: TextStyle(color: AppColors.accent, fontSize: 14),
+            ),
+          ),
+        ],
+      ),
+
+      const SizedBox(height: 22),
+
+      ListView.separated(
+        shrinkWrap: true,
+        physics: const NeverScrollableScrollPhysics(),
+        padding: EdgeInsets.zero,
+        itemCount: tuitionData.length,
+        separatorBuilder: (context, index) => const SizedBox(height: 12),
+        itemBuilder: (context, index) {
+          final tuition = tuitionData[index];
+          return StudentHomeCard(
+            title: tuition['title'],
+            location: tuition['location'],
+            studyDays: tuition['studyDays'],
+            studyType: tuition['studyType'],
+            subject: tuition['subject'],
+            price: (tuition['price'] as num).toDouble(),
+            onTap: () {},
+          );
+        },
+      ),
+    ],
+  );
+}
+
+// Get 20% off
+Container get20Off() {
+  return Container(
+    width: double.infinity,
+    height: 130,
+    padding: EdgeInsets.all(16),
+    decoration: BoxDecoration(
+      color: AppColors.primary,
+      borderRadius: BorderRadius.circular(20),
+    ),
+
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          "Get 20% off",
+          style: TextStyle(
+            color: AppColors.white,
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+
+        const SizedBox(height: 8,),
+
+        Row(
+          mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              "on your first 3 session with\nany new tutor's class",
+              style: TextStyle(
+                color: AppColors.white60,
+                fontSize: 14,
+              ),
+            ),
+            Spacer(),
+
+            ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.accent,
+                  foregroundColor: Colors.black,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 20,
+                    vertical: 12,
+                  ),
+                ),
+                onPressed: (){},
+                child: Text("Get the offer"))
+
+          ],
+        )
+      ],
+    ),
+  );
+}
