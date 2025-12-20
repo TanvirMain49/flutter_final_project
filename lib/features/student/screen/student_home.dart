@@ -307,111 +307,182 @@ class StudentHomeScreen extends StatelessWidget {
       ),
     );
   }
-}
 
-//Browse Tutor and Post simple card
-Widget simpleCard({
-  required String subtitle,
-  Color iconColor = Colors.black12,
-  required Color iconBgColor,
-  required IconData icon,
-  required String title,
-}) {
-  return Container(
-    padding: const EdgeInsets.all(16),
-    decoration: BoxDecoration(
-      color: AppColors.primary,
-      borderRadius: BorderRadius.circular(16),
-    ),
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Container(
-          width: 50,
-          height: 50,
-          decoration: BoxDecoration(color: iconBgColor, shape: BoxShape.circle),
-          child: Icon(icon, color: iconColor, size: 28),
-        ),
-        const SizedBox(height: 12),
-        Text(
-          title,
-          style: const TextStyle(
-            color: Colors.white,
-            fontSize: 18,
-            fontWeight: FontWeight.w800,
-          ),
-        ),
-        const SizedBox(height: 3),
-        Text(
-          subtitle,
-          style: TextStyle(color: Colors.white.withOpacity(0.7), fontSize: 13),
-        ),
-      ],
-    ),
-  );
-}
-
-// Recent Tutor
-Column recentTutor() {
-  return Column(
-    crossAxisAlignment: CrossAxisAlignment.start,
-    children: [
-      Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+  //Browse Tutor and Post simple card
+  Widget simpleCard({
+    required String subtitle,
+    Color iconColor = Colors.black12,
+    required Color iconBgColor,
+    required IconData icon,
+    required String title,
+  }) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: AppColors.primary,
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          Container(
+            width: 50,
+            height: 50,
+            decoration: BoxDecoration(
+              color: iconBgColor,
+              shape: BoxShape.circle,
+            ),
+            child: Icon(icon, color: iconColor, size: 28),
+          ),
+          const SizedBox(height: 12),
           Text(
-            "Recent Tutor",
-            style: TextStyle(
-              color: AppColors.white,
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
+            title,
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 18,
+              fontWeight: FontWeight.w800,
             ),
           ),
-
-          TextButton(
-            onPressed: () {},
-            child: Text(
-              "See all",
-              style: TextStyle(color: AppColors.accent, fontSize: 14),
+          const SizedBox(height: 3),
+          Text(
+            subtitle,
+            style: TextStyle(
+              color: Colors.white.withOpacity(0.7),
+              fontSize: 13,
             ),
           ),
         ],
       ),
+    );
+  }
 
-      const SizedBox(height: 8),
-      SizedBox(
-        height: 110,
-        child: ListView.builder(
-          scrollDirection: Axis.horizontal,
-          itemCount: tutorsData.length,
+  // Recent Tutor
+  Column recentTutor() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              "Recent Tutor",
+              style: TextStyle(
+                color: AppColors.white,
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+
+            TextButton(
+              onPressed: () {},
+              child: Text(
+                "See all",
+                style: TextStyle(color: AppColors.accent, fontSize: 14),
+              ),
+            ),
+          ],
+        ),
+
+        const SizedBox(height: 8),
+        SizedBox(
+          height: 110,
+          child: ListView.builder(
+            scrollDirection: Axis.horizontal,
+            itemCount: tutorsData.length,
+            shrinkWrap: true,
+            physics: const BouncingScrollPhysics(),
+            itemBuilder: (context, index) {
+              final tutor = tutorsData[index];
+              return TutorHomeCard(
+                name: tutor['name'],
+                subject: tutor['subject'],
+                price: (tutor['price'] as num).toDouble(),
+                rating: tutor['rating'],
+                imageUrl: tutor['imageUrl'],
+              );
+            },
+          ),
+        ),
+      ],
+    );
+  }
+
+  //Tuition card
+  Widget recentStudentReq() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              "Student Requests",
+              style: TextStyle(
+                color: AppColors.white,
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+
+            TextButton(
+              style: TextButton.styleFrom(
+                padding: EdgeInsets.zero,
+                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+              ),
+              onPressed: () {},
+              child: Text(
+                "View all",
+                style: TextStyle(color: AppColors.accent, fontSize: 14),
+              ),
+            ),
+          ],
+        ),
+
+        const SizedBox(height: 22),
+
+        ListView.separated(
           shrinkWrap: true,
-          physics: const BouncingScrollPhysics(),
+          physics: const NeverScrollableScrollPhysics(),
+          padding: EdgeInsets.zero,
+          itemCount: tuitionData.length,
+          separatorBuilder: (context, index) => const SizedBox(height: 12),
           itemBuilder: (context, index) {
-            final tutor = tutorsData[index];
-            return TutorHomeCard(
-              name: tutor['name'],
-              subject: tutor['subject'],
-              price: (tutor['price'] as num).toDouble(),
-              rating: tutor['rating'],
-              imageUrl: tutor['imageUrl'],
+            final tuition = tuitionData[index];
+            return StudentHomeCard(
+              title: tuition['title'],
+              location: tuition['location'],
+              studyDays: tuition['studyDays'],
+              studyType: tuition['studyType'],
+              subject: tuition['subject'],
+              price: (tuition['price'] as num).toDouble(),
+              onTap: () {},
             );
           },
         ),
-      ),
-    ],
-  );
-}
+      ],
+    );
+  }
 
-//Tuition card
-Widget recentStudentReq() {
-  return Column(
-    crossAxisAlignment: CrossAxisAlignment.start,
-    children: [
-      Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+  // Get 20% off
+  Container get20Off() {
+    return Container(
+      width: double.infinity,
+      height: 130,
+      padding: EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: AppColors.primaryDark,
+        borderRadius: BorderRadius.circular(20),
+        border: BorderDirectional(
+          bottom: BorderSide(color: AppColors.white60, width: 1),
+          top: BorderSide(color: AppColors.white60, width: 1),
+        ),
+      ),
+
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            "Student Requests",
+            "Get 20% off",
             style: TextStyle(
               color: AppColors.white,
               fontSize: 20,
@@ -419,85 +490,19 @@ Widget recentStudentReq() {
             ),
           ),
 
-          TextButton(
-            style: TextButton.styleFrom(
-              padding: EdgeInsets.zero, // Removes internal button padding
-              tapTargetSize:
-                  MaterialTapTargetSize.shrinkWrap, // Shrinks the hit area
-            ),
-            onPressed: () {},
-            child: Text(
-              "View all",
-              style: TextStyle(color: AppColors.accent, fontSize: 14),
-            ),
-          ),
-        ],
-      ),
+          const SizedBox(height: 8),
 
-      const SizedBox(height: 22),
-
-      ListView.separated(
-        shrinkWrap: true,
-        physics: const NeverScrollableScrollPhysics(),
-        padding: EdgeInsets.zero,
-        itemCount: tuitionData.length,
-        separatorBuilder: (context, index) => const SizedBox(height: 12),
-        itemBuilder: (context, index) {
-          final tuition = tuitionData[index];
-          return StudentHomeCard(
-            title: tuition['title'],
-            location: tuition['location'],
-            studyDays: tuition['studyDays'],
-            studyType: tuition['studyType'],
-            subject: tuition['subject'],
-            price: (tuition['price'] as num).toDouble(),
-            onTap: () {},
-          );
-        },
-      ),
-    ],
-  );
-}
-
-// Get 20% off
-Container get20Off() {
-  return Container(
-    width: double.infinity,
-    height: 130,
-    padding: EdgeInsets.all(16),
-    decoration: BoxDecoration(
-      color: AppColors.primary,
-      borderRadius: BorderRadius.circular(20),
-    ),
-
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          "Get 20% off",
-          style: TextStyle(
-            color: AppColors.white,
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-
-        const SizedBox(height: 8,),
-
-        Row(
-          mainAxisAlignment: MainAxisAlignment.start,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              "on your first 3 session with\nany new tutor's class",
-              style: TextStyle(
-                color: AppColors.white60,
-                fontSize: 14,
+          Row(
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                "on your first 3 session with\nany new tutor's class",
+                style: TextStyle(color: AppColors.white60, fontSize: 14),
               ),
-            ),
-            Spacer(),
+              Spacer(),
 
-            ElevatedButton(
+              ElevatedButton(
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.accent,
                   foregroundColor: Colors.black,
@@ -509,12 +514,13 @@ Container get20Off() {
                     vertical: 12,
                   ),
                 ),
-                onPressed: (){},
-                child: Text("Get the offer"))
-
-          ],
-        )
-      ],
-    ),
-  );
+                onPressed: () {},
+                child: Text("Get the offer"),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
 }

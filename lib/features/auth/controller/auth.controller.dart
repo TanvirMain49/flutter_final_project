@@ -1,4 +1,5 @@
 import 'package:_6th_sem_project/core/services/auth_service.dart';
+import 'package:_6th_sem_project/features/auth/screen/login_screen.dart';
 import 'package:_6th_sem_project/features/home/app_mainScreen.dart';
 import 'package:flutter/material.dart';
 
@@ -49,13 +50,20 @@ class SignInController {
 
 class SignUpController {
   final emailController = TextEditingController();
+  final nameController = TextEditingController();
   final passwordController = TextEditingController();
   final confirmPasswordController = TextEditingController();
+  String role = 'student';
 
   void dispose() {
     emailController.dispose();
+    nameController.dispose();
     passwordController.dispose();
     confirmPasswordController.dispose();
+  }
+
+  void _snackBar(BuildContext context, String text) {
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(text)));
   }
 
   Future<void> signUp({
@@ -64,8 +72,10 @@ class SignUpController {
     required VoidCallback onEnd,
   }) async {
     final email = emailController.text.trim();
+    final name = nameController.text.trim();
     final password = passwordController.text.trim();
     final confirmPassword = confirmPasswordController.text.trim();
+    final role = this.role;
 
     final authService = AuthService();
 
@@ -95,8 +105,36 @@ class SignUpController {
       onEnd();
     }
   }
+}
+
+class SignOutController {
+  final AuthService _authService = AuthService();
+
+  Future<void> signOut({
+    required BuildContext context,
+    required VoidCallback onStart,
+    required VoidCallback onEnd,
+  }) async {
+    try {
+      onStart();
+      _authService.signOut();
+      if (!context.mounted) return;
+      _snackBar(context, "User logged out successfully");
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => const LoginScreen()),
+      );
+    } catch (e) {
+      if (!context.mounted) return;
+      _snackBar(context, "Logout failed: $e");
+    } finally {
+      onEnd();
+    }
+  }
 
   void _snackBar(BuildContext context, String text) {
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(text)));
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(text)),
+    );
   }
 }

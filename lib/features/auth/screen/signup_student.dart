@@ -5,6 +5,7 @@ import 'package:_6th_sem_project/core/widgets/input_field.dart';
 import 'package:_6th_sem_project/core/widgets/primary_button.dart';
 import 'package:_6th_sem_project/features/auth/controller/auth.controller.dart';
 import 'package:_6th_sem_project/features/auth/screen/login_screen.dart';
+import 'package:_6th_sem_project/features/auth/screen/singnup_detail_screen.dart';
 import 'package:flutter/material.dart';
 
 class SignupScreen extends StatefulWidget {
@@ -15,29 +16,14 @@ class SignupScreen extends StatefulWidget {
 }
 
 class _SignupScreenState extends State<SignupScreen> {
-
   final SignUpController _controller = SignUpController();
 
-  ///State variable for button loading status
-  bool _isLoading = false;
-
+  // Dispose controllers to free up resources when this
+  // State object is removed from the widget tree
   @override
-  void dispose(){
+  void dispose() {
     _controller.dispose();
     super.dispose();
-  }
-
-  /// signup function
-  void _signUp() async {
-    await _controller.signUp(
-      context: context,
-      onStart: ()=> setState(() {
-        _isLoading = true;
-      }),
-      onEnd: ()=> setState(() {
-        _isLoading = false;
-      })
-    );
   }
 
   @override
@@ -47,10 +33,7 @@ class _SignupScreenState extends State<SignupScreen> {
         child: SafeArea(
           child: Center(
             child: SingleChildScrollView(
-              padding: const EdgeInsets.symmetric(
-                horizontal: 24,
-                vertical: 32,
-              ),
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
@@ -92,37 +75,29 @@ class _SignupScreenState extends State<SignupScreen> {
                     keyboardType: TextInputType.emailAddress,
                     obscureText: false,
                   ),
-
-                  const SizedBox(height: 16),
-
-                  // Password Field
-                  CustomInputField(
-                    label: "Password",
-                    hint: "Create a password",
-                    icon: Icons.lock_outline,
-                    controller: _controller.passwordController,
-                    obscureText: true,
-                  ),
-
-                  const SizedBox(height: 16),
-
-                  // Confirm Password Field
-                  CustomInputField(
-                    label: "Confirm Password",
-                    hint: "Re-enter your password",
-                    icon: Icons.lock_outline,
-                    controller: _controller.confirmPasswordController,
-                    obscureText: true,
-                  ),
-
                   const SizedBox(height: 36),
 
                   // Signup Button
                   PrimaryButton(
-                    text: "Sign Up",
-                    isLoading: _isLoading,
+                    text: "Next",
                     onPressed: () {
-                      _isLoading ? null : _signUp();
+                      if (_controller.emailController.text.isEmpty ||
+                          !_controller.emailController.text.contains('@')) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text("Please enter a valid email address"),
+                          ),
+                        );
+                        return;
+                      }
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => SignupDetailsScreen(
+                            email: _controller.emailController.text.trim(),
+                          ),
+                        ),
+                      );
                     },
                   ),
 
@@ -141,8 +116,10 @@ class _SignupScreenState extends State<SignupScreen> {
                       TextButton(
                         onPressed: () {
                           Navigator.push(
-                              context,
-                              MaterialPageRoute(builder: (context) => const LoginScreen())
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const LoginScreen(),
+                            ),
                           );
                         },
                         child: const Text(

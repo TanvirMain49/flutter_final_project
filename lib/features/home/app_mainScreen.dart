@@ -16,6 +16,7 @@ class _AppMainScreenState extends State<AppMainScreen> {
     const Scaffold(),
     const Scaffold(),
     const Scaffold(),
+    const Scaffold(),
   ];
 
   @override
@@ -37,6 +38,7 @@ class _AppMainScreenState extends State<AppMainScreen> {
         items: const [
           BottomNavigationBarItem(icon: Icon(Icons.home), label: "Home"),
           BottomNavigationBarItem(icon: Icon(Icons.search), label: "Search"),
+          BottomNavigationBarItem(icon: Icon(Icons.add_box_outlined), label: "Post"),
           BottomNavigationBarItem(
             icon: Icon(Icons.notification_add_outlined),
             label: "Notification",
