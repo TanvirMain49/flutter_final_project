@@ -11,6 +11,7 @@ class SignupPasswordScreen extends StatefulWidget {
   final String name;
   final String phoneNumber;
   final String role;
+  final String gender;
 
   const SignupPasswordScreen({
     super.key,
@@ -18,6 +19,7 @@ class SignupPasswordScreen extends StatefulWidget {
     required this.name,
     required this.phoneNumber,
     required this.role,
+    required this.gender
   });
 
   @override
@@ -48,22 +50,14 @@ class _SignupPasswordScreenState extends State<SignupPasswordScreen> {
       return;
     }
 
-    // if (_controller.passwordController.text !=
-    //     _controller.confirmPasswordController.text) {
-    //   ScaffoldMessenger.of(
-    //     context,
-    //   ).showSnackBar(const SnackBar(content: Text("Passwords do not match")));
-    //   return;
-    // }
-
     // save the data in profile or user db
-
     await _controller.signUp(
       context: context,
       email: widget.email,
       name: widget.name,
       phoneNumber: widget.phoneNumber,
       role: widget.role,
+      gender:widget.gender,
       password: passwordController.text,
       confirmPassword: confirmPasswordController.text,
       onStart: () => setState(() => isLoading = true),
@@ -121,9 +115,10 @@ class _SignupPasswordScreenState extends State<SignupPasswordScreen> {
                       isLoading: isLoading,
                       onPressed: signUp,
                     ),
+                    const SizedBox(height: 16),
                     PrimaryButton(
                       text: "Back",
-                      isLoading: isLoading,
+                      icon: Icons.arrow_back,
                       onPressed: () => {
                         Navigator.push(
                           context,

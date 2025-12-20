@@ -19,6 +19,7 @@ class _SignupDetailsScreenState extends State<SignupDetailsScreen> {
   final nameController = TextEditingController();
   final phoneNumberController = TextEditingController();
   String role = 'student';
+  String gender = 'male';
 
   // Dispose controllers to free up resources when
   // this State object is removed from the widget tree
@@ -127,6 +128,64 @@ class _SignupDetailsScreenState extends State<SignupDetailsScreen> {
                   ),
                 ),
 
+                const SizedBox(height: 24),
+
+                /// Gender dropdown menu
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    "Select Gender",
+                    style: TextStyle(
+                      color: AppColors.white.withOpacity(0.9),
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+
+                const SizedBox(height: 12),
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 4,
+                  ),
+                  decoration: BoxDecoration(
+                    color: AppColors.inputBackground,
+                    borderRadius: BorderRadius.circular(14),
+                  ),
+                  child: DropdownButtonHideUnderline(
+                    child: DropdownButton<String>(
+                      value: gender,
+                      isExpanded: true,
+                      icon: const Icon(
+                        Icons.keyboard_arrow_down_rounded,
+                        color: AppColors.white60,
+                      ),
+                      dropdownColor: AppColors.inputBackground,
+                      style: const TextStyle(
+                        color: AppColors.white,
+                        fontSize: 16,
+                      ),
+                      onChanged: (String? newValue) {
+                        setState(() {
+                          gender = newValue!;
+                        });
+                      },
+                      items: const [
+                        DropdownMenuItem<String>(
+                          value: 'male',
+                          child: Text('Male'),
+                        ),
+                        DropdownMenuItem<String>(
+                          value: 'female',
+                          child: Text('Female'),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+
                 const SizedBox(height: 30),
 
                 /// Next Button
@@ -154,6 +213,7 @@ class _SignupDetailsScreenState extends State<SignupDetailsScreen> {
                           name: nameController.text,
                           phoneNumber: phoneNumberController.text,
                           role: role,
+                          gender: gender,
                         ),
                       ),
                     );

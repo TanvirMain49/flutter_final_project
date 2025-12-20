@@ -7,12 +7,14 @@ class PrimaryButton extends StatelessWidget {
   final String text;
   final VoidCallback onPressed;
   final bool isLoading;
+  final IconData icon;
 
   const PrimaryButton({
     super.key,
     required this.text,
     required this.onPressed,
     this.isLoading = false,
+    this.icon = Icons.arrow_forward,
   });
 
   @override
@@ -52,8 +54,8 @@ class PrimaryButton extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: 8),
-              const Icon(
-                Icons.arrow_forward,
+              Icon(
+                icon,
                 size: 18,
               ),
             ],
