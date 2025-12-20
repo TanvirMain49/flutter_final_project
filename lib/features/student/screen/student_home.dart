@@ -118,56 +118,58 @@ class StudentHomeScreen extends StatelessWidget {
         ? userEmail.split('@')[0]
         : userEmail;
 
-    return GradientBackground(
-      child: SingleChildScrollView(
-        padding: EdgeInsets.symmetric(horizontal: 14),
-        child: Column(
-          children: [
-            studentTopBar(displayName),
-            const SizedBox(height: 20),
-            SearchField(),
-            const SizedBox(height: 20),
-            findTutorCard(),
-            const SizedBox(height: 20),
-            Row(
-              children: [
-                Expanded(
-                  child: simpleCard(
-                    icon: Icons.group,
-                    title: 'Browse Tutors',
-                    subtitle: 'Explore profiles',
-                    iconColor: Color(0xFFDBEAFE),
-                    iconBgColor: Color(0xFF3658C5),
+    return Scaffold(
+      body: GradientBackground(
+        child: SingleChildScrollView(
+          padding: EdgeInsets.symmetric(horizontal: 14),
+          child: Column(
+            children: [
+              studentTopBar(displayName),
+              const SizedBox(height: 20),
+              SearchField(),
+              const SizedBox(height: 20),
+              findTutorCard(context),
+              const SizedBox(height: 20),
+              Row(
+                children: [
+                  Expanded(
+                    child: simpleCard(
+                      icon: Icons.group,
+                      title: 'Browse Tutors',
+                      subtitle: 'Explore profiles',
+                      iconColor: Color(0xFFDBEAFE),
+                      iconBgColor: Color(0xFF3658C5),
+                    ),
                   ),
-                ),
-                const SizedBox(width: 12),
-
-                Expanded(
-                  child: simpleCard(
-                    icon: Icons.post_add,
-                    title: 'My Posts',
-                    subtitle: 'View active requests',
-                    iconColor: Color(0xFFDBEAFE),
-                    iconBgColor: Colors.purple,
+                  const SizedBox(width: 12),
+      
+                  Expanded(
+                    child: simpleCard(
+                      icon: Icons.post_add,
+                      title: 'My Posts',
+                      subtitle: 'View active requests',
+                      iconColor: Color(0xFFDBEAFE),
+                      iconBgColor: Colors.purple,
+                    ),
                   ),
-                ),
-              ],
-            ),
-
-            const SizedBox(height: 32),
-            recentTutor(),
-            const SizedBox(height: 38),
-            get20Off(),
-            const SizedBox(height: 32),
-            recentStudentReq(),
-          ],
+                ],
+              ),
+      
+              const SizedBox(height: 32),
+              recentTutor(),
+              const SizedBox(height: 38),
+              get20Off(),
+              const SizedBox(height: 32),
+              recentStudentReq(),
+            ],
+          ),
         ),
       ),
     );
   }
 
   // Find a Tutor card
-  Container findTutorCard() {
+  Container findTutorCard(BuildContext context) {
     return Container(
       width: double.infinity,
       height: 200,
@@ -218,7 +220,14 @@ class StudentHomeScreen extends StatelessWidget {
                     vertical: 12,
                   ),
                 ),
-                onPressed: () {},
+                onPressed: () async{
+                  await Supabase.instance.client.auth.signOut();
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const LoginScreen()),
+                  );
+
+                },
                 child: const Row(
                   children: [
                     Text(

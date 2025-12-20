@@ -1,4 +1,6 @@
+import 'package:_6th_sem_project/features/auth/screen/login_screen.dart';
 import 'package:_6th_sem_project/features/splash/splash_screen.dart';
+import 'package:_6th_sem_project/features/student/screen/student_home.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -26,6 +28,45 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(title: 'Flutter Demo', home: const SplashScreen());
+    return MaterialApp(title: 'Flutter Demo', home: AuthCheek());
+  }
+}
+
+
+class AuthCheek extends StatelessWidget {
+  final supabase = Supabase.instance.client;
+  AuthCheek({super.key});
+
+  // This function mimics a splash delay
+  Future<bool> _waitAndCheck() async {
+    await Future.delayed(const Duration(seconds: 3)); // Stay on splash for 3 seconds
+    return true;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return FutureBuilder(
+      future: _waitAndCheck(),
+      builder: (context, futureSnapshot) {
+        // 1. While waiting (for 3 seconds), show the Splash Screen
+        if (futureSnapshot.connectionState == ConnectionState.waiting) {
+          return const SplashScreen();
+        }
+
+        // 2. After waiting, check the Auth State
+        return StreamBuilder<AuthState>(
+          stream: supabase.auth.onAuthStateChange,
+          builder: (context, authSnapshot) {
+            final session = authSnapshot.data?.session;
+
+            if (session != null) {
+              return const StudentHomeScreen();
+            } else {
+              return const LoginScreen();
+            }
+          },
+        );
+      },
+    );
   }
 }
