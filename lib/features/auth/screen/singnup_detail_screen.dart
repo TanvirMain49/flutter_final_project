@@ -9,31 +9,23 @@ import 'package:flutter/material.dart';
 class SignupDetailsScreen extends StatefulWidget {
   final String email;
 
-  const SignupDetailsScreen({
-    super.key,
-    required this.email
-  });
+  const SignupDetailsScreen({super.key, required this.email});
 
   @override
   State<SignupDetailsScreen> createState() => _SignupDetailsScreenState();
 }
 
 class _SignupDetailsScreenState extends State<SignupDetailsScreen> {
-  final SignUpController _controller = SignUpController();
-
-  // Initialize controller fields with values passed from
-  // the previous screen so they are ready when the UI builds
-  @override
-  void initState(){
-    super.initState();
-    _controller.emailController.text = widget.email;
-  }
+  final nameController = TextEditingController();
+  final phoneNumberController = TextEditingController();
+  String role = 'student';
 
   // Dispose controllers to free up resources when
   // this State object is removed from the widget tree
   @override
   void dispose() {
-    _controller.dispose();
+    nameController.dispose();
+    phoneNumberController.dispose();
     super.dispose();
   }
 
@@ -63,7 +55,16 @@ class _SignupDetailsScreenState extends State<SignupDetailsScreen> {
                   label: "Full Name",
                   hint: "John Doe",
                   icon: Icons.person_outline,
-                  controller: _controller.nameController,
+                  controller: nameController,
+                ),
+
+                /// Phone number Field
+                CustomInputField(
+                  label: "Phone number",
+                  hint: "+8801XXXXXXXXX",
+                  icon: Icons.call,
+                  keyboardType: TextInputType.phone,
+                  controller: phoneNumberController,
                 ),
 
                 const SizedBox(height: 24),
@@ -86,14 +87,17 @@ class _SignupDetailsScreenState extends State<SignupDetailsScreen> {
                 /// Role dropdown menu
                 Container(
                   width: double.infinity,
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 4,
+                  ),
                   decoration: BoxDecoration(
                     color: AppColors.inputBackground,
                     borderRadius: BorderRadius.circular(14),
                   ),
                   child: DropdownButtonHideUnderline(
                     child: DropdownButton<String>(
-                      value: _controller.role,
+                      value: role,
                       isExpanded: true,
                       icon: const Icon(
                         Icons.keyboard_arrow_down_rounded,
@@ -106,7 +110,7 @@ class _SignupDetailsScreenState extends State<SignupDetailsScreen> {
                       ),
                       onChanged: (String? newValue) {
                         setState(() {
-                          _controller.role = newValue!;
+                          role = newValue!;
                         });
                       },
                       items: const [
@@ -129,9 +133,15 @@ class _SignupDetailsScreenState extends State<SignupDetailsScreen> {
                 PrimaryButton(
                   text: "Next",
                   onPressed: () {
-                    if (_controller.nameController.text.isEmpty || _controller.role.isEmpty) {
+                    if (nameController.text.isEmpty ||
+                        role.isEmpty ||
+                        phoneNumberController.text.isEmpty) {
                       ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text("Please enter your name or role")),
+                        const SnackBar(
+                          content: Text(
+                            "Please enter your name or role or phone number",
+                          ),
+                        ),
                       );
                       return;
                     }
@@ -141,8 +151,9 @@ class _SignupDetailsScreenState extends State<SignupDetailsScreen> {
                       MaterialPageRoute(
                         builder: (context) => SignupPasswordScreen(
                           email: widget.email,
-                          name: _controller.nameController.text,
-                          role: _controller.role,
+                          name: nameController.text,
+                          phoneNumber: phoneNumberController.text,
+                          role: role,
                         ),
                       ),
                     );

@@ -16,14 +16,14 @@ class SignupScreen extends StatefulWidget {
 }
 
 class _SignupScreenState extends State<SignupScreen> {
-  final SignUpController _controller = SignUpController();
+  final TextEditingController emailController = TextEditingController();
 
   // Dispose controllers to free up resources when this
   // State object is removed from the widget tree
   @override
   void dispose() {
-    _controller.dispose();
     super.dispose();
+    emailController.dispose();
   }
 
   @override
@@ -71,7 +71,7 @@ class _SignupScreenState extends State<SignupScreen> {
                     label: "Email address",
                     hint: "name@example.com",
                     icon: Icons.email_outlined,
-                    controller: _controller.emailController,
+                    controller: emailController,
                     keyboardType: TextInputType.emailAddress,
                     obscureText: false,
                   ),
@@ -81,8 +81,8 @@ class _SignupScreenState extends State<SignupScreen> {
                   PrimaryButton(
                     text: "Next",
                     onPressed: () {
-                      if (_controller.emailController.text.isEmpty ||
-                          !_controller.emailController.text.contains('@')) {
+                      if (emailController.text.isEmpty ||
+                          !emailController.text.contains('@')) {
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(
                             content: Text("Please enter a valid email address"),
@@ -94,7 +94,7 @@ class _SignupScreenState extends State<SignupScreen> {
                         context,
                         MaterialPageRoute(
                           builder: (context) => SignupDetailsScreen(
-                            email: _controller.emailController.text.trim(),
+                            email: emailController.text.trim(),
                           ),
                         ),
                       );

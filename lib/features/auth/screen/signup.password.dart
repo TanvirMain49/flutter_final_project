@@ -9,12 +9,14 @@ import 'package:flutter/material.dart';
 class SignupPasswordScreen extends StatefulWidget {
   final String email;
   final String name;
+  final String phoneNumber;
   final String role;
 
   const SignupPasswordScreen({
     super.key,
     required this.email,
     required this.name,
+    required this.phoneNumber,
     required this.role,
   });
 
@@ -24,49 +26,46 @@ class SignupPasswordScreen extends StatefulWidget {
 
 class _SignupPasswordScreenState extends State<SignupPasswordScreen> {
   final SignUpController _controller = SignUpController();
+  final passwordController = TextEditingController();
+  final confirmPasswordController = TextEditingController();
   bool isLoading = false;
-
-  // Initialize controller fields with values passed from the
-  // previous screen so they are ready when the UI builds
-  @override
-  void initState() {
-    super.initState();
-    // In a StatefulWidget, constructor values passed from the previous screen or parent widget are stored in the widget instance,
-    // so inside the State class you access them using `widget.parameterName`.
-    _controller.emailController.text = widget.email;
-    _controller.nameController.text = widget.name;
-    _controller.role = widget.role;
-  }
 
   // Dispose controllers to free up resources when
   // this State object is removed from the widget tree
   @override
   void dispose() {
-    _controller.dispose();
+    passwordController.dispose();
+    confirmPasswordController.dispose();
     super.dispose();
   }
 
   void signUp() async {
-    if (_controller.passwordController.text.isEmpty ||
-        _controller.confirmPasswordController.text.isEmpty) {
+    if (passwordController.text.isEmpty ||
+        confirmPasswordController.text.isEmpty) {
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(const SnackBar(content: Text("Please fill all fields")));
       return;
     }
 
-    if (_controller.passwordController.text !=
-        _controller.confirmPasswordController.text) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text("Passwords do not match")));
-      return;
-    }
+    // if (_controller.passwordController.text !=
+    //     _controller.confirmPasswordController.text) {
+    //   ScaffoldMessenger.of(
+    //     context,
+    //   ).showSnackBar(const SnackBar(content: Text("Passwords do not match")));
+    //   return;
+    // }
 
     // save the data in profile or user db
 
     await _controller.signUp(
       context: context,
+      email: widget.email,
+      name: widget.name,
+      phoneNumber: widget.phoneNumber,
+      role: widget.role,
+      password: passwordController.text,
+      confirmPassword: confirmPasswordController.text,
       onStart: () => setState(() => isLoading = true),
       onEnd: () => setState(() => isLoading = false),
     );
@@ -103,7 +102,7 @@ class _SignupPasswordScreenState extends State<SignupPasswordScreen> {
                   label: "Password",
                   hint: "********",
                   icon: Icons.lock_outline,
-                  controller: _controller.passwordController,
+                  controller: passwordController,
                   obscureText: true,
                 ),
                 const SizedBox(height: 16),
@@ -111,7 +110,7 @@ class _SignupPasswordScreenState extends State<SignupPasswordScreen> {
                   label: "Confirm Password",
                   hint: "********",
                   icon: Icons.lock_outline,
-                  controller: _controller.confirmPasswordController,
+                  controller: confirmPasswordController,
                   obscureText: true,
                 ),
                 const SizedBox(height: 30),
