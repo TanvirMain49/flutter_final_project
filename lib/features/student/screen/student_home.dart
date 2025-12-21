@@ -222,10 +222,12 @@ class StudentHomeScreen extends StatelessWidget {
                 ),
                 onPressed: () async{
                   await Supabase.instance.client.auth.signOut();
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => const LoginScreen()),
-                  );
+                 if(context.mounted){
+                   Navigator.push(
+                     context,
+                     MaterialPageRoute(builder: (context) => const LoginScreen()),
+                   );
+                 }
 
                 },
                 child: const Row(

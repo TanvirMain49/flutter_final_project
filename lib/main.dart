@@ -1,4 +1,5 @@
 import 'package:_6th_sem_project/features/auth/screen/login_screen.dart';
+import 'package:_6th_sem_project/features/home/app_main_screen.dart';
 import 'package:_6th_sem_project/features/splash/splash_screen.dart';
 import 'package:_6th_sem_project/features/student/screen/student_home.dart';
 import 'package:flutter/material.dart';
@@ -39,7 +40,7 @@ class AuthCheek extends StatelessWidget {
 
   // This function mimics a splash delay
   Future<bool> _waitAndCheck() async {
-    await Future.delayed(const Duration(seconds: 3)); // Stay on splash for 3 seconds
+    await Future.delayed(const Duration(seconds: 3));
     return true;
   }
 
@@ -60,7 +61,7 @@ class AuthCheek extends StatelessWidget {
             final session = authSnapshot.data?.session;
 
             if (session != null) {
-              return const StudentHomeScreen();
+              return const AppMainScreen();
             } else {
               return const LoginScreen();
             }

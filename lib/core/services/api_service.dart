@@ -46,9 +46,30 @@ class UserApiService {
           .from("users")
           .select()
           .eq("id", userId)
-          .single();
-      return data;
+          .maybeSingle();
+
+      debugPrint(data.toString());
+
     } catch (e, stackTrace){
+      debugPrint('getUserProfile error: $e');
+      debugPrintStack(stackTrace: stackTrace);
+      return null;
+    }
+  }
+
+  Future<String?> getUserRole() async{
+    try{
+      final userId = await _supabase.auth.currentUser?.id;
+      if(userId == null) return null;
+
+      final response = await _supabase
+          .from("users")
+          .select('role')
+          .eq("id", userId)
+          .single();
+      final role = response['role'] as String;
+      return role;
+    } catch(e, stackTrace){
       debugPrint('getUserProfile error: $e');
       debugPrintStack(stackTrace: stackTrace);
       return null;
