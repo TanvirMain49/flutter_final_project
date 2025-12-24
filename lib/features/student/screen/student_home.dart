@@ -4,6 +4,7 @@ import 'package:_6th_sem_project/core/widgets/search_field.dart';
 import 'package:_6th_sem_project/core/widgets/student_home_cart.dart';
 import 'package:_6th_sem_project/core/widgets/tutor_home_card.dart';
 import 'package:_6th_sem_project/features/auth/screen/login_screen.dart';
+import 'package:_6th_sem_project/features/student/screen/post_tuition.dart';
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -221,14 +222,10 @@ class StudentHomeScreen extends StatelessWidget {
                   ),
                 ),
                 onPressed: () async{
-                  await Supabase.instance.client.auth.signOut();
-                 if(context.mounted){
                    Navigator.push(
                      context,
-                     MaterialPageRoute(builder: (context) => const LoginScreen()),
+                     MaterialPageRoute(builder: (context) => const PostTuitionScreen()),
                    );
-                 }
-
                 },
                 child: const Row(
                   children: [

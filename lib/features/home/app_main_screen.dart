@@ -1,6 +1,7 @@
 import 'package:_6th_sem_project/core/constants/colors.dart';
 import 'package:_6th_sem_project/core/services/api_service.dart';
 import 'package:_6th_sem_project/core/widgets/gradient_background.dart';
+import 'package:_6th_sem_project/features/student/screen/post_tuition.dart';
 import 'package:_6th_sem_project/features/student/screen/student_home.dart';
 import 'package:_6th_sem_project/features/tutor/screen/tutor_home.dart';
 import 'package:flutter/material.dart';
@@ -38,11 +39,25 @@ class _AppMainScreenState extends State<AppMainScreen> {
       _role = role ?? 'student';
       _isLoading = false;
 
-      // first page scaffold
-      pages[0] = role == 'student'?
-          const StudentHomeScreen()
-          : const TuitorHomeScreen();
+     if(_role == 'student'){
+       pages= [
+         const StudentHomeScreen(),
+         const Scaffold(body: Center(child: Text("Student Search"))),
+         const PostTuitionScreen(),
+         const Scaffold(body: Center(child: Text("Student Notification"))),
+         const Scaffold(body: Center(child: Text("Student profile"))),
+       ];
+     } else{
+       pages= [
+         const TuitorHomeScreen(),
+         const Scaffold(body: Center(child: Text("Tutor Search"))),
+         const Scaffold(body: Center(child: Text("Tutor post"))),
+         const Scaffold(body: Center(child: Text("Tutor Notification"))),
+         const Scaffold(body: Center(child: Text("Tutor profile"))),
+       ];
+     }
     });
+
   }
 
   @override
