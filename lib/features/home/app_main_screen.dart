@@ -43,7 +43,7 @@ class _AppMainScreenState extends State<AppMainScreen> {
        pages= [
          const StudentHomeScreen(),
          const Scaffold(body: Center(child: Text("Student Search"))),
-         const PostTuitionScreen(),
+         const SizedBox(),
          const Scaffold(body: Center(child: Text("Student Notification"))),
          const Scaffold(body: Center(child: Text("Student profile"))),
        ];
@@ -85,7 +85,18 @@ class _AppMainScreenState extends State<AppMainScreen> {
         currentIndex: selectedIndex,
         onTap: (value) {
           setState(() {
+            /* in the index 2 or the post tuition (Student) we don't want to show
+            * the bottom navigation bar so we use this step to remove the
+            * bottom navigation bar
+            * */
+            if(value == 2){
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const PostTuitionScreen()),
+              );
+            } else{
             selectedIndex = value;
+            }
           });
         },
         items: const [
