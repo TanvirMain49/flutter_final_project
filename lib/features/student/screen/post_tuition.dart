@@ -16,61 +16,23 @@ class PostTuitionScreen extends StatefulWidget {
 }
 
 class _PostTuitionScreenState extends State<PostTuitionScreen> {
+  // --- 1. State Variables ---
   String? selectedGradeLevel;
-  String? category;
   int currentStep = 1;
   final int totalSteps = 2;
-  TimeOfDay startTime = TimeOfDay(hour: 19, minute: 0);
-  TimeOfDay endTime = TimeOfDay(hour: 21, minute: 0);
+
+  TimeOfDay startTime = const TimeOfDay(hour: 19, minute: 0);
+  TimeOfDay endTime = const TimeOfDay(hour: 21, minute: 0);
   List<String> mySelectedDays = [];
 
-  // Controllers to capture user input
   final TextEditingController subjectController = TextEditingController();
   final TextEditingController locationController = TextEditingController();
   final TextEditingController budgetController = TextEditingController();
   final TextEditingController detailsController = TextEditingController();
 
-  //function for next step ->button
-  void goToNextStep() {
-    // validated if all field are filled or not
-    if (subjectController.text.isEmpty ||
-        selectedGradeLevel == null ||
-        mySelectedDays.isEmpty ||
-        locationController.text.isEmpty ||
-        budgetController.text.isEmpty) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text("Please fill all the fields")));
-      return;
-    }
-    // cheek if currentStep is not smaller than totalSteps
-    if (currentStep < totalSteps) {
-      setState(() => currentStep++);
-    }
-  }
-
-
-  // function for get the grade level value -> text field
-  void gradeLevelSelectedValues(String value) {
-    setState(() {
-      selectedGradeLevel = (selectedGradeLevel == value) ? null : value;
-    });
-  }
-
-  // function for get the days value -> text field
-  void daysSelectedValues(String value) {
-    setState(() {
-      if (mySelectedDays.contains(value)) {
-        mySelectedDays.remove(value);
-      } else {
-        mySelectedDays.add(value);
-      }
-    });
-  }
-
+  // --- 2. Lifecycle Methods ---
   @override
   void dispose() {
-    // Always dispose controllers to prevent memory leaks
     subjectController.dispose();
     locationController.dispose();
     budgetController.dispose();
@@ -78,6 +40,66 @@ class _PostTuitionScreenState extends State<PostTuitionScreen> {
     super.dispose();
   }
 
+  // --- 3. Business Logic & Validation ---
+  void goToNextStep() {
+    if (_validateForm() && currentStep < totalSteps) {
+      setState(() => currentStep++);
+    }
+  }
+
+  bool _validateForm() {
+    // Basic field check
+    if (subjectController.text.trim().isEmpty ||
+        selectedGradeLevel == null ||
+        mySelectedDays.isEmpty ||
+        locationController.text.trim().isEmpty ||
+        budgetController.text.trim().isEmpty) {
+      _showError("Please fill in all details");
+      return false;
+    }
+
+    // Time logic check
+    double start = startTime.hour + startTime.minute / 60.0;
+    double end = endTime.hour + endTime.minute / 60.0;
+    if (start >= end) {
+      _showError("End time must be after start time");
+      return false;
+    }
+    return true;
+  }
+
+  void _showError(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: Colors.redAccent,
+        behavior: SnackBarBehavior.floating,
+      ),
+    );
+  }
+
+  // --- 4. State Update Handlers ---
+  void gradeLevelSelectedValues(String value) {
+    setState(() {
+      selectedGradeLevel = (selectedGradeLevel == value) ? null : value;
+    });
+  }
+
+  void daysSelectedValues(String value) {
+    setState(() {
+      mySelectedDays.contains(value)
+          ? mySelectedDays.remove(value)
+          : mySelectedDays.add(value);
+    });
+  }
+
+  // ---Extra. formate the days for preview card->days -----
+  String formateDays(List<String> days){
+    if (days.length == 7) return "Daily (Mon-Sun)";
+    return days.join(", ");
+  }
+
+// --- 5. Main Build Method ---
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -135,7 +157,7 @@ class _PostTuitionScreenState extends State<PostTuitionScreen> {
       ),
     );
   }
-
+  // Step 1:  data collect or form section method
   Widget _buildInformationMethod() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -157,18 +179,9 @@ class _PostTuitionScreenState extends State<PostTuitionScreen> {
         ),
         const SizedBox(height: 30),
 
-        // Subject -> Text Field
-        CustomInputField(
-          controller: subjectController,
-          label: "Subject",
-          hint: 'Select Subject',
-          icon: Icons.subject,
-        ),
-        const SizedBox(height: 20),
-
         // Broad Category -> selected Group
         CustomDropdown(
-          label: "Broad Category",
+          label: "Subject",
           items: const [
             "Computer Science",
             "Physics",
@@ -177,7 +190,7 @@ class _PostTuitionScreenState extends State<PostTuitionScreen> {
             "Business",
           ],
           onChange: (value) {
-            category = value;
+            subjectController.text = value;
           },
         ),
         const SizedBox(height: 20),
@@ -273,72 +286,154 @@ class _PostTuitionScreenState extends State<PostTuitionScreen> {
         ),
         const SizedBox(height: 6),
         const Text(
-          "Confirm your details before posting",
+          "Please review the details below to ensure everything is correct before posting",
           style: TextStyle(color: AppColors.white60, fontSize: 14),
         ),
         const SizedBox(height: 30),
 
-        Container(
-          padding: const EdgeInsets.all(20),
-          decoration: BoxDecoration(
-            color: AppColors.surface,
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: AppColors.border),
-          ),
-          child: Column(
-            children: [
-              // Now reading from controllers
-              _buildPreviewRow("Subject", subjectController.text),
-              _buildPreviewRow("Grade", selectedGradeLevel ?? "Not Selected"),
-              _buildPreviewRow(
-                "Days",
-                mySelectedDays.isEmpty ? "None" : mySelectedDays.join(", "),
-              ),
-              _buildPreviewRow("Location", locationController.text),
-              _buildPreviewRow("Budget", "${budgetController.text} /month"),
-            ],
-          ),
+        // Subject and Grade
+        _postReviewCart(
+          "Subject & Grade",
+          Icons.school_rounded,
+          {
+            "Subject": subjectController.text,
+            "Grade": selectedGradeLevel ?? "N/A",
+          },
         ),
         const SizedBox(height: 30),
 
+        // Location Budget days time
+        _postReviewCart(
+          "Logistic",
+          Icons.access_time_filled,
+            {
+              "Budget": "${budgetController.text} /month",
+              // Use .join to turn the array into a comma-separated string
+              "Days": formateDays(mySelectedDays),
+              "Time": "${startTime.format(context)} - ${endTime.format(context)}",
+            },
+        ),
+        const SizedBox(height: 30),
+
+        !detailsController.text.isEmpty?
+            _postReviewCart(
+            "Additional details",
+            Icons.description,
+            {
+              "Details": detailsController.text,
+            }
+            ): const SizedBox(),
+        const SizedBox(height: 20),
+
+        Center(
+          child: TextButton.icon(
+            onPressed: () => setState(() => currentStep = 1),
+            icon: const Icon(Icons.edit_note, color: AppColors.accent, size: 20),
+            label: const Text(
+              "Edit Details",
+              style: TextStyle(
+                color: AppColors.accent,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
+        ),
+
+        const SizedBox(height: 12),
         PrimaryButton(
           text: "Confirm & Post",
-          icon: Icons.check,
+          icon: Icons.check_circle_rounded,
           onPressed: () {
             // Logic for API call
           },
-        ),
-
-        Center(
-          child: TextButton(
-            onPressed: () => setState(() => currentStep = 1),
-            child: const Text(
-              "Edit Details",
-              style: TextStyle(color: AppColors.accent),
-            ),
-          ),
         ),
       ],
     );
   }
 
-  Widget _buildPreviewRow(String label, String value) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8.0),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+
+
+  // ---------- custom method--------------
+  // Post review Cart method
+  Widget _postReviewCart(String title,IconData icons, Map<String, String> details) {
+    return Container(
+      padding: EdgeInsetsGeometry.symmetric(vertical: 12, horizontal: 10),
+      decoration: BoxDecoration(
+        color: AppColors.primaryDark,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Column(
         children: [
-          Text(label, style: const TextStyle(color: AppColors.textMuted)),
-          Expanded(
-            child: Text(
-              value.isEmpty ? "Not provided" : value,
-              textAlign: TextAlign.end,
-              style: const TextStyle(
-                color: AppColors.white,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
+          Row(
+            // header text
+            children: [
+              Icon(icons, size: 24, color: AppColors.white60,),
+              const SizedBox(width: 10,),
+              Text(title,
+                style: TextStyle(
+                  color: AppColors.white,
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
+              )
+            ],
           ),
+          const SizedBox(height: 8,),
+          const Divider(color: AppColors.inputBackground,),
+          const SizedBox(height: 10,),
+
+          ...details.entries.map((entry){
+            if (entry.key == "Details") {
+              return Padding(
+                padding: const EdgeInsets.symmetric(vertical: 8.0),
+                child: SizedBox(
+                  width: double.infinity,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        '" ${entry.value} "', // Wraps the value in double quotes
+                        textAlign: TextAlign.start,
+                        style: const TextStyle(
+                          color: AppColors.white60,
+                          fontSize: 16,
+                          fontWeight: FontWeight.w500,
+                          fontStyle: FontStyle.italic, // Makes the text italic
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            }
+            return Padding(
+              padding: const EdgeInsets.symmetric(vertical: 8.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    entry.key,
+                    style: const TextStyle(
+                      color: AppColors.white60,
+                      fontSize: 16,
+                    ),
+                  ),
+                  const SizedBox(width: 10,),
+                  Expanded(
+                    child: Text(
+                      entry.value,
+                      textAlign: TextAlign.end,
+                      style: const TextStyle(
+                        color: AppColors.white,
+                        fontSize: 16,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  )
+                ]
+              ),
+            );
+          })
         ],
       ),
     );
