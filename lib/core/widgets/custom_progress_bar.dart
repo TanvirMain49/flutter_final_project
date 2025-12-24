@@ -13,9 +13,7 @@ class CustomProgressBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     double progressPercent = currentStep / totalSteps;
-    return Padding(
-      padding: EdgeInsetsGeometry.symmetric(vertical: 10, horizontal: 20),
-      child: Column(
+    return Column(
         children: [
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -61,7 +59,6 @@ class CustomProgressBar extends StatelessWidget {
             ),
           )
         ]
-      ),
-    );
+      );
   }
 }
