@@ -1,3 +1,4 @@
+import 'package:_6th_sem_project/core/constants/colors.dart';
 import 'package:flutter/material.dart';
 
 class SelectedGroup extends StatelessWidget {
@@ -33,7 +34,7 @@ class SelectedGroup extends StatelessWidget {
 
         SingleChildScrollView(
           scrollDirection: Axis.horizontal,
-          physics: const BouncingScrollPhysics(), // Adds a smooth iOS-style bounce
+          physics: const BouncingScrollPhysics(),
           child: Row(
 
             children: options.map((option){
@@ -46,7 +47,7 @@ class SelectedGroup extends StatelessWidget {
                     duration: const Duration(milliseconds: 200),
                     padding: EdgeInsetsGeometry.symmetric(vertical: 10, horizontal: 20),
                     decoration: BoxDecoration(
-                      color: isSelected? const Color(0xFF00FF7F) : Colors.white.withOpacity(0.05),
+                      color: isSelected? const Color(0xFF00FF7F) : AppColors.inputBackground,
                       borderRadius: BorderRadius.circular(30),
                       border: Border.all(
                         color: isSelected ? const Color(0xFF00FF7F) : Colors.white24,
