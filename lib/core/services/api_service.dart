@@ -3,6 +3,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 class UserApiService {
   final _supabase = Supabase.instance.client;
+  static List<Map<String, dynamic>>? _cachedSubjects;
 
   // 1. Create User Profile (Run after Sign-up)
   Future<void> createUserProfile({
@@ -75,5 +76,19 @@ class UserApiService {
       return null;
     }
   }
+
+  Future<List<Map<String, dynamic>>> getSubject() async{
+    if(_cachedSubjects != null) return _cachedSubjects!;
+    try{
+      final response = await _supabase.from('subjects').select();
+      _cachedSubjects = response;
+      return _cachedSubjects!;
+    } catch (e, stackTrace){
+      debugPrint('getUserProfile error: $e');
+      debugPrintStack(stackTrace: stackTrace);
+      return [];
+    }
+  }
+
 
 }

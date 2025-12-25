@@ -1,4 +1,5 @@
 import 'package:_6th_sem_project/core/constants/colors.dart';
+import 'package:_6th_sem_project/core/services/api_service.dart';
 import 'package:_6th_sem_project/core/widgets/custom_dropdown.dart';
 import 'package:_6th_sem_project/core/widgets/custom_progress_bar.dart';
 import 'package:_6th_sem_project/core/widgets/custom_text_field.dart';
@@ -6,6 +7,7 @@ import 'package:_6th_sem_project/core/widgets/gradient_background.dart';
 import 'package:_6th_sem_project/core/widgets/input_field.dart';
 import 'package:_6th_sem_project/core/widgets/primary_button.dart';
 import 'package:_6th_sem_project/core/widgets/selected_group.dart';
+import 'package:_6th_sem_project/features/student/controller/student_controller.dart';
 import 'package:flutter/material.dart';
 
 class PostTuitionScreen extends StatefulWidget {
@@ -20,10 +22,13 @@ class _PostTuitionScreenState extends State<PostTuitionScreen> {
   String? selectedGradeLevel;
   int currentStep = 1;
   final int totalSteps = 2;
+  bool _isLoadingSubjects = true;
+  String? selectedSubjectId;
 
   TimeOfDay startTime = const TimeOfDay(hour: 19, minute: 0);
   TimeOfDay endTime = const TimeOfDay(hour: 21, minute: 0);
   List<String> mySelectedDays = [];
+  List<Map<String, dynamic>> _subjects = [];
 
   final TextEditingController subjectController = TextEditingController();
   final TextEditingController locationController = TextEditingController();
@@ -31,6 +36,12 @@ class _PostTuitionScreenState extends State<PostTuitionScreen> {
   final TextEditingController detailsController = TextEditingController();
 
   // --- 2. Lifecycle Methods ---
+  @override
+  void initState() {
+    super.initState();
+    _loadSubjects();
+  }
+
   @override
   void dispose() {
     subjectController.dispose();
@@ -59,17 +70,18 @@ class _PostTuitionScreenState extends State<PostTuitionScreen> {
     }
 
     // budget cheek
-    if(!RegExp(r'^\d+$').hasMatch(budgetController.text)){
+    if (!RegExp(r'^\d+$').hasMatch(budgetController.text)) {
       _showError("Budget must be a number");
       return false;
     }
-    if(int.parse(budgetController.text) < 0 || int.parse(budgetController.text) <= 1000){
+    if (int.parse(budgetController.text) < 0 ||
+        int.parse(budgetController.text) <= 1000) {
       _showError("Minimum budget is 2000 and also budget can't be negative");
       return false;
     }
 
     // At lest two class in a week
-    if( mySelectedDays.length < 3){
+    if (mySelectedDays.length < 3) {
       _showError("At least three days are required");
       return false;
     }
@@ -110,12 +122,41 @@ class _PostTuitionScreenState extends State<PostTuitionScreen> {
   }
 
   // --- Extra. formate the days for preview card->days -----
-  String formateDays(List<String> days){
+  String formateDays(List<String> days) {
     if (days.length == 7) return "Daily (Mon-Sun)";
     return days.join(", ");
   }
 
-// --- 5. Main Build Method ---
+  void _handleSubjectSelection(String name) {
+    setState(() {
+      // 1. Update the visible text field
+      subjectController.text = name;
+
+      // 2. Search our data list to find the object that matches the name
+      // .firstWhere goes through each 'Map' in the '_subjects' list
+      final selectedSubject = _subjects.firstWhere(
+        (element) => element['name'] == name,
+        orElse: () => {}, // Safety: returns empty map if not found
+      );
+
+      // 3. Extract the ID if the subject was found
+      if (selectedSubject.isNotEmpty) {
+        selectedSubjectId = selectedSubject['id'].toString();
+      }
+    });
+  }
+
+  //   --- api call ----
+  Future<void> _loadSubjects() async {
+    _isLoadingSubjects = true;
+    setState(() {});
+    _subjects = await UserApiService().getSubject();
+
+    _isLoadingSubjects = false;
+    setState(() {});
+  }
+
+  // --- 5. Main Build Method ---
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -174,7 +215,6 @@ class _PostTuitionScreenState extends State<PostTuitionScreen> {
     );
   }
 
-
   // Step 1:  data collect or form section method
   Widget _buildInformationMethod() {
     return Column(
@@ -198,19 +238,16 @@ class _PostTuitionScreenState extends State<PostTuitionScreen> {
         const SizedBox(height: 30),
 
         // Subject -> selected Group
-        CustomDropdown(
-          label: "Subject",
-          items: const [
-            "Computer Science",
-            "Physics",
-            "Mathematics",
-            "Chemistry",
-            "Business",
-          ],
-          onChange: (value) {
-            subjectController.text = value;
-          },
-        ),
+        _isLoadingSubjects
+            ? CircularProgressIndicator(color: AppColors.accent)
+            : CustomDropdown(
+                label: "Subject",
+                items: _subjects.map((s) => s['name'].toString()).toList(),
+                onChange: (value) {
+                  _handleSubjectSelection(value);
+                },
+              ),
+
         const SizedBox(height: 20),
 
         // Grade -> selected Group
@@ -311,43 +348,36 @@ class _PostTuitionScreenState extends State<PostTuitionScreen> {
         const SizedBox(height: 30),
 
         // Subject and Grade
-        _postReviewCart(
-          "Subject & Grade",
-          Icons.school_rounded,
-          {
-            "Subject": subjectController.text,
-            "Grade": selectedGradeLevel ?? "N/A",
-          },
-        ),
+        _postReviewCart("Subject & Grade", Icons.school_rounded, {
+          "Subject": subjectController.text,
+          "Grade": selectedGradeLevel ?? "N/A",
+        }),
         const SizedBox(height: 30),
 
         // Location Budget days time
-        _postReviewCart(
-          "Logistic",
-          Icons.access_time_filled,
-            {
-              "Budget": "${budgetController.text} /month",
-              // Use .join to turn the array into a comma-separated string
-              "Days": formateDays(mySelectedDays),
-              "Time": "${startTime.format(context)} - ${endTime.format(context)}",
-            },
-        ),
+        _postReviewCart("Logistic", Icons.access_time_filled, {
+          "Budget": "${budgetController.text} /month",
+          // Use .join to turn the array into a comma-separated string
+          "Days": formateDays(mySelectedDays),
+          "Time": "${startTime.format(context)} - ${endTime.format(context)}",
+        }),
         const SizedBox(height: 30),
 
-        !detailsController.text.isEmpty?
-            _postReviewCart(
-            "Additional details",
-            Icons.description,
-            {
-              "Details": detailsController.text,
-            }
-            ): const SizedBox(),
+        !detailsController.text.isEmpty
+            ? _postReviewCart("Additional details", Icons.description, {
+                "Details": detailsController.text,
+              })
+            : const SizedBox(),
         const SizedBox(height: 20),
 
         Center(
           child: TextButton.icon(
             onPressed: () => setState(() => currentStep = 1),
-            icon: const Icon(Icons.edit_note, color: AppColors.accent, size: 20),
+            icon: const Icon(
+              Icons.edit_note,
+              color: AppColors.accent,
+              size: 20,
+            ),
             label: const Text(
               "Edit Details",
               style: TextStyle(
@@ -370,10 +400,13 @@ class _PostTuitionScreenState extends State<PostTuitionScreen> {
     );
   }
 
-
   // ---------- custom method--------------
   // Post review Cart method
-  Widget _postReviewCart(String title,IconData icons, Map<String, String> details) {
+  Widget _postReviewCart(
+    String title,
+    IconData icons,
+    Map<String, String> details,
+  ) {
     return Container(
       padding: EdgeInsetsGeometry.symmetric(vertical: 12, horizontal: 10),
       decoration: BoxDecoration(
@@ -385,22 +418,23 @@ class _PostTuitionScreenState extends State<PostTuitionScreen> {
           Row(
             // header text
             children: [
-              Icon(icons, size: 24, color: AppColors.white60,),
-              const SizedBox(width: 10,),
-              Text(title,
+              Icon(icons, size: 24, color: AppColors.white60),
+              const SizedBox(width: 10),
+              Text(
+                title,
                 style: TextStyle(
                   color: AppColors.white,
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
                 ),
-              )
+              ),
             ],
           ),
-          const SizedBox(height: 8,),
-          const Divider(color: AppColors.inputBackground,),
-          const SizedBox(height: 10,),
+          const SizedBox(height: 8),
+          const Divider(color: AppColors.inputBackground),
+          const SizedBox(height: 10),
 
-          ...details.entries.map((entry){
+          ...details.entries.map((entry) {
             if (entry.key == "Details") {
               return Padding(
                 padding: const EdgeInsets.symmetric(vertical: 8.0),
@@ -436,7 +470,7 @@ class _PostTuitionScreenState extends State<PostTuitionScreen> {
                       fontSize: 16,
                     ),
                   ),
-                  const SizedBox(width: 10,),
+                  const SizedBox(width: 10),
                   Expanded(
                     child: Text(
                       entry.value,
@@ -447,11 +481,11 @@ class _PostTuitionScreenState extends State<PostTuitionScreen> {
                         fontWeight: FontWeight.w500,
                       ),
                     ),
-                  )
-                ]
+                  ),
+                ],
               ),
             );
-          })
+          }),
         ],
       ),
     );
