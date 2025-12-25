@@ -58,6 +58,22 @@ class _PostTuitionScreenState extends State<PostTuitionScreen> {
       return false;
     }
 
+    // budget cheek
+    if(!RegExp(r'^\d+$').hasMatch(budgetController.text)){
+      _showError("Budget must be a number");
+      return false;
+    }
+    if(int.parse(budgetController.text) < 0 || int.parse(budgetController.text) <= 1000){
+      _showError("Minimum budget is 2000 and also budget can't be negative");
+      return false;
+    }
+
+    // At lest two class in a week
+    if( mySelectedDays.length < 3){
+      _showError("At least three days are required");
+      return false;
+    }
+
     // Time logic check
     double start = startTime.hour + startTime.minute / 60.0;
     double end = endTime.hour + endTime.minute / 60.0;
@@ -78,7 +94,7 @@ class _PostTuitionScreenState extends State<PostTuitionScreen> {
     );
   }
 
-  // --- 4. State Update Handlers ---
+  // --- 4. State Update Handlers --
   void gradeLevelSelectedValues(String value) {
     setState(() {
       selectedGradeLevel = (selectedGradeLevel == value) ? null : value;
@@ -93,7 +109,7 @@ class _PostTuitionScreenState extends State<PostTuitionScreen> {
     });
   }
 
-  // ---Extra. formate the days for preview card->days -----
+  // --- Extra. formate the days for preview card->days -----
   String formateDays(List<String> days){
     if (days.length == 7) return "Daily (Mon-Sun)";
     return days.join(", ");
@@ -135,7 +151,7 @@ class _PostTuitionScreenState extends State<PostTuitionScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                //custom progress bar
+                //Custom progress bar
                 CustomProgressBar(
                   currentStep: currentStep,
                   totalSteps: totalSteps,
@@ -157,12 +173,14 @@ class _PostTuitionScreenState extends State<PostTuitionScreen> {
       ),
     );
   }
+
+
   // Step 1:  data collect or form section method
   Widget _buildInformationMethod() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // header Text
+        // Header Text
         const Text(
           "What do you need help with?",
           style: TextStyle(
@@ -172,14 +190,14 @@ class _PostTuitionScreenState extends State<PostTuitionScreen> {
           ),
         ),
         const SizedBox(height: 6),
-        // sub header text
+        // Sub header text
         const Text(
           "Fill the details below so that we can match you with perfect tutor",
           style: TextStyle(color: AppColors.white60, fontSize: 14),
         ),
         const SizedBox(height: 30),
 
-        // Broad Category -> selected Group
+        // Subject -> selected Group
         CustomDropdown(
           label: "Subject",
           items: const [
@@ -222,6 +240,7 @@ class _PostTuitionScreenState extends State<PostTuitionScreen> {
           label: "Monthly rate budget",
           hint: 'e.g 7000',
           icon: Icons.payments,
+          keyboardType: TextInputType.number,
         ),
         const SizedBox(height: 20),
 
@@ -350,7 +369,6 @@ class _PostTuitionScreenState extends State<PostTuitionScreen> {
       ],
     );
   }
-
 
 
   // ---------- custom method--------------
