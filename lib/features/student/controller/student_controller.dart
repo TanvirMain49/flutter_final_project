@@ -1,103 +1,145 @@
-// import 'package:flutter/material.dart';
-//
-// class PostTuitionController {
-//   // ---------------- STATE ----------------
-//   String? selectedGradeLevel;
-//   List<String> mySelectedDays = [];
-//
-//   TimeOfDay startTime = const TimeOfDay(hour: 19, minute: 0);
-//   TimeOfDay endTime = const TimeOfDay(hour: 21, minute: 0);
-//
-//   final TextEditingController subjectController = TextEditingController();
-//   final TextEditingController locationController = TextEditingController();
-//   final TextEditingController budgetController = TextEditingController();
-//   final TextEditingController detailsController = TextEditingController();
-//
-//   int currentStep = 1;
-//
-//   // ---------------- VALIDATION ----------------
-//   bool _validateForm() {
-//     // Basic field check
-//     if (subjectController.text.trim().isEmpty ||
-//         selectedGradeLevel == null ||
-//         mySelectedDays.isEmpty ||
-//         locationController.text.trim().isEmpty ||
-//         budgetController.text.trim().isEmpty) {
-//       _showError("Please fill in all details");
-//       return false;
-//     }
-//
-//     // budget cheek
-//     if(!RegExp(r'^\d+$').hasMatch(budgetController.text)){
-//       _showError("Budget must be a number");
-//       return false;
-//     }
-//     if(int.parse(budgetController.text) < 0 || int.parse(budgetController.text) <= 1000){
-//       _showError("Minimum budget is 2000 and also budget can't be negative");
-//       return false;
-//     }
-//
-//     // At lest two class in a week
-//     if( mySelectedDays.length < 3){
-//       _showError("At least three days are required");
-//       return false;
-//     }
-//
-//     // Time logic check
-//     double start = startTime.hour + startTime.minute / 60.0;
-//     double end = endTime.hour + endTime.minute / 60.0;
-//     if (start >= end) {
-//       _showError("End time must be after start time");
-//       return false;
-//     }
-//     return true;
-//   }
-//
-//   // ---------------- HELPERS ----------------
-//   void toggleDay(String day) {
-//     selectedDays.contains(day)
-//         ? selectedDays.remove(day)
-//         : selectedDays.add(day);
-//   }
-//
-//   String formattedDays() {
-//     return selectedDays.length == 7
-//         ? "Daily (Mon-Sun)"
-//         : selectedDays.join(", ");
-//   }
-//   void _showError(String message) {
-//     ScaffoldMessenger.of(context).showSnackBar(
-//       SnackBar(
-//         content: Text(message),
-//         backgroundColor: Colors.redAccent,
-//         behavior: SnackBarBehavior.floating,
-//       ),
-//     );
-//   }
-//
-//   void nextStep() => currentStep++;
-//   void previousStep() => currentStep--;
-//
-//   void dispose() {
-//     subjectController.dispose();
-//     locationController.dispose();
-//     budgetController.dispose();
-//     detailsController.dispose();
-//   }
-// }
+import 'dart:math';
 
+import 'package:_6th_sem_project/features/student/api/student_api.dart';
+import 'package:flutter/material.dart';
 import 'package:_6th_sem_project/core/services/api_service.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
-class SubjectController extends ChangeNotifier {
-  List<Map<String, dynamic>> _subjects = [];
 
-  List<Map<String, dynamic>> get subjects => _subjects;
+class PostTuitionController {
 
-  Future<void> fetchSubjects() async {
-    if (_subjects.isNotEmpty) return; // simple in-memory cache
-    _subjects = await UserApiService().getSubject();
-    notifyListeners();
+  // --- Data Variables ---
+  String? selectedGradeLevel;
+  String? selectedSubjectId;
+  int currentStep = 1;
+  final int totalSteps = 2;
+
+  bool isLoadingSubjects = true;
+  bool isLoadingPost = false;
+
+  TimeOfDay startTime = const TimeOfDay(hour: 19, minute: 0);
+  TimeOfDay endTime = const TimeOfDay(hour: 21, minute: 0);
+
+  List<String> mySelectedDays = [];
+  List<Map<String, dynamic>> subjects = []; //from db value will be saved here
+
+  // --- Controllers ---
+  final TextEditingController subjectController = TextEditingController();
+  final TextEditingController locationController = TextEditingController();
+  final TextEditingController budgetController = TextEditingController();
+  final TextEditingController detailsController = TextEditingController();
+
+  // --- Logic: Load Subjects ---
+  Future<void> loadSubjects(VoidCallback onUpdate) async {
+    if (subjects.isNotEmpty) return; //if subject has data then no need to call api
+    isLoadingSubjects = true;
+    onUpdate();
+    try {
+      subjects = await SubjectsApiService().getSubject();
+    } catch (e) {
+      debugPrint("Error loading subjects: $e");
+    } finally {
+      isLoadingSubjects = false;
+      onUpdate();
+    }
+  }
+
+  // --- Logic: Handle Subject Selection (Mapping ID) ---
+  void handleSubjectSelection(String name, VoidCallback onUpdate) {
+    // 1. Update the visible text field
+    subjectController.text = name;
+    // 2. Search our data list to find the object that matches the name
+    // .firstWhere goes through each 'Map' in the '_subjects' list
+    final selected = subjects.firstWhere(
+      (el) => el['name'] == name,
+      orElse: () => {},
+    );
+    // 3. Extract the ID if the subject was found
+    if (selected.isNotEmpty) {
+      selectedSubjectId = selected['id']?.toString();
+    }
+    onUpdate();
+  }
+
+  // Send string type data formate
+  String formatTimeOfDay(TimeOfDay time) {
+    final hours = time.hour.toString().padLeft(2, '0');
+    final minutes = time.minute.toString().padLeft(2, '0');
+    return "$hours:$minutes:00";
+  }
+
+// ----Handle: Post Tuition ----
+  Future<bool> postTuition(VoidCallback onUpdate) async {
+    // 1. Set loading to true and notify UI
+    isLoadingPost = true;
+    onUpdate();
+
+    try {
+      // 2. Get the Current User
+      final user = Supabase.instance.client.auth.currentUser;
+      if (user == null) {
+        debugPrint('PostTuition: No logged-in user found');
+        return false;
+      }
+
+      // 3. Format/Prepare Data
+      String dayString = mySelectedDays.join(', ');
+
+      // Ensure budget is valid
+      int budgetValue = int.tryParse(budgetController.text) ?? 0;
+
+      // 4. API Call
+      await StudentApiService().postTuition(
+        subjectId: selectedSubjectId!,
+        studentId: user.id,
+        grade: selectedGradeLevel!,
+        location: locationController.text,
+        days: dayString,
+        startTime: formatTimeOfDay(startTime),
+        endTime: formatTimeOfDay(endTime),
+        budget: budgetValue,
+        details: detailsController.text,
+      );
+
+      return true; // Success!
+    } catch (e) {
+      debugPrint('postTuition error: $e');
+      return false; // Failure
+    } finally {
+      isLoadingPost = false;
+      onUpdate();
+    }
+  }
+
+
+  // --- Logic: Validation ---
+  String? validateForm() {
+    if (subjectController.text.isEmpty ||
+        selectedGradeLevel == null ||
+        mySelectedDays.isEmpty ||
+        locationController.text.isEmpty ||
+        budgetController.text.isEmpty) {
+      return "Please fill in all details";
+    }
+
+    final budget = int.tryParse(budgetController.text) ?? 0;
+    if (budget <= 1000) return "Minimum budget is 2000";
+
+    if (mySelectedDays.length < 3) return "At least three days are required";
+
+    double start = startTime.hour + startTime.minute / 60.0;
+    double end = endTime.hour + endTime.minute / 60.0;
+    if (start >= end) return "End time must be after start time";
+
+    return null;
+  }
+
+  void dispose() {
+    subjectController.dispose();
+    locationController.dispose();
+    budgetController.dispose();
+    detailsController.dispose();
   }
 }
 

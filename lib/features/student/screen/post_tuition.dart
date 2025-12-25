@@ -8,6 +8,7 @@ import 'package:_6th_sem_project/core/widgets/input_field.dart';
 import 'package:_6th_sem_project/core/widgets/primary_button.dart';
 import 'package:_6th_sem_project/core/widgets/selected_group.dart';
 import 'package:_6th_sem_project/features/student/controller/student_controller.dart';
+import 'package:_6th_sem_project/features/student/screen/student_home.dart';
 import 'package:flutter/material.dart';
 
 class PostTuitionScreen extends StatefulWidget {
@@ -18,143 +19,42 @@ class PostTuitionScreen extends StatefulWidget {
 }
 
 class _PostTuitionScreenState extends State<PostTuitionScreen> {
-  // --- 1. State Variables ---
-  String? selectedGradeLevel;
-  int currentStep = 1;
-  final int totalSteps = 2;
-  bool _isLoadingSubjects = true;
-  String? selectedSubjectId;
+  late PostTuitionController _con;
 
-  TimeOfDay startTime = const TimeOfDay(hour: 19, minute: 0);
-  TimeOfDay endTime = const TimeOfDay(hour: 21, minute: 0);
-  List<String> mySelectedDays = [];
-  List<Map<String, dynamic>> _subjects = [];
-
-  final TextEditingController subjectController = TextEditingController();
-  final TextEditingController locationController = TextEditingController();
-  final TextEditingController budgetController = TextEditingController();
-  final TextEditingController detailsController = TextEditingController();
-
-  // --- 2. Lifecycle Methods ---
   @override
   void initState() {
     super.initState();
-    _loadSubjects();
+    _con = PostTuitionController();
+    _con.loadSubjects(() => setState(() {})); // Fetch data on start
   }
 
   @override
   void dispose() {
-    subjectController.dispose();
-    locationController.dispose();
-    budgetController.dispose();
-    detailsController.dispose();
+    _con.dispose();
     super.dispose();
-  }
-
-  // --- 3. Business Logic & Validation ---
-  void goToNextStep() {
-    if (_validateForm() && currentStep < totalSteps) {
-      setState(() => currentStep++);
-    }
-  }
-
-  bool _validateForm() {
-    // Basic field check
-    if (subjectController.text.trim().isEmpty ||
-        selectedGradeLevel == null ||
-        mySelectedDays.isEmpty ||
-        locationController.text.trim().isEmpty ||
-        budgetController.text.trim().isEmpty) {
-      _showError("Please fill in all details");
-      return false;
-    }
-
-    // budget cheek
-    if (!RegExp(r'^\d+$').hasMatch(budgetController.text)) {
-      _showError("Budget must be a number");
-      return false;
-    }
-    if (int.parse(budgetController.text) < 0 ||
-        int.parse(budgetController.text) <= 1000) {
-      _showError("Minimum budget is 2000 and also budget can't be negative");
-      return false;
-    }
-
-    // At lest two class in a week
-    if (mySelectedDays.length < 3) {
-      _showError("At least three days are required");
-      return false;
-    }
-
-    // Time logic check
-    double start = startTime.hour + startTime.minute / 60.0;
-    double end = endTime.hour + endTime.minute / 60.0;
-    if (start >= end) {
-      _showError("End time must be after start time");
-      return false;
-    }
-    return true;
   }
 
   void _showError(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(message),
-        backgroundColor: Colors.redAccent,
-        behavior: SnackBarBehavior.floating,
-      ),
+      SnackBar(content: Text(message), backgroundColor: Colors.redAccent),
     );
   }
 
-  // --- 4. State Update Handlers --
-  void gradeLevelSelectedValues(String value) {
-    setState(() {
-      selectedGradeLevel = (selectedGradeLevel == value) ? null : value;
-    });
+  void _goToNext() {
+    final error = _con.validateForm();
+    if (error != null) {
+      _showError(error);
+    } else {
+      setState(() => _con.currentStep++);
+    }
   }
 
-  void daysSelectedValues(String value) {
-    setState(() {
-      mySelectedDays.contains(value)
-          ? mySelectedDays.remove(value)
-          : mySelectedDays.add(value);
-    });
-  }
-
-  // --- Extra. formate the days for preview card->days -----
-  String formateDays(List<String> days) {
+  String _formateDay(List<String> days) {
     if (days.length == 7) return "Daily (Mon-Sun)";
     return days.join(", ");
   }
 
-  void _handleSubjectSelection(String name) {
-    setState(() {
-      // 1. Update the visible text field
-      subjectController.text = name;
 
-      // 2. Search our data list to find the object that matches the name
-      // .firstWhere goes through each 'Map' in the '_subjects' list
-      final selectedSubject = _subjects.firstWhere(
-        (element) => element['name'] == name,
-        orElse: () => {}, // Safety: returns empty map if not found
-      );
-
-      // 3. Extract the ID if the subject was found
-      if (selectedSubject.isNotEmpty) {
-        selectedSubjectId = selectedSubject['id'].toString();
-      }
-    });
-  }
-
-  //   --- api call ----
-  Future<void> _loadSubjects() async {
-    _isLoadingSubjects = true;
-    setState(() {});
-    _subjects = await UserApiService().getSubject();
-
-    _isLoadingSubjects = false;
-    setState(() {});
-  }
 
   // --- 5. Main Build Method ---
   @override
@@ -175,8 +75,8 @@ class _PostTuitionScreenState extends State<PostTuitionScreen> {
         ),
         leading: IconButton(
           onPressed: () {
-            if (currentStep > 1) {
-              setState(() => currentStep--);
+            if (_con.currentStep > 1) {
+              setState(() => _con.currentStep--);
             } else {
               Navigator.pop(context);
             }
@@ -194,15 +94,15 @@ class _PostTuitionScreenState extends State<PostTuitionScreen> {
               children: [
                 //Custom progress bar
                 CustomProgressBar(
-                  currentStep: currentStep,
-                  totalSteps: totalSteps,
+                  currentStep: _con.currentStep,
+                  totalSteps: _con.totalSteps,
                 ),
                 const SizedBox(height: 8),
                 const Divider(color: AppColors.inputBackground),
                 const SizedBox(height: 12),
 
                 // Logic to switch between Form and Preview
-                currentStep == 1
+                _con.currentStep == 1
                     ? _buildInformationMethod()
                     : _buildPreviewMethod(),
 
@@ -238,13 +138,13 @@ class _PostTuitionScreenState extends State<PostTuitionScreen> {
         const SizedBox(height: 30),
 
         // Subject -> selected Group
-        _isLoadingSubjects
+        _con.isLoadingSubjects
             ? CircularProgressIndicator(color: AppColors.accent)
             : CustomDropdown(
                 label: "Subject",
-                items: _subjects.map((s) => s['name'].toString()).toList(),
+                items: _con.subjects.map((s) => s['name'].toString()).toList(),
                 onChange: (value) {
-                  _handleSubjectSelection(value);
+                  _con.handleSubjectSelection(value, () => setState(() {}));
                 },
               ),
 
@@ -254,17 +154,19 @@ class _PostTuitionScreenState extends State<PostTuitionScreen> {
         SelectedGroup(
           label: "Grade",
           options: ["High School", "University", "Primary", "Other"],
-          selectedOptions: selectedGradeLevel != null
-              ? [selectedGradeLevel!]
+          selectedOptions: _con.selectedGradeLevel != null
+              ? [_con.selectedGradeLevel!]
               : [],
           isMultiple: false,
-          onSelected: gradeLevelSelectedValues,
+          onSelected: (value) => setState(() {
+            _con.selectedGradeLevel = value;
+          }),
         ),
         const SizedBox(height: 20),
 
         // Location -> Text Field
         CustomInputField(
-          controller: locationController,
+          controller: _con.locationController,
           label: "Location",
           hint: 'Enter your area',
           icon: Icons.place,
@@ -273,7 +175,7 @@ class _PostTuitionScreenState extends State<PostTuitionScreen> {
 
         // Budget -> Text Field
         CustomInputField(
-          controller: budgetController,
+          controller: _con.budgetController,
           label: "Monthly rate budget",
           hint: 'e.g 7000',
           icon: Icons.payments,
@@ -285,9 +187,17 @@ class _PostTuitionScreenState extends State<PostTuitionScreen> {
         SelectedGroup(
           label: "Preferred Days",
           options: ["M", "T", "W", "Th", "F", "S", "Su"],
-          selectedOptions: mySelectedDays,
+          selectedOptions: _con.mySelectedDays,
           isMultiple: true,
-          onSelected: daysSelectedValues,
+          onSelected: (value) => {
+            setState(() {
+              if (_con.mySelectedDays.contains(value)) {
+                _con.mySelectedDays.remove(value);
+              } else {
+                _con.mySelectedDays.add(value);
+              }
+            }),
+          },
         ),
         const SizedBox(height: 20),
 
@@ -295,14 +205,14 @@ class _PostTuitionScreenState extends State<PostTuitionScreen> {
         Row(
           children: [
             Expanded(
-              child: _buildTimePicker("Start Time", startTime, (picked) {
-                setState(() => startTime = picked);
+              child: _buildTimePicker("Start Time", _con.startTime, (picked) {
+                setState(() => _con.startTime = picked);
               }),
             ),
             const SizedBox(width: 15),
             Expanded(
-              child: _buildTimePicker("End Time", endTime, (picked) {
-                setState(() => endTime = picked);
+              child: _buildTimePicker("End Time", _con.endTime, (picked) {
+                setState(() => _con.endTime = picked);
               }),
             ),
           ],
@@ -312,7 +222,7 @@ class _PostTuitionScreenState extends State<PostTuitionScreen> {
 
         // additional details -> Text Field
         CustomTextField(
-          controller: detailsController,
+          controller: _con.detailsController,
           label: "Additional Details",
           hintText: "Tell us about your goals...",
         ),
@@ -321,7 +231,7 @@ class _PostTuitionScreenState extends State<PostTuitionScreen> {
         PrimaryButton(
           text: "Review Request",
           icon: Icons.arrow_right_alt,
-          onPressed: goToNextStep,
+          onPressed: () => {_goToNext()},
         ),
       ],
     );
@@ -349,30 +259,31 @@ class _PostTuitionScreenState extends State<PostTuitionScreen> {
 
         // Subject and Grade
         _postReviewCart("Subject & Grade", Icons.school_rounded, {
-          "Subject": subjectController.text,
-          "Grade": selectedGradeLevel ?? "N/A",
+          "Subject": _con.subjectController.text,
+          "Grade": _con.selectedGradeLevel ?? "N/A",
         }),
         const SizedBox(height: 30),
 
         // Location Budget days time
         _postReviewCart("Logistic", Icons.access_time_filled, {
-          "Budget": "${budgetController.text} /month",
+          "Budget": "${_con.budgetController.text} /month",
           // Use .join to turn the array into a comma-separated string
-          "Days": formateDays(mySelectedDays),
-          "Time": "${startTime.format(context)} - ${endTime.format(context)}",
+          "Days": _formateDay(_con.mySelectedDays),
+          "Time":
+              "${_con.startTime.format(context)} - ${_con.endTime.format(context)}",
         }),
         const SizedBox(height: 30),
 
-        !detailsController.text.isEmpty
+        !_con.detailsController.text.isEmpty
             ? _postReviewCart("Additional details", Icons.description, {
-                "Details": detailsController.text,
+                "Details": _con.detailsController.text,
               })
             : const SizedBox(),
         const SizedBox(height: 20),
 
         Center(
           child: TextButton.icon(
-            onPressed: () => setState(() => currentStep = 1),
+            onPressed: () => setState(() => _con.currentStep = 1),
             icon: const Icon(
               Icons.edit_note,
               color: AppColors.accent,
@@ -392,15 +303,47 @@ class _PostTuitionScreenState extends State<PostTuitionScreen> {
         PrimaryButton(
           text: "Confirm & Post",
           icon: Icons.check_circle_rounded,
-          onPressed: () {
-            // Logic for API call
+          isLoading: _con.isLoadingPost,
+          onPressed: _con.isLoadingPost
+              ? null // Disable button while loading
+              : () async {
+            // Trigger the post (this calls setState via the callback)
+            final success = await _con.postTuition(() => setState(() {}));
+
+            if (!mounted) return;
+
+            if (!success) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text("Post Tuition failed. Please try again."),
+                  backgroundColor: Colors.redAccent,
+                ),
+              );
+              return; // Exit if failed
+            }
+
+            // Success case
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text("Post Tuition Successfully"),
+                backgroundColor: Colors.green,
+              ),
+            );
+
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => const PostTuitionScreen()),
+            );
           },
         ),
       ],
     );
   }
 
-  // ---------- custom method--------------
+
+
+
+  // ---------- custom widget method--------------
   // Post review Cart method
   Widget _postReviewCart(
     String title,

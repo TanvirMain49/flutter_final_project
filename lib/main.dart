@@ -1,7 +1,6 @@
 import 'package:_6th_sem_project/features/auth/screen/login_screen.dart';
 import 'package:_6th_sem_project/features/home/app_main_screen.dart';
 import 'package:_6th_sem_project/features/splash/splash_screen.dart';
-import 'package:_6th_sem_project/features/student/screen/student_home.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
