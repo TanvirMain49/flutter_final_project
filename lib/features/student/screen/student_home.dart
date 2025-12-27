@@ -139,48 +139,65 @@ class _StudentHomeScreenState extends State<StudentHomeScreen> {
 
     return Scaffold(
       body: GradientBackground(
-        child: SingleChildScrollView(
-          padding: EdgeInsets.symmetric(horizontal: 14),
-          child: Column(
-            children: [
-              studentTopBar(displayName),
-              const SizedBox(height: 20),
-              SearchField(),
-              const SizedBox(height: 20),
-              findTutorCard(context),
-              const SizedBox(height: 20),
-              Row(
-                children: [
-                  Expanded(
-                    child: simpleCard(
-                      icon: Icons.group,
-                      title: 'Browse Tutors',
-                      subtitle: 'Explore profiles',
-                      iconColor: Color(0xFFDBEAFE),
-                      iconBgColor: Color(0xFF3658C5),
-                    ),
-                  ),
-                  const SizedBox(width: 12),
+        child: RefreshIndicator(
+          // This RefreshIndicator allows the user to pull down to refresh the list manually.
+          // The loading spinner will disappear once the API call to fetch tuition posts is complete.
 
-                  Expanded(
-                    child: simpleCard(
-                      icon: Icons.post_add,
-                      title: 'My Posts',
-                      subtitle: 'View active requests',
-                      iconColor: Color(0xFFDBEAFE),
-                      iconBgColor: Colors.purple,
-                    ),
-                  ),
-                ],
-              ),
+          // Color and backgroundColors for the loader design or color
+          color: AppColors.accent,
+          backgroundColor: AppColors.primaryDark,
 
-              const SizedBox(height: 32),
-              recentTutor(),
-              const SizedBox(height: 38),
-              get20Off(),
-              const SizedBox(height: 32),
-              recentStudentReq(),
-            ],
+          // this onRefresh tell what to do after refresh
+          onRefresh: () async {
+            // This allows the user to pull down to refresh manually
+            await controller.getTuition(() {
+              if (mounted) setState(() {});
+            });
+          },
+          child: SingleChildScrollView(
+            padding: EdgeInsets.symmetric(horizontal: 14),
+            physics: const AlwaysScrollableScrollPhysics(), //// Important for RefreshIndicator
+            child: Column(
+              children: [
+                studentTopBar(displayName),
+                const SizedBox(height: 20),
+                SearchField(),
+                const SizedBox(height: 20),
+                findTutorCard(context),
+                const SizedBox(height: 20),
+                Row(
+                  children: [
+                    Expanded(
+                      child: simpleCard(
+                        icon: Icons.group,
+                        title: 'Browse Tutors',
+                        subtitle: 'Explore profiles',
+                        iconColor: Color(0xFFDBEAFE),
+                        iconBgColor: Color(0xFF3658C5),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+
+                    Expanded(
+                      child: simpleCard(
+                        icon: Icons.post_add,
+                        title: 'My Posts',
+                        subtitle: 'View active requests',
+                        iconColor: Color(0xFFDBEAFE),
+                        iconBgColor: Colors.purple,
+                      ),
+                    ),
+                  ],
+                ),
+
+                const SizedBox(height: 32),
+                recentTutor(),
+                const SizedBox(height: 38),
+                get20Off(),
+                const SizedBox(height: 32),
+                recentStudentReq(),
+              ],
+            ),
           ),
         ),
       ),
@@ -240,12 +257,15 @@ class _StudentHomeScreenState extends State<StudentHomeScreen> {
                   ),
                 ),
                 onPressed: () async {
-                  Navigator.push(
+                  await Navigator.push(
                     context,
                     MaterialPageRoute(
                       builder: (context) => const PostTuitionScreen(),
                     ),
                   );
+                  controller.getTuition(() {
+                    if (mounted) setState(() {});
+                  });
                 },
                 child: const Row(
                   children: [
@@ -487,9 +507,15 @@ class _StudentHomeScreenState extends State<StudentHomeScreen> {
                     const SizedBox(height: 12),
                 itemBuilder: (context, index) {
                   final tuition = controller.tuitionData![index];
-                  final timeAgo = StudentUtils.formatTimeAgo(tuition['created_at']);
-                  final startTime = StudentUtils.formatToBDTime(tuition['start_time']);
-                  final endTime = StudentUtils.formatToBDTime(tuition['end_time']);
+                  final timeAgo = StudentUtils.formatTimeAgo(
+                    tuition['created_at'],
+                  );
+                  final startTime = StudentUtils.formatToBDTime(
+                    tuition['start_time'],
+                  );
+                  final endTime = StudentUtils.formatToBDTime(
+                    tuition['end_time'],
+                  );
 
                   return StudentHomeCard(
                     title: tuition['post_title'],

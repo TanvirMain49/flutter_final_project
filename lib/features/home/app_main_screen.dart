@@ -1,6 +1,7 @@
 import 'package:_6th_sem_project/core/constants/colors.dart';
 import 'package:_6th_sem_project/core/services/api_service.dart';
 import 'package:_6th_sem_project/core/widgets/gradient_background.dart';
+import 'package:_6th_sem_project/features/student/controller/get_tuition_controller.dart';
 import 'package:_6th_sem_project/features/student/screen/post_tuition.dart';
 import 'package:_6th_sem_project/features/student/screen/student_home.dart';
 import 'package:_6th_sem_project/features/tutor/screen/tutor_home.dart';
@@ -83,21 +84,29 @@ class _AppMainScreenState extends State<AppMainScreen> {
         selectedItemColor: AppColors.accent,
         type: BottomNavigationBarType.fixed,
         currentIndex: selectedIndex,
-        onTap: (value) {
-          setState(() {
-            /* in the index 2 or the post tuition (Student) we don't want to show
-            * the bottom navigation bar so we use this step to remove the
-            * bottom navigation bar
-            * */
-            if(value == 2){
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const PostTuitionScreen()),
-              );
-            } else{
-            selectedIndex = value;
-            }
-          });
+        onTap: (value) async { // <--- 1. async goes here
+          if (value == 2 && _role == 'student') {
+            // 2. Wait for the user to return from the Post screen
+            await Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const PostTuitionScreen()),
+            );
+
+            // 3. Once they are back, refresh the data
+            getTuitionPost().getTuition(() {
+              if (mounted) {
+                setState(() {}); // Trigger rebuild of Home Screen with new data
+              }
+            });
+
+            // We do NOT call setState for selectedIndex here
+            // because we want the BottomNav to stay on the "Home" icon.
+          } else {
+            // 4. Normal navigation for other tabs
+            setState(() {
+              selectedIndex = value;
+            });
+          }
         },
         items: const [
           BottomNavigationBarItem(icon: Icon(Icons.home), label: "Home"),
