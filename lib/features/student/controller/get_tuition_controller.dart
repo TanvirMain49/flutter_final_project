@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 
 class getTuitionPost {
   List<Map<String, dynamic>>? tuitionData;
+  Map<String, dynamic>? tuitionDetails;
   bool isLoading = true;
 
   //  get tuition
@@ -18,6 +19,23 @@ class getTuitionPost {
       }
     } catch (e) {
       debugPrint('getTuition error: $e');
+    }finally{
+      isLoading = false;
+      onUpdate();
+    }
+  }
+
+  //  get tuition details by id
+  Future<void> getTuitionDetails(String postId, VoidCallback onUpdate) async {
+    isLoading = true;
+    onUpdate();
+    try{
+      final data = await StudentApiService().getTuitionDetails(postId);
+      if(data != null){
+        tuitionDetails = data;
+      }
+    } catch (e){
+      debugPrint('getTuitionDetails error: $e');
     }finally{
       isLoading = false;
       onUpdate();

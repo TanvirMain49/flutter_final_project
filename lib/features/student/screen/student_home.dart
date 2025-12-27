@@ -7,6 +7,7 @@ import 'package:_6th_sem_project/features/auth/screen/login_screen.dart';
 import 'package:_6th_sem_project/features/student/controller/get_tuition_controller.dart';
 import 'package:_6th_sem_project/features/student/screen/post_tuition.dart';
 import 'package:_6th_sem_project/features/student/screen/tuition_details.dart';
+import 'package:_6th_sem_project/utils/Student.utils.dart';
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -110,49 +111,6 @@ class StudentHomeScreen extends StatefulWidget {
 
 class _StudentHomeScreenState extends State<StudentHomeScreen> {
   final controller = getTuitionPost();
-
-  String formateTimeAgo(String? dateString) {
-    if (dateString == null) return "Unknown time";
-
-    final postDate = DateTime.parse(dateString);
-    final now = DateTime.now();
-    final difference = now.difference(postDate);
-
-    if (difference.inDays > 7) {
-      return "${(difference.inDays / 7).floor()}w ago";
-    } else if (difference.inDays >= 1) {
-      return "${difference.inDays}d ago";
-    } else if (difference.inHours >= 1) {
-      return "${difference.inHours}h ago";
-    } else if (difference.inMinutes >= 1) {
-      return "${difference.inMinutes}m ago";
-    } else {
-      return "Just now";
-    }
-  }
-
-  String formatToBDTime(String? timeStr) {
-    if (timeStr == null || timeStr.isEmpty) return "TBD";
-
-    try {
-      // Split "19:00:00" into ["19", "00", "00"]
-      List<String> parts = timeStr.split(':');
-      int hour = int.parse(parts[0]);
-      String minute = parts[1];
-
-      // Determine AM or PM
-      String period = hour >= 12 ? "PM" : "AM";
-
-      // Convert 24h to 12h
-      int hour12 = hour % 12;
-      if (hour12 == 0) hour12 = 12; // Handle Midnight (00) and Noon (12)
-
-      // Return in BD standard format
-      return "$hour12:$minute $period";
-    } catch (e) {
-      return timeStr; // Fallback to original if something fails
-    }
-  }
 
   @override
   void initState() {
@@ -529,9 +487,9 @@ class _StudentHomeScreenState extends State<StudentHomeScreen> {
                     const SizedBox(height: 12),
                 itemBuilder: (context, index) {
                   final tuition = controller.tuitionData![index];
-                  final timeAgo = formateTimeAgo(tuition['created_at']);
-                  final startTime = formatToBDTime(tuition['start_time']);
-                  final endTime = formatToBDTime(tuition['end_time']);
+                  final timeAgo = StudentUtils.formatTimeAgo(tuition['created_at']);
+                  final startTime = StudentUtils.formatToBDTime(tuition['start_time']);
+                  final endTime = StudentUtils.formatToBDTime(tuition['end_time']);
 
                   return StudentHomeCard(
                     title: tuition['post_title'],

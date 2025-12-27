@@ -2,11 +2,11 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-class StudentApiService{
+class StudentApiService {
   final _supabase = Supabase.instance.client;
 
   // Post Tuition
-  Future<void> postTuition ({
+  Future<void> postTuition({
     required String title,
     required String subjectId,
     required String studentId,
@@ -17,31 +17,31 @@ class StudentApiService{
     required String endTime,
     required int budget,
     String? details,
-}) async{
-      try{
-        await _supabase.from('tuition_post').insert({
-          'subject_id': subjectId,
-          'student_id': studentId,
-          'post_title': title,
-          'grade': grade,
-          'student_location': location,
-          'preferred_day': days,
-          'start_time': startTime,
-          'end_time': endTime,
-          'salary': budget,
-          'description': details ?? '',
-          'status': "active"
-        });
-      } catch (e){
-        debugPrint('postTuition error: $e');
-        rethrow;
-      }
+  }) async {
+    try {
+      await _supabase.from('tuition_post').insert({
+        'subject_id': subjectId,
+        'student_id': studentId,
+        'post_title': title,
+        'grade': grade,
+        'student_location': location,
+        'preferred_day': days,
+        'start_time': startTime,
+        'end_time': endTime,
+        'salary': budget,
+        'description': details ?? '',
+        'status': "active",
+      });
+    } catch (e) {
+      debugPrint('postTuition error: $e');
+      rethrow;
+    }
   }
 
-  Future<List<Map<String, dynamic>>?> getTuition () async{
-    try{
-      final response = await _supabase.from("tuition_post")
-          .select('''
+  //get all tuition
+  Future<List<Map<String, dynamic>>?> getTuition() async {
+    try {
+      final response = await _supabase.from("tuition_post").select('''
             *,
             subjects: subject_id(
               name
@@ -53,6 +53,30 @@ class StudentApiService{
       return response;
     } catch (e) {
       debugPrint('getTuition error: $e');
+      return null;
+    }
+  }
+
+  Future<Map<String, dynamic>?> getTuitionDetails(String postId) async {
+    try {
+      return await _supabase
+          .from('tuition_post')
+          .select('''
+          *,
+          subjects: subject_id(
+            name
+          ),
+          users: student_id(
+            full_name,
+            phone_number,
+            email,
+            profile_photo
+          )
+          ''')
+          .eq('id', postId)
+          .maybeSingle();
+    } catch (e) {
+      debugPrint('getTuitionDetails error: $e');
       return null;
     }
   }
