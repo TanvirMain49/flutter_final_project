@@ -1,5 +1,4 @@
 import 'package:_6th_sem_project/core/constants/colors.dart';
-import 'package:_6th_sem_project/core/services/api_service.dart';
 import 'package:_6th_sem_project/core/widgets/custom_dropdown.dart';
 import 'package:_6th_sem_project/core/widgets/custom_progress_bar.dart';
 import 'package:_6th_sem_project/core/widgets/custom_text_field.dart';
@@ -7,8 +6,7 @@ import 'package:_6th_sem_project/core/widgets/gradient_background.dart';
 import 'package:_6th_sem_project/core/widgets/input_field.dart';
 import 'package:_6th_sem_project/core/widgets/primary_button.dart';
 import 'package:_6th_sem_project/core/widgets/selected_group.dart';
-import 'package:_6th_sem_project/features/student/controller/student_controller.dart';
-import 'package:_6th_sem_project/features/student/screen/student_home.dart';
+import 'package:_6th_sem_project/features/student/controller/post_tuition_controller.dart';
 import 'package:flutter/material.dart';
 
 class PostTuitionScreen extends StatefulWidget {
@@ -53,8 +51,6 @@ class _PostTuitionScreenState extends State<PostTuitionScreen> {
     if (days.length == 7) return "Daily (Mon-Sun)";
     return days.join(", ");
   }
-
-
 
   // --- 5. Main Build Method ---
   @override
@@ -267,7 +263,6 @@ class _PostTuitionScreenState extends State<PostTuitionScreen> {
         // Location Budget days time
         _postReviewCart("Logistic", Icons.access_time_filled, {
           "Budget": "${_con.budgetController.text} /month",
-          // Use .join to turn the array into a comma-separated string
           "Days": _formateDay(_con.mySelectedDays),
           "Time":
               "${_con.startTime.format(context)} - ${_con.endTime.format(context)}",
@@ -307,41 +302,40 @@ class _PostTuitionScreenState extends State<PostTuitionScreen> {
           onPressed: _con.isLoadingPost
               ? null // Disable button while loading
               : () async {
-            // Trigger the post (this calls setState via the callback)
-            final success = await _con.postTuition(() => setState(() {}));
+                  // Trigger the post (this calls setState via the callback)
+                  final success = await _con.postTuition(() => setState(() {}));
 
-            if (!mounted) return;
+                  if (!mounted) return;
 
-            if (!success) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text("Post Tuition failed. Please try again."),
-                  backgroundColor: Colors.redAccent,
-                ),
-              );
-              return; // Exit if failed
-            }
+                  if (!success) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text("Post Tuition failed. Please try again."),
+                        backgroundColor: Colors.redAccent,
+                      ),
+                    );
+                    return; // Exit if failed
+                  }
 
-            // Success case
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text("Post Tuition Successfully"),
-                backgroundColor: Colors.green,
-              ),
-            );
+                  // Success case
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text("Post Tuition Successfully"),
+                      backgroundColor: Colors.green,
+                    ),
+                  );
 
-            Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(builder: (context) => const PostTuitionScreen()),
-            );
-          },
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const PostTuitionScreen(),
+                    ),
+                  );
+                },
         ),
       ],
     );
   }
-
-
-
 
   // ---------- custom widget method--------------
   // Post review Cart method
@@ -407,7 +401,7 @@ class _PostTuitionScreenState extends State<PostTuitionScreen> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    entry.key,
+                    entry.key, //e.g. subject, Budget
                     style: const TextStyle(
                       color: AppColors.white60,
                       fontSize: 16,
@@ -416,7 +410,7 @@ class _PostTuitionScreenState extends State<PostTuitionScreen> {
                   const SizedBox(width: 10),
                   Expanded(
                     child: Text(
-                      entry.value,
+                      entry.value, //e.g subject, budget etc value -> Accounting, Biology
                       textAlign: TextAlign.end,
                       style: const TextStyle(
                         color: AppColors.white,

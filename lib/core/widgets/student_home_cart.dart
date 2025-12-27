@@ -4,12 +4,15 @@ import '../constants/colors.dart';
 class StudentHomeCard extends StatelessWidget {
   final String title;
   final String location;
-  final List<String> studyDays;
-  final double price;
+  final String studyDays; // Changed from List<String> to String
+  final String price;
   final VoidCallback? onTap;
+  final String startTime;
+  final String endTime;
   final String studyType;
   final String subject;
-
+  final String studentName;
+  final String postTime;
 
   const StudentHomeCard({
     super.key,
@@ -17,13 +20,18 @@ class StudentHomeCard extends StatelessWidget {
     required this.location,
     required this.studyDays,
     required this.price,
+    required this.startTime,
+    required this.endTime,
     required this.studyType,
     required this.subject,
+    required this.studentName,
+    required this.postTime,
     this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
+
     return InkWell(
       onTap: () {},
       child: Container(
@@ -57,21 +65,31 @@ class StudentHomeCard extends StatelessWidget {
 
                 RichText(
                   text: TextSpan(
+                    style: const TextStyle(fontFamily: 'Roboto'),
                     children: [
                       TextSpan(
-                        text: "\$${price.toStringAsFixed(0)}",
+                        text: "৳ ",
                         style: TextStyle(
-                          color: AppColors.accent,
-                          fontSize: 24,
-                          fontWeight: FontWeight.w800,
+                          color: AppColors.accent.withOpacity(0.8),
+                          fontSize: 16,
+                          fontWeight: FontWeight.w400,
                         ),
                       ),
                       TextSpan(
-                        text: "/hr",
+                        text: price,
+                        style: const TextStyle(
+                          color: AppColors.accent,
+                          fontSize: 28,
+                          fontWeight: FontWeight.w900,
+                          letterSpacing: -0.5,
+                        ),
+                      ),
+                      TextSpan(
+                        text: " / mth",
                         style: TextStyle(
                           color: Colors.white.withOpacity(0.5),
-                          fontSize: 14,
-                          fontWeight: FontWeight.w400,
+                          fontSize: 12,
+                          fontWeight: FontWeight.w500,
                         ),
                       ),
                     ],
@@ -82,25 +100,40 @@ class StudentHomeCard extends StatelessWidget {
 
             const SizedBox(height: 16),
 
-            Text(
-              title,
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 22,
-                fontWeight: FontWeight.bold,
-                height: 1.2,
-              ),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  "Need a tuition for $title",
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 22,
+                    fontWeight: FontWeight.bold,
+                    height: 1.2,
+                  ),
+                ),
+                const SizedBox(height: 6), // Small gap between title and subtext
+                Text(
+                  "Posted by ${studentName} • ${postTime}", // Dynamic subtext
+                  style: TextStyle(
+                    color: Colors.white.withOpacity(0.5),
+                    fontSize: 13,
+                    fontWeight: FontWeight.w400,
+                    letterSpacing: 0.2,
+                  ),
+                ),
+              ],
             ),
 
             const SizedBox(height: 16),
             const Divider(color: AppColors.white60, height: 1),
             const SizedBox(height: 16),
 
-            _buildIconInfo(Icons.location_on_rounded, location),
+            _buildIconInfo(Icons.location_on_rounded, location, null),
             const SizedBox(height: 10),
-            _buildIconInfo(Icons.book_rounded, studyType),
+            _buildIconInfo(Icons.watch_later, startTime, endTime),
             const SizedBox(height: 10),
             _buildDateInfo(studyDays),
           ],
@@ -110,7 +143,7 @@ class StudentHomeCard extends StatelessWidget {
   }
 
   // Helper
-  Widget _buildIconInfo(IconData icon, String label) {
+  Widget _buildIconInfo(IconData icon, String label, String? lable_two) {
     return Row(
       children: [
         Icon(icon, size: 18, color: Colors.white60),
@@ -123,11 +156,28 @@ class StudentHomeCard extends StatelessWidget {
             fontWeight: FontWeight.w500,
           ),
         ),
+        if (lable_two != null) ...[
+          const SizedBox(width: 8),
+          Text('-', style: TextStyle(
+            color: Colors.white.withOpacity(0.7),
+            fontSize: 14,
+            fontWeight: FontWeight.w500,
+          ),),
+          const SizedBox(width: 8),
+          Text(
+            lable_two,
+            style: TextStyle(
+              color: Colors.white.withOpacity(0.7),
+              fontSize: 14,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+        ]
       ],
     );
   }
 
-  Widget _buildDateInfo(List<String> days) {
+  Widget _buildDateInfo(String days) {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -135,7 +185,7 @@ class StudentHomeCard extends StatelessWidget {
         const SizedBox(width: 8),
         Expanded(
           child: Text(
-            days.join(", "),
+            days, // No .join() needed anymore since it's already a string
             style: TextStyle(
               color: Colors.white.withOpacity(0.7),
               fontSize: 14,

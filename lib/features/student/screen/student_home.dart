@@ -4,6 +4,7 @@ import 'package:_6th_sem_project/core/widgets/search_field.dart';
 import 'package:_6th_sem_project/core/widgets/student_home_cart.dart';
 import 'package:_6th_sem_project/core/widgets/tutor_home_card.dart';
 import 'package:_6th_sem_project/features/auth/screen/login_screen.dart';
+import 'package:_6th_sem_project/features/student/controller/get_tuition_controller.dart';
 import 'package:_6th_sem_project/features/student/screen/post_tuition.dart';
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -99,8 +100,66 @@ final List<Map<String, dynamic>> tuitionData = [
   },
 ];
 
-class StudentHomeScreen extends StatelessWidget {
+class StudentHomeScreen extends StatefulWidget {
   const StudentHomeScreen({super.key});
+
+  @override
+  State<StudentHomeScreen> createState() => _StudentHomeScreenState();
+}
+
+class _StudentHomeScreenState extends State<StudentHomeScreen> {
+  final controller = getTuitionPost();
+
+  String formateTimeAgo(String? dateString){
+    if (dateString == null) return "Unknown time";
+
+    final postDate = DateTime.parse(dateString);
+    final now = DateTime.now();
+    final difference = now.difference(postDate);
+
+    if(difference.inDays > 7){
+      return "${(difference.inDays / 7).floor()}w ago";
+    } else if(difference.inDays >= 1){
+      return "${difference.inDays}d ago";
+    } else if (difference.inHours >= 1) {
+      return "${difference.inHours}h ago";
+    } else if (difference.inMinutes >= 1) {
+      return "${difference.inMinutes}m ago";
+    } else {
+      return "Just now";
+    }
+  }
+
+  String formatToBDTime(String? timeStr) {
+    if (timeStr == null || timeStr.isEmpty) return "TBD";
+
+    try {
+      // Split "19:00:00" into ["19", "00", "00"]
+      List<String> parts = timeStr.split(':');
+      int hour = int.parse(parts[0]);
+      String minute = parts[1];
+
+      // Determine AM or PM
+      String period = hour >= 12 ? "PM" : "AM";
+
+      // Convert 24h to 12h
+      int hour12 = hour % 12;
+      if (hour12 == 0) hour12 = 12; // Handle Midnight (00) and Noon (12)
+
+      // Return in BD standard format
+      return "$hour12:$minute $period";
+    } catch (e) {
+      return timeStr; // Fallback to original if something fails
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    controller.getTuition(() {
+      if (mounted) setState(() {});
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -143,7 +202,7 @@ class StudentHomeScreen extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(width: 12),
-      
+
                   Expanded(
                     child: simpleCard(
                       icon: Icons.post_add,
@@ -155,7 +214,7 @@ class StudentHomeScreen extends StatelessWidget {
                   ),
                 ],
               ),
-      
+
               const SizedBox(height: 32),
               recentTutor(),
               const SizedBox(height: 38),
@@ -221,11 +280,13 @@ class StudentHomeScreen extends StatelessWidget {
                     vertical: 12,
                   ),
                 ),
-                onPressed: () async{
-                   Navigator.push(
-                     context,
-                     MaterialPageRoute(builder: (context) => const PostTuitionScreen()),
-                   );
+                onPressed: () async {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const PostTuitionScreen(),
+                    ),
+                  );
                 },
                 child: const Row(
                   children: [
@@ -448,25 +509,45 @@ class StudentHomeScreen extends StatelessWidget {
 
         const SizedBox(height: 22),
 
-        ListView.separated(
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          padding: EdgeInsets.zero,
-          itemCount: tuitionData.length,
-          separatorBuilder: (context, index) => const SizedBox(height: 12),
-          itemBuilder: (context, index) {
-            final tuition = tuitionData[index];
-            return StudentHomeCard(
-              title: tuition['title'],
-              location: tuition['location'],
-              studyDays: tuition['studyDays'],
-              studyType: tuition['studyType'],
-              subject: tuition['subject'],
-              price: (tuition['price'] as num).toDouble(),
-              onTap: () {},
-            );
-          },
-        ),
+        controller.isLoading
+            ? const CircularProgressIndicator() // if loader is active show the loading animation
+            : controller.tuitionData == null ||
+                  controller
+                      .tuitionData!
+                      .isEmpty // cheek if data is empty or not
+            ? const Center(
+                child: Text("No Tuition Posts Available"),
+              ) // if data is empty then show this message
+            : ListView.separated(
+                // and if not show the data
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                padding: EdgeInsets.zero,
+                itemCount: controller.tuitionData!.length,
+                separatorBuilder: (context, index) =>
+                    const SizedBox(height: 12),
+                itemBuilder: (context, index) {
+                  final tuition = controller.tuitionData![index];
+                  final timeAgo = formateTimeAgo(tuition['created_at']);
+                  final startTime = formatToBDTime(tuition['start_time']);
+                  final endTime = formatToBDTime(tuition['end_time']);
+
+                  return StudentHomeCard(
+                    title: tuition['subjects']['name'],
+                    location: tuition['student_location'],
+                    studyDays: tuition['preferred_day'],
+                    startTime: startTime,
+                    endTime: endTime,
+                    studyType: tuition['status'],
+                    subject: tuition['grade'],
+                    price: (tuition['salary']),
+                    studentName:
+                        tuition['users']?['full_name'] ?? 'Unknown Student',
+                    postTime: timeAgo,
+                    onTap: () {},
+                  );
+                },
+              ),
       ],
     );
   }

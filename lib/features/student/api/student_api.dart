@@ -4,6 +4,8 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 class StudentApiService{
   final _supabase = Supabase.instance.client;
+
+  // Post Tuition
   Future<void> postTuition ({
     required String subjectId,
     required String studentId,
@@ -32,5 +34,24 @@ class StudentApiService{
         debugPrint('postTuition error: $e');
         rethrow;
       }
+  }
+
+  Future<List<Map<String, dynamic>>?> getTuition () async{
+    try{
+      final response = await _supabase.from("tuition_post")
+          .select('''
+            *,
+            subjects: subject_id(
+              name
+            ),
+            users: student_id(
+              full_name
+            )
+          ''');
+      return response;
+    } catch (e) {
+      debugPrint('getTuition error: $e');
+      return null;
+    }
   }
 }
