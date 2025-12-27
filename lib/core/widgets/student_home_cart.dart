@@ -33,7 +33,9 @@ class StudentHomeCard extends StatelessWidget {
   Widget build(BuildContext context) {
 
     return InkWell(
-      onTap: () {},
+      onTap: () {
+        if (onTap != null) onTap!();
+      },
       child: Container(
         padding: EdgeInsets.all(18),
         decoration: BoxDecoration(

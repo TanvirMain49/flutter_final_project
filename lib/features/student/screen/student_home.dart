@@ -6,6 +6,7 @@ import 'package:_6th_sem_project/core/widgets/tutor_home_card.dart';
 import 'package:_6th_sem_project/features/auth/screen/login_screen.dart';
 import 'package:_6th_sem_project/features/student/controller/get_tuition_controller.dart';
 import 'package:_6th_sem_project/features/student/screen/post_tuition.dart';
+import 'package:_6th_sem_project/features/student/screen/tuition_details.dart';
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -110,16 +111,16 @@ class StudentHomeScreen extends StatefulWidget {
 class _StudentHomeScreenState extends State<StudentHomeScreen> {
   final controller = getTuitionPost();
 
-  String formateTimeAgo(String? dateString){
+  String formateTimeAgo(String? dateString) {
     if (dateString == null) return "Unknown time";
 
     final postDate = DateTime.parse(dateString);
     final now = DateTime.now();
     final difference = now.difference(postDate);
 
-    if(difference.inDays > 7){
+    if (difference.inDays > 7) {
       return "${(difference.inDays / 7).floor()}w ago";
-    } else if(difference.inDays >= 1){
+    } else if (difference.inDays >= 1) {
       return "${difference.inDays}d ago";
     } else if (difference.inHours >= 1) {
       return "${difference.inHours}h ago";
@@ -544,7 +545,16 @@ class _StudentHomeScreenState extends State<StudentHomeScreen> {
                     studentName:
                         tuition['users']?['full_name'] ?? 'Unknown Student',
                     postTime: timeAgo,
-                    onTap: () {},
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => TuitionDetails(
+                            tuitionId: tuition['id'].toString(),
+                          ),
+                        ),
+                      );
+                    },
                   );
                 },
               ),
