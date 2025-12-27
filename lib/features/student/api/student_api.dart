@@ -7,6 +7,7 @@ class StudentApiService{
 
   // Post Tuition
   Future<void> postTuition ({
+    required String title,
     required String subjectId,
     required String studentId,
     required String grade,
@@ -21,6 +22,7 @@ class StudentApiService{
         await _supabase.from('tuition_post').insert({
           'subject_id': subjectId,
           'student_id': studentId,
+          'post_title': title,
           'grade': grade,
           'student_location': location,
           'preferred_day': days,

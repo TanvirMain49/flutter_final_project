@@ -23,6 +23,7 @@ class PostTuitionController {
   List<Map<String, dynamic>> subjects = []; //from db value will be saved here
 
   // --- Controllers ---
+  final TextEditingController titleController = TextEditingController();
   final TextEditingController subjectController = TextEditingController();
   final TextEditingController locationController = TextEditingController();
   final TextEditingController budgetController = TextEditingController();
@@ -91,6 +92,7 @@ class PostTuitionController {
       await StudentApiService().postTuition(
         subjectId: selectedSubjectId!,
         studentId: user.id,
+        title: titleController.text,
         grade: selectedGradeLevel!,
         location: locationController.text,
         days: dayString,
@@ -114,6 +116,7 @@ class PostTuitionController {
   // --- Logic: Validation ---
   String? validateForm() {
     if (subjectController.text.isEmpty ||
+        titleController == null ||
         selectedGradeLevel == null ||
         mySelectedDays.isEmpty ||
         locationController.text.isEmpty ||

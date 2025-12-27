@@ -6,12 +6,15 @@ class CustomDropdown extends StatefulWidget {
   final String label;
   final List<String> items;
   final ValueChanged<String> onChange;
+  final IconData? icon;
+
 
   const CustomDropdown({
     super.key,
     required this.label,
     required this.items,
    required this.onChange,
+    this.icon,
   });
 
   @override
@@ -74,7 +77,23 @@ class _CustomDropdownState extends State<CustomDropdown> {
               },
               items: widget.items.map((String item)=> DropdownMenuItem<String>(
                 value: item,
-                child: Text(item),
+                child: Row(
+                  children: [
+                    Icon(
+                      widget.icon ?? Icons.import_contacts,
+                      size: 20,
+                      color: Colors.white60,
+                    ),
+                    const SizedBox(width: 12),
+                    Text(
+                      item,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 16,
+                      ),
+                    ),
+                  ],
+                ),
               )).toList()
             ),
           ),

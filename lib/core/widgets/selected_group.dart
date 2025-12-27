@@ -36,7 +36,6 @@ class SelectedGroup extends StatelessWidget {
           scrollDirection: Axis.horizontal,
           physics: const BouncingScrollPhysics(),
           child: Row(
-
             children: options.map((option){
               final isSelected = selectedOptions.contains(option);
               return Padding(

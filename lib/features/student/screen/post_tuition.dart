@@ -133,11 +133,22 @@ class _PostTuitionScreenState extends State<PostTuitionScreen> {
         ),
         const SizedBox(height: 30),
 
+        // Post title
+        CustomInputField(
+          controller: _con.titleController,
+          label: "Title",
+          hint: 'Enter your post title',
+          icon: Icons.title,
+        ),
+
+        const SizedBox(height: 20,),
+
         // Subject -> selected Group
         _con.isLoadingSubjects
             ? CircularProgressIndicator(color: AppColors.accent)
             : CustomDropdown(
                 label: "Subject",
+                icon: Icons.import_contacts,
                 items: _con.subjects.map((s) => s['name'].toString()).toList(),
                 onChange: (value) {
                   _con.handleSubjectSelection(value, () => setState(() {}));
@@ -253,8 +264,10 @@ class _PostTuitionScreenState extends State<PostTuitionScreen> {
         ),
         const SizedBox(height: 30),
 
-        // Subject and Grade
-        _postReviewCart("Subject & Grade", Icons.school_rounded, {
+
+        // Title, subject and Grade
+        _postReviewCart("Title, Subject & Grade", Icons.school_rounded, {
+          "Title": _con.titleController.text,
           "Subject": _con.subjectController.text,
           "Grade": _con.selectedGradeLevel ?? "N/A",
         }),
