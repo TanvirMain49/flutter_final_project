@@ -533,13 +533,13 @@ class _StudentHomeScreenState extends State<StudentHomeScreen> {
                   final endTime = formatToBDTime(tuition['end_time']);
 
                   return StudentHomeCard(
-                    title: tuition['subjects']['name'],
+                    title: tuition['post_title'],
                     location: tuition['student_location'],
                     studyDays: tuition['preferred_day'],
                     startTime: startTime,
                     endTime: endTime,
-                    studyType: tuition['status'],
-                    subject: tuition['grade'],
+                    status: tuition['status'],
+                    subject: tuition['subjects']['name'],
                     price: (tuition['salary']),
                     studentName:
                         tuition['users']?['full_name'] ?? 'Unknown Student',

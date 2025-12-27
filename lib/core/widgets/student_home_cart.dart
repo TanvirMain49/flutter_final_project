@@ -4,12 +4,12 @@ import '../constants/colors.dart';
 class StudentHomeCard extends StatelessWidget {
   final String title;
   final String location;
-  final String studyDays; // Changed from List<String> to String
+  final String studyDays;
   final String price;
+  final String status;
   final VoidCallback? onTap;
   final String startTime;
   final String endTime;
-  final String studyType;
   final String subject;
   final String studentName;
   final String postTime;
@@ -20,9 +20,9 @@ class StudentHomeCard extends StatelessWidget {
     required this.location,
     required this.studyDays,
     required this.price,
+    required this.status,
     required this.startTime,
     required this.endTime,
-    required this.studyType,
     required this.subject,
     required this.studentName,
     required this.postTime,
@@ -104,7 +104,7 @@ class StudentHomeCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  "Need a tuition for $title",
+                  title,
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                   style: const TextStyle(
@@ -114,9 +114,9 @@ class StudentHomeCard extends StatelessWidget {
                     height: 1.2,
                   ),
                 ),
-                const SizedBox(height: 6), // Small gap between title and subtext
+                const SizedBox(height: 6),
                 Text(
-                  "Posted by ${studentName} • ${postTime}", // Dynamic subtext
+                  "Posted by ${studentName} • ${postTime}",
                   style: TextStyle(
                     color: Colors.white.withOpacity(0.5),
                     fontSize: 13,
@@ -133,7 +133,7 @@ class StudentHomeCard extends StatelessWidget {
 
             _buildIconInfo(Icons.location_on_rounded, location, null),
             const SizedBox(height: 10),
-            _buildIconInfo(Icons.watch_later, startTime, endTime),
+            _buildIconInfo(Icons.school_rounded, startTime, endTime),
             const SizedBox(height: 10),
             _buildDateInfo(studyDays),
           ],
