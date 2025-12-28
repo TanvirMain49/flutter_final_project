@@ -4,6 +4,7 @@ import 'package:_6th_sem_project/core/widgets/gradient_background.dart';
 import 'package:_6th_sem_project/features/student/controller/get_tuition_controller.dart';
 import 'package:_6th_sem_project/features/student/screen/post_tuition.dart';
 import 'package:_6th_sem_project/features/student/screen/student_home.dart';
+import 'package:_6th_sem_project/features/student/screen/user_profile.dart';
 import 'package:_6th_sem_project/features/tutor/screen/tutor_home.dart';
 import 'package:flutter/material.dart';
 
@@ -46,7 +47,7 @@ class _AppMainScreenState extends State<AppMainScreen> {
          const Scaffold(body: Center(child: Text("Student Search"))),
          const SizedBox(),
          const Scaffold(body: Center(child: Text("Student Notification"))),
-         const Scaffold(body: Center(child: Text("Student profile"))),
+         const UserProfile(),
        ];
      } else{
        pages= [
