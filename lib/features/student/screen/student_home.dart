@@ -8,8 +8,9 @@ import 'package:_6th_sem_project/features/student/controller/get_tuition_control
 import 'package:_6th_sem_project/features/student/screen/post_tuition.dart';
 import 'package:_6th_sem_project/features/student/screen/tuition_details.dart';
 import 'package:_6th_sem_project/utils/Student.utils.dart';
-import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:flutter/material.dart';
+import 'dart:math' as math;
 
 final List<Map<String, dynamic>> tutorsData = [
   {
@@ -49,59 +50,6 @@ final List<Map<String, dynamic>> tutorsData = [
   },
 ];
 
-final List<Map<String, dynamic>> tuitionData = [
-  {
-    'title': "Need Math Tutor",
-    'location': "Dhanmondi, Dhaka",
-    'studyDays': ["Sun", "Tue", "Thu"],
-    'studyType': "offline",
-    'subject': "Mathematics",
-    'price': 25,
-    'imageUrl': 'https://randomuser.me/api/portraits/women/44.jpg',
-    'rating': 4.9,
-  },
-  {
-    'title': "Need Physics Tutor",
-    'location': "Gulshan, Dhaka",
-    'studyDays': ["Mon", "Wed", "Fri"],
-    'studyType': "online",
-    'subject': "Physics",
-    'price': 30,
-    'imageUrl': 'https://randomuser.me/api/portraits/men/34.jpg',
-    'rating': 4.7,
-  },
-  {
-    'title': "Need Chemistry Tutor",
-    'location': "Banani, Dhaka",
-    'studyDays': ["Tue", "Thu"],
-    'studyType': "offline",
-    'subject': "Chemistry",
-    'price': 28,
-    'imageUrl': 'https://randomuser.me/api/portraits/women/55.jpg',
-    'rating': 4.8,
-  },
-  {
-    'title': "Need English Tutor",
-    'location': "Dhanmondi, Dhaka",
-    'studyDays': ["Sun", "Wed", "Fri"],
-    'studyType': "online",
-    'subject': "English",
-    'price': 20,
-    'imageUrl': 'https://randomuser.me/api/portraits/men/45.jpg',
-    'rating': 4.6,
-  },
-  {
-    'title': "Need Biology Tutor",
-    'location': "Uttara, Dhaka",
-    'studyDays': ["Mon", "Thu"],
-    'studyType': "offline",
-    'subject': "Biology",
-    'price': 27,
-    'imageUrl': 'https://randomuser.me/api/portraits/women/66.jpg',
-    'rating': 4.9,
-  },
-];
-
 class StudentHomeScreen extends StatefulWidget {
   const StudentHomeScreen({super.key});
 
@@ -111,6 +59,7 @@ class StudentHomeScreen extends StatefulWidget {
 
 class _StudentHomeScreenState extends State<StudentHomeScreen> {
   final controller = getTuitionPost();
+  final user = Supabase.instance.client.auth.currentUser;
 
   @override
   void initState() {
@@ -122,8 +71,6 @@ class _StudentHomeScreenState extends State<StudentHomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final user = Supabase.instance.client.auth.currentUser;
-
     if (user == null) {
       Navigator.push(
         context,
@@ -156,7 +103,8 @@ class _StudentHomeScreenState extends State<StudentHomeScreen> {
           },
           child: SingleChildScrollView(
             padding: EdgeInsets.symmetric(horizontal: 14),
-            physics: const AlwaysScrollableScrollPhysics(), //// Important for RefreshIndicator
+            physics:
+                const AlwaysScrollableScrollPhysics(), //// Important for RefreshIndicator
             child: Column(
               children: [
                 studentTopBar(displayName),
@@ -495,14 +443,21 @@ class _StudentHomeScreenState extends State<StudentHomeScreen> {
                       .tuitionData!
                       .isEmpty // cheek if data is empty or not
             ? const Center(
-                child: Text("No Tuition Posts Available"),
+                child: Text(
+                  "No Tuition Posts Available",
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
               ) // if data is empty then show this message
             : ListView.separated(
-                // and if not show the data
+                // and if data not empty show the data
                 shrinkWrap: true,
                 physics: const NeverScrollableScrollPhysics(),
                 padding: EdgeInsets.zero,
-                itemCount: controller.tuitionData!.length,
+                itemCount: math.min(controller.tuitionData!.length, 3),
                 separatorBuilder: (context, index) =>
                     const SizedBox(height: 12),
                 itemBuilder: (context, index) {

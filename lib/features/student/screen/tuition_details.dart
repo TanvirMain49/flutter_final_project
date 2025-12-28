@@ -1,4 +1,5 @@
 import 'package:_6th_sem_project/core/constants/colors.dart';
+import 'package:_6th_sem_project/core/widgets/Custom_avatar.dart';
 import 'package:_6th_sem_project/core/widgets/gradient_background.dart';
 import 'package:_6th_sem_project/core/widgets/primary_button.dart';
 import 'package:_6th_sem_project/features/student/controller/get_tuition_controller.dart';
@@ -88,23 +89,10 @@ class _TuitionDetailsState extends State<TuitionDetails> {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   //TODO: Custom Profile Avatar!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-                                  CircleAvatar(
-                                    radius: 35,
-                                    backgroundColor: AppColors.secondary,
-                                    child:
-                                        data['user']?['profile_photo'] != null
-                                        ? ClipOval(
-                                            child: Image.network(
-                                              data['user']['profile_photo'],
-                                              fit: BoxFit.cover,
-                                            ),
-                                          )
-                                        : const Icon(
-                                            Icons.person,
-                                            size: 35,
-                                            color: AppColors.accent,
-                                          ),
+                                  CustomAvatar(
+                                      photoUrl: data['user']?['profile_photo']
                                   ),
+
                                   const SizedBox(width: 12),
                                   Expanded(
                                     child: Column(
