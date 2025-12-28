@@ -93,7 +93,7 @@ class _AppMainScreenState extends State<AppMainScreen> {
             );
 
             // 3. Once they are back, refresh the data
-            getTuitionPost().getTuition(() {
+            GetTuitionController().getTuition(() {
               if (mounted) {
                 setState(() {}); // Trigger rebuild of Home Screen with new data
               }

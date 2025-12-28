@@ -5,6 +5,7 @@ import 'package:_6th_sem_project/core/widgets/primary_button.dart';
 import 'package:_6th_sem_project/features/student/controller/get_tuition_controller.dart';
 import 'package:_6th_sem_project/utils/Student.utils.dart';
 import 'package:flutter/material.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class TuitionDetails extends StatefulWidget {
   final String tuitionId;
@@ -15,7 +16,8 @@ class TuitionDetails extends StatefulWidget {
 }
 
 class _TuitionDetailsState extends State<TuitionDetails> {
-  final _controller = getTuitionPost();
+  final _controller = GetTuitionController();
+  final _supabase = Supabase.instance.client;
 
   @override
   void initState() {
@@ -30,6 +32,7 @@ class _TuitionDetailsState extends State<TuitionDetails> {
     debugPrint(_controller.tuitionDetails.toString());
 
     final data = _controller.tuitionDetails;
+
 
     return Scaffold(
       backgroundColor: AppColors.primaryDark,
@@ -75,6 +78,7 @@ class _TuitionDetailsState extends State<TuitionDetails> {
                     data['start_time'],
                   );
                   final endTime = StudentUtils.formatToBDTime(data['end_time']);
+
                   return SingleChildScrollView(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -318,73 +322,81 @@ class _TuitionDetailsState extends State<TuitionDetails> {
                 },
               ),
       ),
-
-      bottomNavigationBar: Container(
-        padding: const EdgeInsets.fromLTRB(
-          16,
-          10,
-          16,
-          30,
-        ), // Extra bottom padding for modern phones
+      bottomNavigationBar: data == null
+          ? const SizedBox.shrink() // Show nothing while loading
+          : Container(
+        padding: const EdgeInsets.fromLTRB(16, 10, 16, 30),
         decoration: BoxDecoration(
           color: AppColors.primaryDark,
           border: Border(
             top: BorderSide(color: Colors.white.withOpacity(0.05)),
           ),
         ),
-        child: Row(
-          // Using a Row often looks better for two buttons
-          children: [
-            // Message Button (Smaller)
-            Expanded(
-              flex: 2,
-              child: OutlinedButton.icon(
-                onPressed: () {},
-                icon: const Icon(Icons.chat_bubble_outline_rounded, size: 20),
-                label: const Text('Message'),
-                style: OutlinedButton.styleFrom(
-                  foregroundColor: AppColors.accent,
-                  side: const BorderSide(color: AppColors.accent, width: 1.5),
-                  padding: const EdgeInsets.symmetric(vertical: 14),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                ),
-              ),
-            ),
-            const SizedBox(width: 12),
-            // Apply Button (Main Action)
-            Expanded(
-              flex: 3,
-              child: PrimaryButton(text: "Apply Now", onPressed: () {}),
-            ),
-          ],
+        child: Builder(
+          builder: (context) {
+            // Logic calculated safely after data is confirmed not null
+            final isOwner = data['users']['id'] == _supabase.auth.currentUser?.id;
+            final userRole = data['users']['role'] ?? 'guest';
+
+            return _buildRoleBasedActions(isOwner, userRole);
+          },
         ),
       ),
     );
   }
 
-  Widget _buildTag(IconData icon, String label) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-      decoration: BoxDecoration(
-        color: AppColors.secondary,
-        borderRadius: BorderRadius.circular(20),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(icon, size: 16, color: AppColors.accent),
-          const SizedBox(width: 6),
-          Text(
-            label,
-            style: const TextStyle(color: AppColors.white, fontSize: 12),
-          ),
-        ],
+  // Bottom navigation button
+  Widget _buildRoleBasedActions(bool isOwner, String userRole) {
+    // Logic to determine if current user owns the post
+    if (isOwner) {
+      return PrimaryButton(
+        text: "View Applications",
+        onPressed: () { /* Navigate to applications list */ },
+      );
+    }
+
+    // Handle other roles
+    switch (userRole) {
+      case 'tutor':
+        return Row(
+          children: [
+            Expanded(
+              flex: 2,
+              child: _messageButton(),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              flex: 3,
+              child: PrimaryButton(text: "Apply Now", onPressed: () {}),
+            ),
+          ],
+        );
+
+      case 'Guess':
+      default:
+        return SizedBox(
+          width: double.infinity,
+          child: _messageButton(),
+        );
+    }
+  }
+
+  // Reusable Message Button to keep the switch case clean
+  Widget _messageButton() {
+    return OutlinedButton.icon(
+      onPressed: () {},
+      icon: const Icon(Icons.chat_bubble_outline_rounded, size: 20),
+      label: const Text('Message'),
+      style: OutlinedButton.styleFrom(
+        foregroundColor: AppColors.accent,
+        side: const BorderSide(color: AppColors.accent, width: 1.5),
+        padding: const EdgeInsets.symmetric(vertical: 14),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       ),
     );
   }
 
+  // card information builder
   Widget _buildInfoCard(String title, String value, IconData icon) {
     return Container(
       padding: const EdgeInsets.all(12),
@@ -421,6 +433,7 @@ class _TuitionDetailsState extends State<TuitionDetails> {
     );
   }
 
+  // form the days
   String _formatDays(String? days) {
     if (days == null) return 'N/A';
     final dayList = days.split(',');

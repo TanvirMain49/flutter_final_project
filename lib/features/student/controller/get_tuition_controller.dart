@@ -2,7 +2,7 @@ import 'package:_6th_sem_project/features/student/api/student_api.dart';
 import 'package:flutter/material.dart';
 
 
-class getTuitionPost {
+class GetTuitionController {
   List<Map<String, dynamic>>? tuitionData;
   Map<String, dynamic>? tuitionDetails;
   bool isLoading = true;

@@ -58,7 +58,7 @@ class StudentHomeScreen extends StatefulWidget {
 }
 
 class _StudentHomeScreenState extends State<StudentHomeScreen> {
-  final controller = getTuitionPost();
+  final controller = GetTuitionController();
   final user = Supabase.instance.client.auth.currentUser;
 
   @override

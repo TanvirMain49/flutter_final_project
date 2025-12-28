@@ -67,7 +67,9 @@ class StudentApiService {
             name
           ),
           users: student_id(
+            id,
             full_name,
+            role,
             phone_number,
             email,
             profile_photo
