@@ -3,6 +3,7 @@ import 'package:_6th_sem_project/core/widgets/Custom_avatar.dart';
 import 'package:_6th_sem_project/core/widgets/gradient_background.dart';
 import 'package:_6th_sem_project/features/profile/controller/profile_data_controller.dart';
 import 'package:_6th_sem_project/features/profile/screen/user_setting.dart';
+import 'package:_6th_sem_project/features/student/screen/my_tuition_posts.dart';
 import 'package:flutter/material.dart';
 
 enum UserRole { student, tutor }
@@ -202,49 +203,54 @@ class _UserProfileState extends State<UserProfile> {
     required String title,
     String? subtitle,
   }) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      decoration: BoxDecoration(
-        color: AppColors.surface,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.border, width: 1),
-      ),
-      child: Row(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(10),
-            decoration: BoxDecoration(
-              color: AppColors.inputBackground,
-              borderRadius: BorderRadius.circular(8),
+    return InkWell(
+      onTap: (){
+        Navigator.push(context, MaterialPageRoute(builder: (context)=> const MyTuitionPosts()));
+      },
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        decoration: BoxDecoration(
+          color: AppColors.surface,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: AppColors.border, width: 1),
+        ),
+        child: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                color: AppColors.inputBackground,
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Icon(icon, color: AppColors.accent, size: 20),
             ),
-            child: Icon(icon, color: AppColors.accent, size: 20),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title,
-                  style: const TextStyle(
-                    color: AppColors.white,
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-                if (subtitle != null)
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
                   Text(
-                    subtitle,
+                    title,
                     style: const TextStyle(
-                      color: AppColors.textMuted,
-                      fontSize: 14,
+                      color: AppColors.white,
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
                     ),
                   ),
-              ],
+                  if (subtitle != null)
+                    Text(
+                      subtitle,
+                      style: const TextStyle(
+                        color: AppColors.textMuted,
+                        fontSize: 14,
+                      ),
+                    ),
+                ],
+              ),
             ),
-          ),
-          Icon(Icons.chevron_right, color: AppColors.textMuted, size: 20),
-        ],
+            Icon(Icons.chevron_right, color: AppColors.textMuted, size: 20),
+          ],
+        ),
       ),
     );
   }
