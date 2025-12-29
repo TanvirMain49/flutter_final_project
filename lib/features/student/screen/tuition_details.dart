@@ -3,7 +3,7 @@ import 'package:_6th_sem_project/core/widgets/Custom_avatar.dart';
 import 'package:_6th_sem_project/core/widgets/gradient_background.dart';
 import 'package:_6th_sem_project/core/widgets/primary_button.dart';
 import 'package:_6th_sem_project/features/student/controller/get_tuition_controller.dart';
-import 'package:_6th_sem_project/features/student/screen/user_profile.dart';
+import 'package:_6th_sem_project/features/profile/screen/user_profile.dart';
 import 'package:_6th_sem_project/utils/Student.utils.dart';
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';

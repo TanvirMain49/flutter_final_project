@@ -49,6 +49,8 @@ class UserApiService {
           .maybeSingle();
 
       debugPrint(data.toString());
+      if(data == null) return {};
+      return data;
 
     } catch (e, stackTrace){
       debugPrint('getUserProfile error: $e');
