@@ -1,6 +1,9 @@
 import 'package:_6th_sem_project/core/constants/colors.dart';
 import 'package:_6th_sem_project/core/widgets/gradient_background.dart';
 import 'package:_6th_sem_project/core/widgets/primary_button.dart';
+import 'package:_6th_sem_project/features/profile/controller/profile_data_controller.dart';
+import 'package:_6th_sem_project/features/student/screen/post_tuition.dart';
+import 'package:_6th_sem_project/utils/Student.utils.dart';
 import 'package:flutter/material.dart';
 
 class MyTuitionPosts extends StatefulWidget {
@@ -11,8 +14,21 @@ class MyTuitionPosts extends StatefulWidget {
 }
 
 class _MyTuitionPostsState extends State<MyTuitionPosts> {
+  final _dataCon = ProfileDataController();
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    _dataCon.getMyTuitionPost(() {
+      if (mounted) setState(() {});
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
+    debugPrint(_dataCon.myTuitionPost.toString());
+    final totalPost = _dataCon.myTuitionPost.length;
     return Scaffold(
       backgroundColor: AppColors.primary,
       appBar: AppBar(
@@ -81,9 +97,9 @@ class _MyTuitionPostsState extends State<MyTuitionPosts> {
                               ],
                             ),
                             const SizedBox(height: 12),
-                            const Text(
-                              '5',
-                              style: TextStyle(
+                            Text(
+                              "$totalPost",
+                              style: const TextStyle(
                                 color: AppColors.white,
                                 fontSize: 28,
                                 fontWeight: FontWeight.bold,
@@ -149,44 +165,52 @@ class _MyTuitionPostsState extends State<MyTuitionPosts> {
                   ),
                 ),
                 const SizedBox(height: 12),
-                // Active Post - Physics
-                _buildPostCard(
-                  status: 'Active',
-                  statusColor: AppColors.accent,
-                  title: 'Need a physic teacher for primary school',
-                  subject: 'Physic',
-                  days: 'W, T, Th',
-                  startTime:'7.00 PM',
-                  endTime: '8,00 PM',
-                  rate: '25',
-                  onPressed: () {},
-                ),
-                const SizedBox(height: 12),
-                // Pending Post - Mathematics
-                _buildPostCard(
-                  status: 'Closed • Hired',
-                  statusColor:  const Color(0xFF6C757D),
-                  title: 'Need a Math teacher for primary school',
-                  subject: 'Mathetics',
-                  days: 'T, Th, F',
-                  startTime:'7.00 PM',
-                  endTime: '8,00 PM',
-                  rate: '20',
-                  onPressed: () {},
-                ),
-                const SizedBox(height: 12),
-                // Closed/Hired Post - Chemistry
-                _buildPostCard(
-                  status: 'Closed • Hired',
-                  statusColor: const Color(0xFF6C757D),
-                  title: 'Need a Chemistry teacher',
-                  subject: 'Chemistry',
-                  days: 'F, S, Su',
-                  startTime:'7.00 PM',
-                  endTime: '8,00 PM',
-                  rate: '',
-                  onPressed: () {},
-                ),
+
+                // List map--------------------------
+                _dataCon.isLoading
+                    ? const CircularProgressIndicator()
+                    : _dataCon.myTuitionPost.isEmpty
+                    ? const Center(
+                        child: Text(
+                          'No Tuition Posts Available',
+                          style: TextStyle(
+                            color: AppColors.white,
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      )
+                    : ListView.separated(
+                        padding: EdgeInsets.zero,
+                        shrinkWrap: true,
+                        physics: NeverScrollableScrollPhysics(),
+                        itemCount: _dataCon.myTuitionPost.length,
+                        separatorBuilder: (context, index) =>
+                            const SizedBox(height: 12),
+                        itemBuilder: (context, index) {
+                          final tuition = _dataCon.myTuitionPost[index];
+                          // TODO: time ago
+                          final timeAgo = StudentUtils.formatTimeAgo(
+                            tuition!['created_at'],
+                          );
+                          final startTime = StudentUtils.formatToBDTime(
+                            tuition['start_time'],
+                          );
+                          final endTime = StudentUtils.formatToBDTime(
+                            tuition['end_time'],
+                          );
+                          return _buildPostCard(
+                            status: tuition['status'] ?? 'Active',
+                            statusColor: AppColors.accent,
+                            title: tuition['post_title'],
+                            subject: tuition['subjects']['name'],
+                            days: tuition['preferred_day'],
+                            rate: tuition['salary'],
+                            startTime: startTime,
+                            endTime: endTime,
+                          );
+                        },
+                      ),
               ],
             ),
           ),
@@ -194,7 +218,12 @@ class _MyTuitionPostsState extends State<MyTuitionPosts> {
       ),
       floatingActionButton: FloatingActionButton(
         backgroundColor: AppColors.accent,
-        onPressed: () {},
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const PostTuitionScreen()),
+          );
+        },
         child: const Icon(Icons.add, color: AppColors.white),
       ),
     );
@@ -227,7 +256,10 @@ class _MyTuitionPostsState extends State<MyTuitionPosts> {
             children: [
               // Status Badge (Active/Inactive)
               Container(
-                padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 12),
+                padding: const EdgeInsets.symmetric(
+                  vertical: 6,
+                  horizontal: 12,
+                ),
                 decoration: BoxDecoration(
                   color: AppColors.inputBackground,
                   borderRadius: BorderRadius.circular(20),
@@ -259,7 +291,10 @@ class _MyTuitionPostsState extends State<MyTuitionPosts> {
                 crossAxisAlignment: CrossAxisAlignment.baseline,
                 textBaseline: TextBaseline.alphabetic,
                 children: [
-                  const Text('৳ ', style: TextStyle(color: AppColors.accent, fontSize: 16)),
+                  const Text(
+                    '৳ ',
+                    style: TextStyle(color: AppColors.accent, fontSize: 16),
+                  ),
                   Text(
                     rate,
                     style: const TextStyle(
@@ -268,7 +303,10 @@ class _MyTuitionPostsState extends State<MyTuitionPosts> {
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-                  const Text(' / mth', style: TextStyle(color: AppColors.textMuted, fontSize: 12)),
+                  const Text(
+                    ' / mth',
+                    style: TextStyle(color: AppColors.textMuted, fontSize: 12),
+                  ),
                 ],
               ),
             ],
@@ -294,11 +332,18 @@ class _MyTuitionPostsState extends State<MyTuitionPosts> {
           // Subject Row
           Row(
             children: [
-              const Icon(Icons.book_rounded, color: AppColors.textMuted, size: 18),
+              const Icon(
+                Icons.book_rounded,
+                color: AppColors.textMuted,
+                size: 18,
+              ),
               const SizedBox(width: 8),
               Text(
                 subject,
-                style: const TextStyle(color: AppColors.textMuted, fontSize: 14),
+                style: const TextStyle(
+                  color: AppColors.textMuted,
+                  fontSize: 14,
+                ),
               ),
             ],
           ),
@@ -307,11 +352,18 @@ class _MyTuitionPostsState extends State<MyTuitionPosts> {
           // Preferred Days (Using 'grade' parameter as requested)
           Row(
             children: [
-              const Icon(Icons.calendar_today, color: AppColors.textMuted, size: 18),
+              const Icon(
+                Icons.calendar_today,
+                color: AppColors.textMuted,
+                size: 18,
+              ),
               const SizedBox(width: 8),
               Text(
                 days, // Use this for preferred days (e.g., S, Su, M)
-                style: const TextStyle(color: AppColors.textMuted, fontSize: 14),
+                style: const TextStyle(
+                  color: AppColors.textMuted,
+                  fontSize: 14,
+                ),
               ),
             ],
           ),
@@ -321,11 +373,18 @@ class _MyTuitionPostsState extends State<MyTuitionPosts> {
           // Preferred Days (Using 'grade' parameter as requested)
           Row(
             children: [
-              const Icon(Icons.watch_later, color: AppColors.textMuted, size: 18),
+              const Icon(
+                Icons.watch_later,
+                color: AppColors.textMuted,
+                size: 18,
+              ),
               const SizedBox(width: 8),
               Text(
                 "$startTime - $endTime", // Use this for preferred days (e.g., S, Su, M)
-                style: const TextStyle(color: AppColors.textMuted, fontSize: 14),
+                style: const TextStyle(
+                  color: AppColors.textMuted,
+                  fontSize: 14,
+                ),
               ),
             ],
           ),
@@ -334,11 +393,11 @@ class _MyTuitionPostsState extends State<MyTuitionPosts> {
 
           // ACTION BUTTONS
           PrimaryButton(
-              text: "View Applicants",
-              onPressed: (){
-                onPressed;
-              },
-          )
+            text: "View Applicants",
+            onPressed: () {
+              onPressed;
+            },
+          ),
         ],
       ),
     );

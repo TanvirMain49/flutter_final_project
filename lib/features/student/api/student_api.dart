@@ -57,6 +57,7 @@ class StudentApiService {
     }
   }
 
+  // get tuition details
   Future<Map<String, dynamic>?> getTuitionDetails(String postId) async {
     try {
       return await _supabase
@@ -77,6 +78,29 @@ class StudentApiService {
           ''')
           .eq('id', postId)
           .maybeSingle();
+    } catch (e) {
+      debugPrint('getTuitionDetails error: $e');
+      return null;
+    }
+  }
+
+  //   get my tuition post
+  Future<List<Map<String, dynamic>>?> getMyTuitionPost() async {
+    try {
+      final userId = _supabase.auth.currentUser?.id;
+      if (userId == null) return null;
+
+      final response = await _supabase
+          .from('tuition_post')
+          .select('''
+        *,
+        subjects: subject_id(
+        name
+        )
+        ''')
+          .eq('student_id', userId);
+      if (response.isEmpty) return null;
+      return response;
     } catch (e) {
       debugPrint('getTuitionDetails error: $e');
       return null;

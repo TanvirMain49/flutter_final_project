@@ -33,7 +33,6 @@ class _UserProfileState extends State<UserProfile> {
 
   @override
   Widget build(BuildContext context) {
-    debugPrint(_dataCon.userProfile.toString());
     return Scaffold(
       appBar: AppBar(
         backgroundColor: AppColors.primaryDark,
@@ -126,6 +125,13 @@ class _UserProfileState extends State<UserProfile> {
                           icon: Icons.assignment,
                           title: 'My Tuition Posts',
                           subtitle: 'Manage your requests',
+                          onTap: (){
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(builder:
+                                    (context)=> const MyTuitionPosts())
+                            );
+                          },
                         ),
                         const SizedBox(height: 12),
 
@@ -202,11 +208,10 @@ class _UserProfileState extends State<UserProfile> {
     required IconData icon,
     required String title,
     String? subtitle,
+    VoidCallback? onTap,
   }) {
     return InkWell(
-      onTap: (){
-        Navigator.push(context, MaterialPageRoute(builder: (context)=> const MyTuitionPosts()));
-      },
+      onTap: onTap,
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         decoration: BoxDecoration(
