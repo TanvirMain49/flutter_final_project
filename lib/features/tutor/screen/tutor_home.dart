@@ -255,13 +255,6 @@ class _TutorHomeScreenState extends State<TutorHomeScreen> {
   }
 
   Widget _buildTuitionCard(Map<String, dynamic> post) {
-    Color statusColor = post['status'] == 'Active'
-        ? AppColors.success
-        : Colors.orange;
-    IconData statusIcon = post['status'] == 'Active'
-        ? Icons.check_circle
-        : Icons.schedule;
-
     return Container(
       decoration: BoxDecoration(
         color: AppColors.primaryDark,
@@ -282,7 +275,7 @@ class _TutorHomeScreenState extends State<TutorHomeScreen> {
                     post['title'],
                     style: const TextStyle(
                       color: AppColors.white,
-                      fontSize: 16,
+                      fontSize: 18,
                       fontWeight: FontWeight.bold,
                     ),
                     maxLines: 2,
@@ -335,7 +328,7 @@ class _TutorHomeScreenState extends State<TutorHomeScreen> {
                   post['location'],
                   style: const TextStyle(
                     color: AppColors.textMuted,
-                    fontSize: 13,
+                    fontSize: 14,
                   ),
                 ),
                 const Spacer(),
@@ -373,21 +366,22 @@ class _TutorHomeScreenState extends State<TutorHomeScreen> {
                         // Apply action
                       },
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.accent,
+                        backgroundColor: profileComplete? AppColors.accent : Colors.grey[800],
+                        disabledBackgroundColor: Colors.grey[800],
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(8),
                         ),
-                        elevation: 0,
+                        elevation: profileComplete? 2 : 0,
                         padding: const EdgeInsets.symmetric(
                           horizontal: 16,
                           vertical: 8,
                         ),
                       ),
-                      child: const Text(
+                      child: Text(
                         'Apply',
                         style: TextStyle(
-                          color: AppColors.black,
-                          fontSize: 13,
+                          color: profileComplete? AppColors.black : Colors.white38,
+                          fontSize: 14,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
