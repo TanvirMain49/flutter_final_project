@@ -2,6 +2,7 @@ import 'package:_6th_sem_project/core/widgets/custom_home_navbar.dart';
 import 'package:_6th_sem_project/core/widgets/gradient_background.dart';
 import 'package:_6th_sem_project/core/constants/colors.dart';
 import 'package:_6th_sem_project/core/widgets/card_skeleton.dart';
+import 'package:_6th_sem_project/features/student/screen/tuition_details.dart';
 import 'package:_6th_sem_project/features/tutor/controller/tutor_data_controller.dart';
 import 'package:_6th_sem_project/utils/Student.utils.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -79,10 +80,35 @@ class _TutorHomeScreenState extends State<TutorHomeScreen> {
     {'title': 'Science Tutoring', 'jobs': '15 jobs'},
   ];
 
+  // void handelSave(String postId) async{
+  //   final result = await _con.saveTuition(() {
+  //     if (mounted) setState(() {});
+  //   }, postId);
+  //
+  //   if(result != null){
+  //     ScaffoldMessenger.of(context).showSnackBar(
+  //         SnackBar(
+  //             content: Container(
+  //               decoration: BoxDecoration(
+  //                 color: AppColors.accent,
+  //                 borderRadius: BorderRadius.circular(12),
+  //               ),
+  //                 child: Text(result, style: TextStyle(
+  //                   color: AppColors.black,
+  //                 ),),
+  //             )
+  //
+  //         )
+  //     );
+  //   }
+  // }
   @override
   void initState() {
     super.initState();
     _con.getTuition(() {
+      if (mounted) setState(() {});
+    });
+    _con.syncSavedPosts().then((_) {
       if (mounted) setState(() {});
     });
   }
@@ -103,8 +129,10 @@ class _TutorHomeScreenState extends State<TutorHomeScreen> {
         color: AppColors.accent,
         backgroundColor: AppColors.primaryDark,
         onRefresh: () async {
-          await Future.delayed(const Duration(seconds: 1));
           await _con.getTuition(() {
+            if (mounted) setState(() {});
+          });
+          await _con.syncSavedPosts().then((_) {
             if (mounted) setState(() {});
           });
           setState(() {});
@@ -309,155 +337,187 @@ class _TutorHomeScreenState extends State<TutorHomeScreen> {
         borderRadius: BorderRadius.circular(12),
         border: Border.all(color: AppColors.border, width: 1),
       ),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Title and Saved button
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Expanded(
-                  child: Text(
-                    post['post_title'],
+      child: InkWell(
+        onTap: (){
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => TuitionDetails(tuitionId: post['id'].toString()),
+            )
+          );
+        },
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Title and Saved button
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Expanded(
+                    child: Text(
+                      post['post_title'],
+                      style: const TextStyle(
+                        color: AppColors.white,
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+
+                  // saved button
+                  GestureDetector(
+                    onTap: () async {
+                      setState(() {});
+                      final String? result = await _con.toggleSave(post['id'].toString());
+                      if (!mounted) return;
+                      setState(() {});
+                      if (result == null) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text("Connection error. Try again."))
+                        );
+                      }
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(result!, style: const TextStyle(color: AppColors.white)),
+                          backgroundColor: AppColors.inputBackground,
+                          behavior: SnackBarBehavior.floating,
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                        ),
+                      );
+                    },
+                    behavior: HitTestBehavior.opaque,
+                    child: Container(
+                      width: 44,
+                      height: 44,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: AppColors.inputBackground,
+                      ),
+                      child: Center(
+                        child: Icon(
+                          _con.savedPostIds.contains(post['id'].toString())
+                              ? Icons.bookmark
+                              : Icons.bookmark_outline,
+                          color: AppColors.accent,
+                          size: 24,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 12),
+
+              // Subject and Level
+              Row(
+                children: [
+                  _buildInfoChip(Icons.book, post['subjects']['name']),
+                  const SizedBox(width: 8),
+                  _buildInfoChip(Icons.school, post['grade']),
+                ],
+              ),
+              const SizedBox(height: 12),
+
+              // Location and Time
+              Row(
+                children: [
+                  const Icon(
+                    Icons.location_on_outlined,
+                    color: AppColors.textMuted,
+                    size: 14,
+                  ),
+                  const SizedBox(width: 4),
+                  Text(
+                    post['student_location'],
+                    style: TextStyle(color: AppColors.textMuted, fontSize: 14),
+                  ),
+                  const Spacer(),
+                  // ADD THIS PART:
+                  const Icon(
+                    Icons.people_outline,
+                    color: AppColors.textMuted,
+                    size: 15,
+                  ),
+                  const SizedBox(width: 4),
+                  Text(
+                    "400 applied",
                     style: const TextStyle(
-                      color: AppColors.white,
-                      fontSize: 18,
+                      color: AppColors.textMuted,
+                      fontSize: 13,
+                    ),
+                  ),
+                  const Text(
+                    " • ",
+                    style: TextStyle(color: AppColors.textMuted),
+                  ), // Separator
+                  Text(
+                    timeAgo,
+                    style: const TextStyle(
+                      color: AppColors.textMuted,
+                      fontSize: 13,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+
+              Container(height: 1, color: AppColors.border),
+              const SizedBox(height: 12),
+
+              // Price and Actions
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    '\$${post['salary']}',
+                    style: const TextStyle(
+                      color: AppColors.accent,
+                      fontSize: 16,
                       fontWeight: FontWeight.bold,
                     ),
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
                   ),
-                ),
-                GestureDetector(
-                  onTap: () {},
-                  behavior: HitTestBehavior.opaque,
-                  child: Container(
-                    width: 44,
-                    height: 44,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: AppColors.inputBackground,
-                    ),
-                    child: const Center(
-                      child: Icon(
-                        Icons.bookmark_outline,
-                        color: AppColors.accent,
-                        size: 24,
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 12),
-
-            // Subject and Level
-            Row(
-              children: [
-                _buildInfoChip(Icons.book, post['subjects']['name']),
-                const SizedBox(width: 8),
-                _buildInfoChip(Icons.school, post['grade']),
-              ],
-            ),
-            const SizedBox(height: 12),
-
-            // Location and Time
-            Row(
-              children: [
-                const Icon(
-                  Icons.location_on_outlined,
-                  color: AppColors.textMuted,
-                  size: 14,
-                ),
-                const SizedBox(width: 4),
-                Text(
-                  post['student_location'],
-                  style: TextStyle(color: AppColors.textMuted, fontSize: 14),
-                ),
-                const Spacer(),
-                // ADD THIS PART:
-                const Icon(
-                  Icons.people_outline,
-                  color: AppColors.textMuted,
-                  size: 15,
-                ),
-                const SizedBox(width: 4),
-                Text(
-                  "400 applied",
-                  style: const TextStyle(
-                    color: AppColors.textMuted,
-                    fontSize: 13,
-                  ),
-                ),
-                const Text(
-                  " • ",
-                  style: TextStyle(color: AppColors.textMuted),
-                ), // Separator
-                Text(
-                  timeAgo,
-                  style: const TextStyle(
-                    color: AppColors.textMuted,
-                    fontSize: 13,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 16),
-
-            Container(height: 1, color: AppColors.border),
-            const SizedBox(height: 12),
-
-            // Price and Actions
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  '\$${post['salary']}',
-                  style: const TextStyle(
-                    color: AppColors.accent,
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                Row(
-                  children: [
-                    const SizedBox(width: 8),
-                    ElevatedButton(
-                      onPressed: () {
-                        // Apply action
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: profileComplete
-                            ? AppColors.accent
-                            : Colors.grey[800],
-                        disabledBackgroundColor: Colors.grey[800],
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
+                  Row(
+                    children: [
+                      const SizedBox(width: 8),
+                      ElevatedButton(
+                        onPressed: () {
+                          // Apply action
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: profileComplete
+                              ? AppColors.accent
+                              : Colors.grey[800],
+                          disabledBackgroundColor: Colors.grey[800],
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          elevation: profileComplete ? 2 : 0,
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 8,
+                          ),
                         ),
-                        elevation: profileComplete ? 2 : 0,
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 8,
+                        child: Text(
+                          'Apply',
+                          style: TextStyle(
+                            color: profileComplete
+                                ? AppColors.black
+                                : Colors.white38,
+                            fontSize: 14,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                       ),
-                      child: Text(
-                        'Apply',
-                        style: TextStyle(
-                          color: profileComplete
-                              ? AppColors.black
-                              : Colors.white38,
-                          fontSize: 14,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ],
+                    ],
+                  ),
+                ],
+              ),
+            ],
+          ),
         ),
       ),
     );

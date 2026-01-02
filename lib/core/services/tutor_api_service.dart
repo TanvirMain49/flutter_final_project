@@ -51,4 +51,45 @@ class TutorApiService {
     }
   }
 
+  // save tuition
+  Future<void> saveTuition(String postId) async {
+    final userId = await _supabase.auth.currentUser?.id;
+    if(userId == null) return;
+    try{
+      await _supabase.from('save_post').insert({
+        'user_id': userId,
+        'post_id': postId
+      });
+    } catch (e){
+      debugPrint('saveTuition error: $e');
+    }
+  }
+
+  //get save tuition
+  Future<List<Map<String, dynamic>>> fetchSavedPostIds() async{
+    final userId =  _supabase.auth.currentUser?.id;
+    if(userId == null) return [];
+    try{
+      final response = await _supabase.from('save_post').select('post_id').eq('user_id', userId);
+      return response;
+    } catch (e){
+      debugPrint('fetchSavedPostIds error: $e');
+      return[];
+    }
+  }
+
+  // delete save tuition post
+  Future<void> deleteSavedPost(String postId) async {
+    final userId = _supabase.auth.currentUser?.id;
+    try{
+      await _supabase
+          .from("save_post")
+          .delete()
+          .match({'user_id': userId!, 'post_id': postId});
+    } catch (e){
+      debugPrint('deleteSavedPost error: $e');
+    }
+  }
+
+
 }
