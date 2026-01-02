@@ -85,6 +85,9 @@ class _TutorHomeScreenState extends State<TutorHomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    bool hasSaved = !savedItems.isNotEmpty;
+    bool hasApplied = !myApplications.isNotEmpty;
+
     return Scaffold(
       body: RefreshIndicator(
         color: AppColors.accent,
@@ -117,7 +120,14 @@ class _TutorHomeScreenState extends State<TutorHomeScreen> {
                 // My Applications Section
                 _buildSectionHeader('My Applications', () {}),
                 const SizedBox(height: 12),
-                _buildApplicationsCards(),
+                hasApplied
+                    ? _buildApplicationsCards()
+                    : _buildEmptyState(
+                        Icons.assignment_outlined,
+                        "No Applications Yet",
+                        "You haven't applied to any jobs. Start\napplying to find your perfect student!",
+                        "Apply Now"
+                      ),
 
                 const SizedBox(height: 32),
 
@@ -136,7 +146,14 @@ class _TutorHomeScreenState extends State<TutorHomeScreen> {
                         ),
                       ),
                       const SizedBox(height: 12),
-                      _buildSavedItemsList(),
+                      hasSaved
+                          ? _buildSavedItemsList()
+                          : _buildEmptyState(
+                              Icons.bookmark_border_rounded,
+                              "No Saved Jobs Yet",
+                              "Tap the bookmark icon on any job\npost to save it for later.",
+                              "Browse Jobs"
+                            ),
                     ],
                   ),
                 ),
@@ -321,22 +338,37 @@ class _TutorHomeScreenState extends State<TutorHomeScreen> {
                 const Icon(
                   Icons.location_on_outlined,
                   color: AppColors.textMuted,
-                  size: 16,
+                  size: 14,
                 ),
                 const SizedBox(width: 4),
                 Text(
                   post['location'],
-                  style: const TextStyle(
-                    color: AppColors.textMuted,
-                    fontSize: 14,
-                  ),
+                  style: TextStyle(color: AppColors.textMuted, fontSize: 14),
                 ),
                 const Spacer(),
+                // ADD THIS PART:
+                const Icon(
+                  Icons.people_outline,
+                  color: AppColors.textMuted,
+                  size: 15,
+                ),
+                const SizedBox(width: 4),
+                Text(
+                  "400 applied",
+                  style: const TextStyle(
+                    color: AppColors.textMuted,
+                    fontSize: 13,
+                  ),
+                ),
+                const Text(
+                  " • ",
+                  style: TextStyle(color: AppColors.textMuted),
+                ), // Separator
                 Text(
                   post['timeAgo'],
                   style: const TextStyle(
                     color: AppColors.textMuted,
-                    fontSize: 12,
+                    fontSize: 13,
                   ),
                 ),
               ],
@@ -366,12 +398,14 @@ class _TutorHomeScreenState extends State<TutorHomeScreen> {
                         // Apply action
                       },
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: profileComplete? AppColors.accent : Colors.grey[800],
+                        backgroundColor: profileComplete
+                            ? AppColors.accent
+                            : Colors.grey[800],
                         disabledBackgroundColor: Colors.grey[800],
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(8),
                         ),
-                        elevation: profileComplete? 2 : 0,
+                        elevation: profileComplete ? 2 : 0,
                         padding: const EdgeInsets.symmetric(
                           horizontal: 16,
                           vertical: 8,
@@ -380,7 +414,9 @@ class _TutorHomeScreenState extends State<TutorHomeScreen> {
                       child: Text(
                         'Apply',
                         style: TextStyle(
-                          color: profileComplete? AppColors.black : Colors.white38,
+                          color: profileComplete
+                              ? AppColors.black
+                              : Colors.white38,
                           fontSize: 14,
                           fontWeight: FontWeight.bold,
                         ),
@@ -439,7 +475,7 @@ class _TutorHomeScreenState extends State<TutorHomeScreen> {
                     app['title'],
                     style: const TextStyle(
                       color: AppColors.white,
-                      fontSize: 15,
+                      fontSize: 16,
                       fontWeight: FontWeight.bold,
                     ),
                     maxLines: 1,
@@ -450,7 +486,7 @@ class _TutorHomeScreenState extends State<TutorHomeScreen> {
                     app['school'],
                     style: const TextStyle(
                       color: AppColors.textMuted,
-                      fontSize: 12,
+                      fontSize: 14,
                     ),
                   ),
                   const SizedBox(height: 4),
@@ -458,7 +494,7 @@ class _TutorHomeScreenState extends State<TutorHomeScreen> {
                     'Applied ${app['appliedDate']}',
                     style: const TextStyle(
                       color: AppColors.textMuted,
-                      fontSize: 11,
+                      fontSize: 12,
                     ),
                   ),
                 ],
@@ -497,7 +533,7 @@ class _TutorHomeScreenState extends State<TutorHomeScreen> {
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
       child: Row(
-        children: List.generate(savedItems.length, (index) {
+        children: List.generate(3, (index) {
           final item = savedItems[index];
           return Padding(
             padding: EdgeInsets.only(
@@ -514,7 +550,7 @@ class _TutorHomeScreenState extends State<TutorHomeScreen> {
     return Container(
       width: 160,
       decoration: BoxDecoration(
-        color: AppColors.secondary,
+        color: AppColors.primaryDark,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(color: AppColors.border, width: 1),
       ),
@@ -522,7 +558,6 @@ class _TutorHomeScreenState extends State<TutorHomeScreen> {
         padding: const EdgeInsets.all(12),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(
               item['title']!,
@@ -635,6 +670,49 @@ class _TutorHomeScreenState extends State<TutorHomeScreen> {
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildEmptyState(IconData icon, String title, String subtitle, String buttonText) {
+    return Container(
+      padding: EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: AppColors.primaryDark,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Center(
+        child: Column(
+          children: [
+            Icon(icon, size: 80, color: AppColors.textMuted.withOpacity(0.3)),
+            const SizedBox(height: 16),
+            Text(
+              title,
+              style: const TextStyle(
+                color: AppColors.white,
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              subtitle,
+              textAlign: TextAlign.center,
+              style: const TextStyle(color: AppColors.textMuted, fontSize: 13),
+            ),
+            const SizedBox(height: 24),
+            ElevatedButton(
+              onPressed: () {
+                // Navigate back to the home/browse tab
+              },
+              style: ElevatedButton.styleFrom(backgroundColor: AppColors.accent),
+              child: Text(
+                buttonText,
+                style: const TextStyle(color: AppColors.black),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
