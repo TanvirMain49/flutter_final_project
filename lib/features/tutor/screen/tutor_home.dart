@@ -1,6 +1,9 @@
 import 'package:_6th_sem_project/core/widgets/custom_home_navbar.dart';
 import 'package:_6th_sem_project/core/widgets/gradient_background.dart';
 import 'package:_6th_sem_project/core/constants/colors.dart';
+import 'package:_6th_sem_project/core/widgets/card_skeleton.dart';
+import 'package:_6th_sem_project/features/tutor/controller/tutor_data_controller.dart';
+import 'package:_6th_sem_project/utils/Student.utils.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:flutter/material.dart';
 
@@ -12,16 +15,9 @@ class TutorHomeScreen extends StatefulWidget {
 }
 
 class _TutorHomeScreenState extends State<TutorHomeScreen> {
+  final _con = TutorDataController();
   final user = Supabase.instance.client.auth.currentUser;
-
-  late final userEmail = user?.email ?? "Guest User";
-
-  late final displayName = userEmail.contains('@')
-      ? userEmail.split('@')[0]
-      : userEmail;
-
   bool profileComplete = false;
-  int unreadNotifications = 3;
 
   final List<Map<String, dynamic>> activeTuitionPosts = [
     {
@@ -84,7 +80,21 @@ class _TutorHomeScreenState extends State<TutorHomeScreen> {
   ];
 
   @override
+  void initState() {
+    super.initState();
+    _con.getTuition(() {
+      if (mounted) setState(() {});
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
+    debugPrint(_con.postTuition.toString());
+
+    late final userEmail = user?.email ?? "Guest User";
+    late final displayName = userEmail.contains('@')
+        ? userEmail.split('@')[0]
+        : userEmail;
     bool hasSaved = !savedItems.isNotEmpty;
     bool hasApplied = !myApplications.isNotEmpty;
 
@@ -94,6 +104,9 @@ class _TutorHomeScreenState extends State<TutorHomeScreen> {
         backgroundColor: AppColors.primaryDark,
         onRefresh: () async {
           await Future.delayed(const Duration(seconds: 1));
+          await _con.getTuition(() {
+            if (mounted) setState(() {});
+          });
           setState(() {});
         },
         child: GradientBackground(
@@ -126,7 +139,7 @@ class _TutorHomeScreenState extends State<TutorHomeScreen> {
                         Icons.assignment_outlined,
                         "No Applications Yet",
                         "You haven't applied to any jobs. Start\napplying to find your perfect student!",
-                        "Apply Now"
+                        "Apply Now",
                       ),
 
                 const SizedBox(height: 32),
@@ -152,7 +165,7 @@ class _TutorHomeScreenState extends State<TutorHomeScreen> {
                               Icons.bookmark_border_rounded,
                               "No Saved Jobs Yet",
                               "Tap the bookmark icon on any job\npost to save it for later.",
-                              "Browse Jobs"
+                              "Browse Jobs",
                             ),
                     ],
                   ),
@@ -260,9 +273,26 @@ class _TutorHomeScreenState extends State<TutorHomeScreen> {
   }
 
   Widget _buildActiveFeedCards() {
+
+    if(_con.isLoading && _con.postTuition.isEmpty) {
+      return Column(
+        children: List.generate(3, (index) => const CardSkeleton()),
+      );
+    }
+
+    // If loading is done and list is still empty, show empty state
+    if (!_con.isLoading && _con.postTuition.isEmpty) {
+      return _buildEmptyState(
+          Icons.bookmark_border_rounded,
+          "No Tuitions Available",
+          "Check back later for new posts.",
+          "Browse Jobs"
+      );
+    }
+
     return Column(
-      children: List.generate(activeTuitionPosts.length, (index) {
-        final post = activeTuitionPosts[index];
+      children: List.generate(_con.postTuition.length, (index) {
+        final post = _con.postTuition[index];
         return Padding(
           padding: const EdgeInsets.only(bottom: 12),
           child: _buildTuitionCard(post),
@@ -272,6 +302,7 @@ class _TutorHomeScreenState extends State<TutorHomeScreen> {
   }
 
   Widget _buildTuitionCard(Map<String, dynamic> post) {
+    String timeAgo = StudentUtils.formatTimeAgo(post['created_at'].toString());
     return Container(
       decoration: BoxDecoration(
         color: AppColors.primaryDark,
@@ -289,7 +320,7 @@ class _TutorHomeScreenState extends State<TutorHomeScreen> {
               children: [
                 Expanded(
                   child: Text(
-                    post['title'],
+                    post['post_title'],
                     style: const TextStyle(
                       color: AppColors.white,
                       fontSize: 18,
@@ -325,9 +356,9 @@ class _TutorHomeScreenState extends State<TutorHomeScreen> {
             // Subject and Level
             Row(
               children: [
-                _buildInfoChip(Icons.book, post['subject']),
+                _buildInfoChip(Icons.book, post['subjects']['name']),
                 const SizedBox(width: 8),
-                _buildInfoChip(Icons.school, post['level']),
+                _buildInfoChip(Icons.school, post['grade']),
               ],
             ),
             const SizedBox(height: 12),
@@ -342,7 +373,7 @@ class _TutorHomeScreenState extends State<TutorHomeScreen> {
                 ),
                 const SizedBox(width: 4),
                 Text(
-                  post['location'],
+                  post['student_location'],
                   style: TextStyle(color: AppColors.textMuted, fontSize: 14),
                 ),
                 const Spacer(),
@@ -365,7 +396,7 @@ class _TutorHomeScreenState extends State<TutorHomeScreen> {
                   style: TextStyle(color: AppColors.textMuted),
                 ), // Separator
                 Text(
-                  post['timeAgo'],
+                  timeAgo,
                   style: const TextStyle(
                     color: AppColors.textMuted,
                     fontSize: 13,
@@ -383,7 +414,7 @@ class _TutorHomeScreenState extends State<TutorHomeScreen> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  '\$${post['salary']}/hour',
+                  '\$${post['salary']}',
                   style: const TextStyle(
                     color: AppColors.accent,
                     fontSize: 16,
@@ -674,7 +705,12 @@ class _TutorHomeScreenState extends State<TutorHomeScreen> {
     );
   }
 
-  Widget _buildEmptyState(IconData icon, String title, String subtitle, String buttonText) {
+  Widget _buildEmptyState(
+    IconData icon,
+    String title,
+    String subtitle,
+    String buttonText,
+  ) {
     return Container(
       padding: EdgeInsets.all(14),
       decoration: BoxDecoration(
@@ -705,7 +741,9 @@ class _TutorHomeScreenState extends State<TutorHomeScreen> {
               onPressed: () {
                 // Navigate back to the home/browse tab
               },
-              style: ElevatedButton.styleFrom(backgroundColor: AppColors.accent),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.accent,
+              ),
               child: Text(
                 buttonText,
                 style: const TextStyle(color: AppColors.black),

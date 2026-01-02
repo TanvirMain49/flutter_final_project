@@ -1,6 +1,5 @@
 import 'package:_6th_sem_project/core/constants/colors.dart';
 import 'package:_6th_sem_project/core/services/api_service.dart';
-import 'package:_6th_sem_project/core/widgets/gradient_background.dart';
 import 'package:_6th_sem_project/features/student/controller/get_tuition_controller.dart';
 import 'package:_6th_sem_project/features/student/screen/post_tuition.dart';
 import 'package:_6th_sem_project/features/student/screen/student_home.dart';
@@ -41,38 +40,39 @@ class _AppMainScreenState extends State<AppMainScreen> {
       _role = role ?? 'student';
       _isLoading = false;
 
-     if(_role == 'student'){
-       pages= [
-         const StudentHomeScreen(),
-         const Scaffold(body: Center(child: Text("Student Search"))),
-         const SizedBox(),
-         const Scaffold(body: Center(child: Text("Student Notification"))),
-         const UserProfile(),
-       ];
-     } else{
-       pages= [
-         const TutorHomeScreen(),
-         const Scaffold(body: Center(child: Text("Tutor Search"))),
-         const SizedBox(),
-         const Scaffold(body: Center(child: Text("Tutor Notification"))),
-         const UserProfile(),
-       ];
-     }
+      if (_role == 'student') {
+        pages = [
+          const StudentHomeScreen(),
+          const Scaffold(body: Center(child: Text("Student Search"))),
+          const SizedBox(),
+          const Scaffold(body: Center(child: Text("Student Notification"))),
+          const UserProfile(),
+        ];
+      } else {
+        pages = [
+          const TutorHomeScreen(),
+          const Scaffold(body: Center(child: Text("Tutor Search"))),
+          const SizedBox(),
+          const Scaffold(body: Center(child: Text("Tutor Notification"))),
+          const UserProfile(),
+        ];
+      }
     });
-
   }
 
   @override
   Widget build(BuildContext context) {
     if (_isLoading) {
-      return const Scaffold(
-          body: Center(
-              child: GradientBackground(
-                  child: CircularProgressIndicator()
-              )
-          )
+      return Scaffold(
+        backgroundColor: AppColors.primaryDark, // Set background here
+        body: Center(
+          // This is the magic fix
+          child: CircularProgressIndicator(
+            color: AppColors.accent,
+            strokeWidth: 3,
+          ),
+        ),
       );
-
     }
 
     return Scaffold(
@@ -85,12 +85,15 @@ class _AppMainScreenState extends State<AppMainScreen> {
         selectedItemColor: AppColors.accent,
         type: BottomNavigationBarType.fixed,
         currentIndex: selectedIndex,
-        onTap: (value) async { // <--- 1. async goes here
+        onTap: (value) async {
+          // <--- 1. async goes here
           if (value == 2 && _role == 'student') {
             // 2. Wait for the user to return from the Post screen
             await Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) => const PostTuitionScreen()),
+              MaterialPageRoute(
+                builder: (context) => const PostTuitionScreen(),
+              ),
             );
 
             // 3. Once they are back, refresh the data
