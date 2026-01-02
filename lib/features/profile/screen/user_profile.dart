@@ -9,15 +9,13 @@ import 'package:flutter/material.dart';
 enum UserRole { student, tutor }
 
 class UserProfile extends StatefulWidget {
-  final UserRole userRole;
-  const UserProfile({super.key, this.userRole = UserRole.student});
+  const UserProfile({super.key});
 
   @override
   State<UserProfile> createState() => _UserProfileState();
 }
 
 class _UserProfileState extends State<UserProfile> {
-  late UserRole currentRole;
   final _dataCon = ProfileDataController();
 
   @override
@@ -26,7 +24,6 @@ class _UserProfileState extends State<UserProfile> {
     _dataCon.getUserProfile(() {
       if (mounted) setState(() {});
     });
-    currentRole = widget.userRole;
   }
 
   // !!!!!!!!!!!!!!! End !!!!!!!!!!!!!!!!
@@ -120,7 +117,7 @@ class _UserProfileState extends State<UserProfile> {
                       ),
                       const SizedBox(height: 24),
                       // Dynamic Menu Items Based on Role
-                      if (currentRole == UserRole.student) ...[
+                      if (_dataCon.userProfile['role'] == 'student') ...[
                         _buildMenuItem(
                           icon: Icons.assignment,
                           title: 'My Tuition Posts',

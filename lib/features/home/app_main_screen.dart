@@ -55,7 +55,7 @@ class _AppMainScreenState extends State<AppMainScreen> {
          const Scaffold(body: Center(child: Text("Tutor Search"))),
          const Scaffold(body: Center(child: Text("Tutor post"))),
          const Scaffold(body: Center(child: Text("Tutor Notification"))),
-         const Scaffold(body: Center(child: Text("Tutor profile"))),
+         const UserProfile(),
        ];
      }
     });
