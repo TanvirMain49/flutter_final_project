@@ -1,3 +1,4 @@
+import 'package:_6th_sem_project/core/services/api_service.dart';
 import 'package:_6th_sem_project/core/services/tutor_api_service.dart';
 import 'package:_6th_sem_project/features/student/api/student_api.dart';
 import 'package:flutter/material.dart';
@@ -7,6 +8,14 @@ class GetTuitionController {
   List<Map<String, dynamic>>? tuitionData;
   Map<String, dynamic>? tuitionDetails;
   bool isLoading = true;
+
+  String? role;
+
+  // 2. Create a function to load the role
+  Future<void> initRole() async {
+    role = await UserApiService().getUserRole();
+    debugPrint("User Role Loaded: $role");
+  }
 
   //  get tuition
   Future<void> getTuition(VoidCallback onUpdate) async {

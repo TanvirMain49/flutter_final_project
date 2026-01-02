@@ -1,4 +1,5 @@
 import 'package:_6th_sem_project/core/constants/colors.dart';
+import 'package:_6th_sem_project/core/services/api_service.dart';
 import 'package:_6th_sem_project/core/widgets/Custom_avatar.dart';
 import 'package:_6th_sem_project/core/widgets/gradient_background.dart';
 import 'package:_6th_sem_project/core/widgets/primary_button.dart';
@@ -26,6 +27,7 @@ class _TuitionDetailsState extends State<TuitionDetails> {
     _controller.getTuitionDetails(widget.tuitionId, () {
       if (mounted) setState(() {});
     });
+    _controller.initRole();
   }
 
   @override
@@ -65,8 +67,7 @@ class _TuitionDetailsState extends State<TuitionDetails> {
       body: GradientBackground(
         child:
             _controller.isLoading ||
-                data ==
-                    null // Check if still loading or data is missing
+                data == null // Check if still loading or data is missing
             ? const Center(
                 child: CircularProgressIndicator(color: AppColors.accent),
               )
@@ -93,7 +94,7 @@ class _TuitionDetailsState extends State<TuitionDetails> {
                               Row(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  //TODO: Custom Profile Avatar!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
                                   CustomAvatar(
                                       photoUrl: data['user']?['profile_photo']
                                   ),
@@ -337,7 +338,8 @@ class _TuitionDetailsState extends State<TuitionDetails> {
           builder: (context) {
             // Logic calculated safely after data is confirmed not null
             final isOwner = data['users']['id'] == _supabase.auth.currentUser?.id;
-            final userRole = data['users']['role'] ?? 'guest';
+             final userRole =  _controller.role ?? 'Guess';
+            debugPrint("Role: "+ userRole!);
 
             return _buildRoleBasedActions(isOwner, userRole);
           },
