@@ -1,8 +1,8 @@
 import 'package:_6th_sem_project/core/widgets/custom_home_navbar.dart';
 import 'package:_6th_sem_project/core/widgets/gradient_background.dart';
-import 'package:flutter/material.dart';
 import 'package:_6th_sem_project/core/constants/colors.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:flutter/material.dart';
 
 class TutorHomeScreen extends StatefulWidget {
   const TutorHomeScreen({super.key});

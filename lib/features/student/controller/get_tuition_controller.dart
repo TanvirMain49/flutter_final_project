@@ -1,3 +1,4 @@
+import 'package:_6th_sem_project/core/services/tutor_api_service.dart';
 import 'package:_6th_sem_project/features/student/api/student_api.dart';
 import 'package:flutter/material.dart';
 
@@ -12,7 +13,7 @@ class GetTuitionController {
     isLoading = true;
     onUpdate();
     try{
-      final data = await StudentApiService().getTuition();
+      final data = await TutorApiService().getTuition();
       debugPrint(data.toString());
       if(data!= null){
         tuitionData = data;
@@ -30,7 +31,7 @@ class GetTuitionController {
     isLoading = true;
     onUpdate();
     try{
-      final data = await StudentApiService().getTuitionDetails(postId);
+      final data = await TutorApiService().getTuitionDetails(postId);
       if(data != null){
         tuitionDetails = data;
       }
