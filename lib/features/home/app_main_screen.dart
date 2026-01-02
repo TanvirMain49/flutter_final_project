@@ -51,9 +51,9 @@ class _AppMainScreenState extends State<AppMainScreen> {
        ];
      } else{
        pages= [
-         const TuitorHomeScreen(),
+         const TutorHomeScreen(),
          const Scaffold(body: Center(child: Text("Tutor Search"))),
-         const Scaffold(body: Center(child: Text("Tutor post"))),
+         const SizedBox(),
          const Scaffold(body: Center(child: Text("Tutor Notification"))),
          const UserProfile(),
        ];
