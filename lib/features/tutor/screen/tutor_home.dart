@@ -1,7 +1,7 @@
 import 'package:_6th_sem_project/core/widgets/custom_home_navbar.dart';
 import 'package:_6th_sem_project/core/widgets/gradient_background.dart';
 import 'package:_6th_sem_project/core/constants/colors.dart';
-import 'package:_6th_sem_project/core/widgets/card_skeleton.dart';
+import 'package:_6th_sem_project/core/widgets/Skeleton/card_skeleton.dart';
 import 'package:_6th_sem_project/features/student/screen/tuition_details.dart';
 import 'package:_6th_sem_project/features/tutor/controller/tutor_data_controller.dart';
 import 'package:_6th_sem_project/utils/Student.utils.dart';
@@ -115,7 +115,6 @@ class _TutorHomeScreenState extends State<TutorHomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    debugPrint(_con.postTuition.toString());
 
     late final userEmail = user?.email ?? "Guest User";
     late final displayName = userEmail.contains('@')
@@ -152,7 +151,7 @@ class _TutorHomeScreenState extends State<TutorHomeScreen> {
                 const SizedBox(height: 32),
 
                 // Active Feed Section
-                _buildSectionHeader('Active Feed', () {}),
+                _buildSectionHeader('Recent Tuition', () {}),
                 const SizedBox(height: 12),
                 _buildActiveFeedCards(),
 
@@ -370,19 +369,21 @@ class _TutorHomeScreenState extends State<TutorHomeScreen> {
 
                   // saved button
                   GestureDetector(
-                    onTap: () async {
-                      setState(() {});
-                      final String? result = await _con.toggleSave(post['id'].toString());
+                    onTap: _con.isSave? null : () async {
+                      final String? result = await _con.toggleSave(
+                          post['id'].toString(),
+                          ()=> setState((){})
+                      );
                       if (!mounted) return;
-                      setState(() {});
                       if (result == null) {
                         ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(content: Text("Connection error. Try again."))
                         );
+                        return;
                       }
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
-                          content: Text(result!, style: const TextStyle(color: AppColors.white)),
+                          content: Text(result, style: const TextStyle(color: AppColors.white)),
                           backgroundColor: AppColors.inputBackground,
                           behavior: SnackBarBehavior.floating,
                           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
@@ -411,7 +412,6 @@ class _TutorHomeScreenState extends State<TutorHomeScreen> {
                 ],
               ),
               const SizedBox(height: 12),
-
               // Subject and Level
               Row(
                 children: [

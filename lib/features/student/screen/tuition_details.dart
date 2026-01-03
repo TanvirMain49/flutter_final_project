@@ -1,6 +1,7 @@
 import 'package:_6th_sem_project/core/constants/colors.dart';
 import 'package:_6th_sem_project/core/services/api_service.dart';
 import 'package:_6th_sem_project/core/widgets/Custom_avatar.dart';
+import 'package:_6th_sem_project/core/widgets/Skeleton/card_details_skeleton.dart';
 import 'package:_6th_sem_project/core/widgets/gradient_background.dart';
 import 'package:_6th_sem_project/core/widgets/primary_button.dart';
 import 'package:_6th_sem_project/features/student/controller/get_tuition_controller.dart';
@@ -68,9 +69,7 @@ class _TuitionDetailsState extends State<TuitionDetails> {
         child:
             _controller.isLoading ||
                 data == null // Check if still loading or data is missing
-            ? const Center(
-                child: CircularProgressIndicator(color: AppColors.accent),
-              )
+            ? const CardDetailsSkeleton()
             : Builder(
                 builder: (context) {
                   final timeAgo = StudentUtils.formatTimeAgo(

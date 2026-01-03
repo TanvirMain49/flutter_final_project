@@ -8,6 +8,7 @@ class TutorDataController {
   String? errorMessage = '';
   String? successMessage= '';
   bool isLoading = false;
+  bool isSave = false;
 
   // get all tuition controller
   Future<void> getTuition(VoidCallback onUpdate) async {
@@ -27,36 +28,17 @@ class TutorDataController {
     }
   }
 
-//   save tuition controller
-  Future<String?> saveTuition(VoidCallback onUpdate, String postId) async {
-    try{
-      isLoading = true;
-      errorMessage = '';
-      onUpdate();
-      await _tuitionApiService.saveTuition(postId);
-      return "Tuition saved successfully!";
-    } catch (e){
-      debugPrint('saveTuition error: $e');
-      errorMessage = "Failed to save tuition: $e";
-      return "Failed to save tuition: $e";
-    } finally{
-      isLoading = false;
-      onUpdate();
-    }
-  }
-
   Future<void> syncSavedPosts() async {
     // 1. Fetch the raw data from your API service
     final List<Map<String, dynamic>> data = await _tuitionApiService.fetchSavedPostIds();
-
-    // 2. Map the data to extract just the IDs as Strings
     savedPostIds = data.map((item) => item['post_id'].toString()).toList();
-
-    debugPrint("Synced Saved Posts: $savedPostIds");
+    // debugPrint("Synced Saved Posts: $savedPostIds");
   }
 
-  Future<String?> toggleSave(String postId) async{
+  Future<String?> toggleSave(String postId, VoidCallback onUpdate) async{
     final bool wasSaved = savedPostIds.contains(postId);
+    isSave = true;
+    onUpdate();
 
     // locally save the id so that we can update the ui fast
     if(wasSaved){
@@ -64,7 +46,6 @@ class TutorDataController {
     } else{
       savedPostIds.add(postId);
     }
-
     try{
       if(wasSaved) {
         await _tuitionApiService.deleteSavedPost(postId);
@@ -79,8 +60,13 @@ class TutorDataController {
       }else{
         savedPostIds.remove(postId);
       }
+      isSave= false;
+      onUpdate();
       debugPrint("Toggle Save Error: $e");
       return null;
+    } finally{
+      isSave = false;
+      onUpdate();
     }
   }
 }
