@@ -20,15 +20,14 @@ class _MyTuitionPostsState extends State<MyTuitionPosts> {
   void initState() {
     // TODO: implement initState
     super.initState();
-    _dataCon.getMyTuitionPost(() {
+    _dataCon.fetchMyTuitionPosts(() {
       if (mounted) setState(() {});
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    debugPrint(_dataCon.myTuitionPost.toString());
-    final totalPost = _dataCon.myTuitionPost.length;
+    final totalPost = _dataCon.myTuitionPosts.length;
     return Scaffold(
       backgroundColor: AppColors.primary,
       appBar: AppBar(
@@ -169,7 +168,7 @@ class _MyTuitionPostsState extends State<MyTuitionPosts> {
                 // List map--------------------------
                 _dataCon.isLoading
                     ? const CircularProgressIndicator()
-                    : _dataCon.myTuitionPost.isEmpty
+                    : _dataCon.myTuitionPosts.isEmpty
                     ? const Center(
                         child: Text(
                           'No Tuition Posts Available',
@@ -184,11 +183,11 @@ class _MyTuitionPostsState extends State<MyTuitionPosts> {
                         padding: EdgeInsets.zero,
                         shrinkWrap: true,
                         physics: NeverScrollableScrollPhysics(),
-                        itemCount: _dataCon.myTuitionPost.length,
+                        itemCount: _dataCon.myTuitionPosts.length,
                         separatorBuilder: (context, index) =>
                             const SizedBox(height: 12),
                         itemBuilder: (context, index) {
-                          final tuition = _dataCon.myTuitionPost[index];
+                          final tuition = _dataCon.myTuitionPosts[index];
                           // TODO: time ago
                           final timeAgo = StudentUtils.formatTimeAgo(
                             tuition!['created_at'],

@@ -87,7 +87,45 @@ class TutorApiService {
           .delete()
           .match({'user_id': userId!, 'post_id': postId});
     } catch (e){
+      throw 'An unexpected error occurred: $e';
       debugPrint('deleteSavedPost error: $e');
+    }
+  }
+
+  Future<void> tuitionSkillPost({
+    required String subjectId,
+    required String experienceAt,
+    required String educationAt,
+    required String salary,
+    required String experienceYears,
+    required String availability,
+  }) async {
+    try {
+      // 1. Get the current user ID inside the function
+      final userId = _supabase.auth.currentUser?.id;
+
+      if (userId == null) {
+        throw 'User must be logged in to complete a tutor profile.';
+      }
+      // 2. Map variables to the exact database column names
+      final Map<String, dynamic> tutorData = {
+        'tutor_id': userId,           // UUID
+        'subject_id': subjectId,      // UUID
+        'experience_at': experienceAt, // text
+        'education_at': educationAt,   // text
+        'salary': salary,             // text
+        'experience_years': experienceYears, // text
+        'availability': availability, // text
+      };
+
+      // 3. Perform the insert
+      await _supabase.from('tutor_skills').insert(tutorData);
+
+    } on PostgrestException catch (error) {
+      // Handles specific Supabase errors like Foreign Key violations
+      throw error.message;
+    } catch (error) {
+      throw 'An unexpected error occurred: $error';
     }
   }
 

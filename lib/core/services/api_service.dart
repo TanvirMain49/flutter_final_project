@@ -16,7 +16,7 @@ class UserApiService {
     String? gender,
     String? location,
   }) async {
-    try{
+    try {
       await _supabase.from('users').insert({
         'id': id,
         'email': email,
@@ -37,32 +37,36 @@ class UserApiService {
   }
 
   //Fetch Current User Details
-  Future<Map<String, dynamic>?> getUserProfile() async{
-    try{
+  Future<Map<String, dynamic>?> getUserProfile() async {
+    try {
       final userId = _supabase.auth.currentUser?.id;
-      if(userId == null) return null;
+      if (userId == null) return null;
 
       final data = await _supabase
-          .from("users")
-          .select()
-          .eq("id", userId)
+          .from('users')
+          .select('''
+      *,
+      tutor_skills (
+        *
+      )
+    ''') // Removed the trailing comma after price
+          .eq('id', userId)
           .maybeSingle();
 
       debugPrint(data.toString());
-      if(data == null) return {};
+      if (data == null) return {};
       return data;
-
-    } catch (e, stackTrace){
+    } catch (e, stackTrace) {
       debugPrint('getUserProfile error: $e');
       debugPrintStack(stackTrace: stackTrace);
       return null;
     }
   }
 
-  Future<String?> getUserRole() async{
-    try{
-      final userId = await _supabase.auth.currentUser?.id;
-      if(userId == null) return null;
+  Future<String?> getUserRole() async {
+    try {
+      final userId = _supabase.auth.currentUser?.id;
+      if (userId == null) return null;
 
       final response = await _supabase
           .from("users")
@@ -71,26 +75,25 @@ class UserApiService {
           .single();
       final role = response['role'] as String;
       return role;
-    } catch(e, stackTrace){
+    } catch (e, stackTrace) {
       debugPrint('getUserProfile error: $e');
       debugPrintStack(stackTrace: stackTrace);
       return null;
     }
   }
-
 }
 
 class SubjectsApiService {
   final _supabase = Supabase.instance.client;
   static List<Map<String, dynamic>>? _cachedSubjects;
 
-  Future<List<Map<String, dynamic>>> getSubject() async{
-    if(_cachedSubjects != null) return _cachedSubjects!;
-    try{
+  Future<List<Map<String, dynamic>>> getSubject() async {
+    if (_cachedSubjects != null) return _cachedSubjects!;
+    try {
       final response = await _supabase.from('subjects').select();
       _cachedSubjects = response;
       return _cachedSubjects!;
-    } catch (e, stackTrace){
+    } catch (e, stackTrace) {
       debugPrint('getUserProfile error: $e');
       debugPrintStack(stackTrace: stackTrace);
       return [];
