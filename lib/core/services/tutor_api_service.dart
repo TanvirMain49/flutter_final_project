@@ -136,7 +136,8 @@ class TutorApiService {
 
     return response != null;
   }
-
+  
+  // cheek which which id has been applied
   Future<List<Map<String, dynamic>>> syncAppliedPosts() async {
     final userId = _supabase.auth.currentUser?.id;
     if (userId == null) return [] ;
@@ -148,6 +149,45 @@ class TutorApiService {
     return response;
   }
 
+
+  Future<List<Map<String, dynamic>>> getTutorApplications({String? status}) async {
+    try {
+      final userId = _supabase.auth.currentUser?.id;
+      if (userId == null) return [];
+
+      // Build the query with all necessary fields
+      var query = _supabase
+          .from('tuition_application')
+          .select('''
+          *,
+          tuition_post: tuition_post_id(
+            id,
+            grade,
+            student_location,
+            salary,
+            status,
+            subject_id: subjects(name)
+          )
+        ''')
+          .eq('tutor_id', userId);
+
+      // Apply status filter if provided
+      if (status != null && status != 'All') {
+        query = query.eq('status', status.toLowerCase());
+      }
+
+      // Get data ordered by newest first
+      final response = await query.order('created_at', ascending: false);
+      return List<Map<String, dynamic>>.from(response);
+
+    } on PostgrestException catch (e) {
+      debugPrint('Database Error: ${e.message}');
+      throw e.message;
+    } catch (e) {
+      debugPrint('Error: $e');
+      throw 'An unexpected error occurred.';
+    }
+  }
 
 
 

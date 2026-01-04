@@ -8,6 +8,7 @@ class TutorDataController {
   TextEditingController tutorMessageController = TextEditingController();
 
   List<Map<String, dynamic>> postTuition = [];
+  List<Map<String, dynamic>> tutorApplications = [];
   List<String> savedPostIds = [];
   List<String> appliedPostIds = [];
   String? errorMessage = '';
@@ -16,6 +17,7 @@ class TutorDataController {
   bool isLoading = false;
   bool isSave = false;
   bool isApply = false;
+  bool isApplications = false;
 
 
   // get all tuition controller
@@ -133,5 +135,22 @@ class TutorDataController {
       onUpdate();
     }
   }
+
+//   get one user applications
+Future<void> getTutorApplications({String? status,required VoidCallback onUpdate}) async {
+  try {
+    isApplications = true;
+    onUpdate();
+    final response = await _tuitionApiService.getTutorApplications(status: status);
+    tutorApplications = response;
+
+  } catch (e) {
+    debugPrint('getUserProfile error: $e');
+    throw "Failed to load profile: $e";
+  } finally {
+    isApplications = false;
+    onUpdate();
+  }
+}
 
 }

@@ -6,6 +6,7 @@ import 'package:_6th_sem_project/features/profile/controller/profile_data_contro
 import 'package:_6th_sem_project/features/profile/screen/personal_information.dart';
 import 'package:_6th_sem_project/features/profile/screen/user_setting.dart';
 import 'package:_6th_sem_project/features/student/screen/my_tuition_posts.dart';
+import 'package:_6th_sem_project/features/tutor/screen/my_application_page.dart';
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -281,13 +282,21 @@ class _UserProfileState extends State<UserProfile> {
                   const SizedBox(height: 12),
                   _buildMenuItem(
                     icon: Icons.assignment,
-                    title: 'My Posted Tuition',
-                    subtitle: 'Manage your tuition posts',
+                    title: 'My Applied Tuition',
+                    subtitle: 'Manage your applied tuition',
+                    onTap: (){
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const MyApplicationsPage(),
+                        ),
+                      );
+                    }
                   ),
                   const SizedBox(height: 8),
                   _buildMenuItem(
                     icon: Icons.bookmark,
-                    title: 'Saved Students',
+                    title: 'Saved Tuition',
                     subtitle: 'View saved opportunities',
                   ),
                 ],

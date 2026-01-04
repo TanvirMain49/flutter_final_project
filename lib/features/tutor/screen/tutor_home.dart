@@ -515,8 +515,7 @@ class _TutorHomeScreenState extends State<TutorHomeScreen> {
                             ),
                           ).then((value) {
                             // Refresh data when coming back in case they applied
-                            _loadAllData();
-                          });
+                            _loadAllData();                          });
                         } : null,
                         style: ElevatedButton.styleFrom(
                           backgroundColor: profileComplete

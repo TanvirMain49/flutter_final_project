@@ -1,3 +1,5 @@
+import 'package:intl/intl.dart';
+
 class StudentUtils {
   // Made static so you can call it as StudentUtils.formatTimeAgo(...)
   static String formatTimeAgo(String? dateString) {
@@ -49,4 +51,15 @@ class StudentUtils {
       return timeStr; // Fallback to original if something fails
     }
   }
+
+  static String formatToMMDDYYYY(String? dateStr) {
+    if (dateStr == null || dateStr.isEmpty) return "TBD";
+    try{
+        DateTime dateTime = DateTime.parse(dateStr);
+        return DateFormat('MMM dd, yyyy').format(dateTime);
+    } catch (e) {
+      return dateStr; // Fallback to original if something fails
+    }
+  }
+
 }
