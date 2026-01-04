@@ -6,20 +6,33 @@ class TutorApiService {
   final _supabase = Supabase.instance.client;
 
   //get all tuition
-  Future<List<Map<String, dynamic>>?> getTuition() async {
+  Future<List<Map<String, dynamic>>?> getTuition({String? searchQuery}) async {
     try {
-      final response = await _supabase.from("tuition_post").select('''
-            *,
-            subjects: subject_id(
-              name
-            ),
-            users: student_id(
-              full_name
-            )
-          ''');
-      return response;
+      var query = _supabase
+          .from('tuition_post')
+          .select('''
+          *,
+          subjects: subject_id(
+            name
+          ),
+          users: student_id(
+            full_name
+          )
+        ''');
+
+      // Apply search filter if provided
+      if(searchQuery != null && searchQuery.isNotEmpty){
+        query = query.or(
+          'post_title.ilike.%$searchQuery%, description.ilike.%$searchQuery%'
+        );
+      }
+
+      // Order by creation date (newest first)
+      final response = await query.order('created_at', ascending: false);
+
+      return List<Map<String, dynamic>>.from(response);
     } catch (e) {
-      debugPrint('getTuition error: $e');
+      debugPrint('Error fetching tuitions: $e');
       return null;
     }
   }
@@ -237,3 +250,4 @@ class TutorApiService {
     }
   }
 }
+

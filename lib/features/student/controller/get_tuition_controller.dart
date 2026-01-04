@@ -21,10 +21,9 @@ class GetTuitionController {
     onUpdate();
     try{
       final data = await TutorApiService().getTuition();
-      debugPrint(data.toString());
-      if(data!= null){
-        tuitionData = data;
-      }
+      if(data== null || data.isEmpty) tuitionData;
+
+      tuitionData = data;
     } catch (e) {
       debugPrint('getTuition error: $e');
     }finally{

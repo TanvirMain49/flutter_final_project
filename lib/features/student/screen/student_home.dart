@@ -109,7 +109,7 @@ class _StudentHomeScreenState extends State<StudentHomeScreen> {
               children: [
                 studentTopBar(displayName),
                 const SizedBox(height: 20),
-                SearchField(),
+                // SearchField(),
                 const SizedBox(height: 20),
                 findTutorCard(context),
                 const SizedBox(height: 20),

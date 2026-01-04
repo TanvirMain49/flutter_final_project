@@ -1,14 +1,13 @@
 import 'package:_6th_sem_project/core/widgets/Skeleton/card_skeleton.dart';
 import 'package:_6th_sem_project/core/widgets/search_field.dart';
 import 'package:_6th_sem_project/core/widgets/student_home_cart.dart';
+import 'package:_6th_sem_project/features/student/controller/get_tuition_controller.dart';
 import 'package:_6th_sem_project/features/student/screen/tuition_details.dart';
-import 'package:_6th_sem_project/features/tutor/screen/tutor_Tuition_card.dart';
 import 'package:_6th_sem_project/utils/Student.utils.dart';
 import 'package:flutter/material.dart';
 import 'package:_6th_sem_project/core/constants/colors.dart';
 import 'package:_6th_sem_project/features/tutor/controller/tutor_data_controller.dart';
-// Assuming your TuitionCard is in a components folder
-// import 'package:_6th_sem_project/features/tutor/widgets/tuition_card.dart';
+
 
 class ExploreTuitionScreen extends StatefulWidget {
   const ExploreTuitionScreen({super.key});
@@ -19,7 +18,9 @@ class ExploreTuitionScreen extends StatefulWidget {
 
 class _ExploreTuitionScreenState extends State<ExploreTuitionScreen> {
   final _con = TutorDataController();
+  final _subController = GetTuitionController();
   String selectedSubject = "All";
+  final searchController = TextEditingController();
 
   final List<String> subjects = [
     "All",
@@ -69,7 +70,19 @@ class _ExploreTuitionScreenState extends State<ExploreTuitionScreen> {
           const SizedBox(height: 10),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: SearchField(onTap: () {}),
+            child: SearchField(
+              controller: searchController,
+              onChanged: (value) {
+                  _con.getTuition(() => setState(() {}),  searchQuery: value);
+              },
+              onClear: () {
+                searchController.clear();
+                _con.getTuition(
+                      () { if (mounted) setState(() {}); },
+                  searchQuery: '',
+                );
+              },
+            )
           ),
 
           const SizedBox(height: 10),

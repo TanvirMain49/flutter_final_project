@@ -18,14 +18,14 @@ class TutorDataController {
 
 
   // get all tuition controller
-  Future<void> getTuition(VoidCallback onUpdate) async {
+  Future<void> getTuition(VoidCallback onUpdate, {String? searchQuery}) async {
     try {
       isLoading = true;
       errorMessage = '';
       onUpdate();
-      final response = await _tuitionApiService.getTuition();
+      final response = await _tuitionApiService.getTuition(searchQuery: searchQuery);
       if (response == null) errorMessage = 'No posts found';
-      postTuition = response!;
+      postTuition = response ?? [];
     } catch (e) {
       debugPrint('getUserProfile error: $e');
       errorMessage = "Failed to load profile: $e";
