@@ -6,6 +6,8 @@ import 'package:_6th_sem_project/core/widgets/gradient_background.dart';
 import 'package:_6th_sem_project/core/widgets/primary_button.dart';
 import 'package:_6th_sem_project/features/student/controller/get_tuition_controller.dart';
 import 'package:_6th_sem_project/features/profile/screen/user_profile.dart';
+import 'package:_6th_sem_project/features/tutor/controller/tutor_data_controller.dart';
+import 'package:_6th_sem_project/features/tutor/screen/apply_tuition.dart';
 import 'package:_6th_sem_project/utils/Student.utils.dart';
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -20,6 +22,7 @@ class TuitionDetails extends StatefulWidget {
 
 class _TuitionDetailsState extends State<TuitionDetails> {
   final _controller = GetTuitionController();
+  final _tutorCon = TutorDataController();
   final _supabase = Supabase.instance.client;
 
   @override
@@ -29,14 +32,15 @@ class _TuitionDetailsState extends State<TuitionDetails> {
       if (mounted) setState(() {});
     });
     _controller.initRole();
+    _tutorCon.cheekIfApplied(widget.tuitionId, () {
+      if (mounted) setState(() {});
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     debugPrint(_controller.tuitionDetails.toString());
-
     final data = _controller.tuitionDetails;
-
 
     return Scaffold(
       backgroundColor: AppColors.primaryDark,
@@ -68,7 +72,8 @@ class _TuitionDetailsState extends State<TuitionDetails> {
       body: GradientBackground(
         child:
             _controller.isLoading ||
-                data == null // Check if still loading or data is missing
+                data ==
+                    null // Check if still loading or data is missing
             ? const CardDetailsSkeleton()
             : Builder(
                 builder: (context) {
@@ -93,9 +98,8 @@ class _TuitionDetailsState extends State<TuitionDetails> {
                               Row(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-
                                   CustomAvatar(
-                                      photoUrl: data['user']?['profile_photo']
+                                    photoUrl: data['user']?['profile_photo'],
                                   ),
 
                                   const SizedBox(width: 12),
@@ -326,35 +330,47 @@ class _TuitionDetailsState extends State<TuitionDetails> {
       bottomNavigationBar: data == null
           ? const SizedBox.shrink() // Show nothing while loading
           : Container(
-        padding: const EdgeInsets.fromLTRB(16, 10, 16, 30),
-        decoration: BoxDecoration(
-          color: AppColors.primaryDark,
-          border: Border(
-            top: BorderSide(color: Colors.white.withOpacity(0.05)),
-          ),
-        ),
-        child: Builder(
-          builder: (context) {
-            // Logic calculated safely after data is confirmed not null
-            final isOwner = data['users']['id'] == _supabase.auth.currentUser?.id;
-             final userRole =  _controller.role ?? 'Guess';
-            debugPrint("Role: "+ userRole!);
-
-            return _buildRoleBasedActions(isOwner, userRole);
-          },
-        ),
-      ),
+              padding: const EdgeInsets.fromLTRB(16, 10, 16, 30),
+              decoration: BoxDecoration(
+                color: AppColors.primaryDark,
+                border: Border(
+                  top: BorderSide(color: Colors.white.withOpacity(0.05)),
+                ),
+              ),
+              child: Builder(
+                builder: (context) {
+                  // Logic calculated safely after data is confirmed not null
+                  final isOwner =
+                      data['users']['id'] == _supabase.auth.currentUser?.id;
+                  final userRole = _controller.role ?? 'Guess';
+                  return _buildRoleBasedActions(
+                    isOwner,
+                    userRole,
+                    _tutorCon.hasApplied,
+                    data['id'],
+                  );
+                },
+              ),
+            ),
     );
   }
 
   // Bottom navigation button
-  Widget _buildRoleBasedActions(bool isOwner, String userRole) {
+  Widget _buildRoleBasedActions(
+    bool isOwner,
+    String userRole,
+    bool hasApplied,
+    postId,
+  ) {
     // Logic to determine if current user owns the post
     if (isOwner) {
       return PrimaryButton(
         text: "View Applications",
         onPressed: () {
-          Navigator.push(context, MaterialPageRoute(builder: (context)=> UserProfile()));
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => UserProfile()),
+          );
         },
       );
     }
@@ -364,24 +380,31 @@ class _TuitionDetailsState extends State<TuitionDetails> {
       case 'tutor':
         return Row(
           children: [
-            Expanded(
-              flex: 2,
-              child: _messageButton(),
-            ),
+            Expanded(flex: 2, child: _messageButton()),
             const SizedBox(width: 12),
             Expanded(
               flex: 3,
-              child: PrimaryButton(text: "Apply Now", onPressed: () {}),
+              child: PrimaryButton(
+                text: hasApplied ? "Applied" : "Apply Now",
+                onPressed: hasApplied
+                    ? null
+                    : () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) =>
+                                ApplyForTuitionScreen(postId: postId),
+                          ),
+                        );
+                      },
+              ),
             ),
           ],
         );
 
       case 'Guess':
       default:
-        return SizedBox(
-          width: double.infinity,
-          child: _messageButton(),
-        );
+        return SizedBox(width: double.infinity, child: _messageButton());
     }
   }
 

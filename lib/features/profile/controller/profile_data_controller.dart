@@ -19,9 +19,14 @@ class ProfileDataController {
 
   /// Determines if the user is a tutor based on the existence of tutor_skills
   bool get isTutor {
+    if (userProfile.isEmpty) return false;
     final skills = userProfile['tutor_skills'] as List?;
     return skills != null && skills.isNotEmpty;
   }
+  bool get isTutorRole => userProfile['role'] == 'tutor';
+
+  /// The logic you wanted: Is the user a tutor who HAS NOT finished their profile?
+  bool get needsCompletion => isTutorRole && !isTutor;
 
   /// Safely retrieves tutor data if it exists
   Map<String, dynamic>? get tutorDetails {
@@ -32,7 +37,10 @@ class ProfileDataController {
   // --- Methods ---
 
   /// Fetches the core user profile data including related tutor skills
-  Future<void> fetchUserProfile(VoidCallback refreshUI) async {
+  Future<void> fetchUserProfile(VoidCallback refreshUI, {bool forceRefresh = false}) async {
+    debugPrint("called");
+    debugPrint("User: $userProfile");
+    if (userProfile.isNotEmpty && !forceRefresh) return;
     try {
       _setLoading(true, refreshUI);
       errorMessage = null;

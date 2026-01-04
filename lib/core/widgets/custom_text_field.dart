@@ -3,12 +3,14 @@ import 'package:flutter/material.dart';
 
 class CustomTextField extends StatelessWidget {
   final String label;
+  final double? labelFontSize;
   final String hintText;
   final TextEditingController? controller;
 
   const CustomTextField({
     super.key,
     required this.label,
+    this.labelFontSize = 14,
     required this.hintText,
     this.controller,
   });
@@ -20,9 +22,9 @@ class CustomTextField extends StatelessWidget {
       children: [
         Text(
           label,
-          style: const TextStyle(
+          style: TextStyle(
             color: Colors.white,
-            fontSize: 14,
+            fontSize: labelFontSize,
             fontWeight: FontWeight.w500,
           ),
         ),

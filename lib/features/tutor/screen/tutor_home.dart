@@ -2,8 +2,10 @@ import 'package:_6th_sem_project/core/widgets/custom_home_navbar.dart';
 import 'package:_6th_sem_project/core/widgets/gradient_background.dart';
 import 'package:_6th_sem_project/core/constants/colors.dart';
 import 'package:_6th_sem_project/core/widgets/Skeleton/card_skeleton.dart';
+import 'package:_6th_sem_project/features/profile/controller/profile_data_controller.dart';
 import 'package:_6th_sem_project/features/student/screen/tuition_details.dart';
 import 'package:_6th_sem_project/features/tutor/controller/tutor_data_controller.dart';
+import 'package:_6th_sem_project/features/tutor/screen/apply_tuition.dart';
 import 'package:_6th_sem_project/utils/Student.utils.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:flutter/material.dart';
@@ -17,8 +19,10 @@ class TutorHomeScreen extends StatefulWidget {
 
 class _TutorHomeScreenState extends State<TutorHomeScreen> {
   final _con = TutorDataController();
+  final _con2 = ProfileDataController();
+
   final user = Supabase.instance.client.auth.currentUser;
-  bool profileComplete = false;
+  bool get profileComplete => _con2.isTutor;
 
   final List<Map<String, dynamic>> activeTuitionPosts = [
     {
@@ -79,43 +83,45 @@ class _TutorHomeScreenState extends State<TutorHomeScreen> {
     {'title': 'Online Classes', 'jobs': '8 jobs'},
     {'title': 'Science Tutoring', 'jobs': '15 jobs'},
   ];
-
-  // void handelSave(String postId) async{
-  //   final result = await _con.saveTuition(() {
-  //     if (mounted) setState(() {});
-  //   }, postId);
-  //
-  //   if(result != null){
-  //     ScaffoldMessenger.of(context).showSnackBar(
-  //         SnackBar(
-  //             content: Container(
-  //               decoration: BoxDecoration(
-  //                 color: AppColors.accent,
-  //                 borderRadius: BorderRadius.circular(12),
-  //               ),
-  //                 child: Text(result, style: TextStyle(
-  //                   color: AppColors.black,
-  //                 ),),
-  //             )
-  //
-  //         )
-  //     );
-  //   }
-  // }
   @override
   void initState() {
     super.initState();
-    _con.getTuition(() {
+    _loadAllData();
+  }
+
+  Future<void> _loadAllData() async {
+    // 1. Start loading state immediately
+    // Senior Tip: We pass an empty function because we will manually
+    // call setState once at the end or use the controller's internal loading flag.
+    if (mounted) setState(() {});
+
+    try {
+      // 2. Parallel Execution
+      // This fires all 3 requests at once. The total wait time is equal
+      // to the SLOWEST single API call, not the sum of all three.
+      await Future.wait([
+        _con.getTuition(() {}),
+        _con.syncSavedPosts(),
+        _con.syncAppliedPosts(() {}),
+        _con2.fetchUserProfile(() {}),
+      ]);
+    } catch (e) {
+      debugPrint("Error loading home data: $e");
+      // Handle global error if necessary
+    } finally {
+      // 3. Final UI Update
+      // Once all data is in memory, we trigger one single build cycle.
       if (mounted) setState(() {});
-    });
-    _con.syncSavedPosts().then((_) {
-      if (mounted) setState(() {});
-    });
+    }
+  }
+
+  void ifMounted(VoidCallback fn) {
+    if (mounted) fn();
   }
 
   @override
   Widget build(BuildContext context) {
-
+    // todo: user remove:
     late final userEmail = user?.email ?? "Guest User";
     late final displayName = userEmail.contains('@')
         ? userEmail.split('@')[0]
@@ -123,19 +129,13 @@ class _TutorHomeScreenState extends State<TutorHomeScreen> {
     bool hasSaved = !savedItems.isNotEmpty;
     bool hasApplied = !myApplications.isNotEmpty;
 
+    debugPrint("Profile Complete: $profileComplete");
+
     return Scaffold(
       body: RefreshIndicator(
         color: AppColors.accent,
         backgroundColor: AppColors.primaryDark,
-        onRefresh: () async {
-          await _con.getTuition(() {
-            if (mounted) setState(() {});
-          });
-          await _con.syncSavedPosts().then((_) {
-            if (mounted) setState(() {});
-          });
-          setState(() {});
-        },
+        onRefresh: _loadAllData,
         child: GradientBackground(
           child: SingleChildScrollView(
             padding: const EdgeInsets.symmetric(horizontal: 14),
@@ -143,10 +143,16 @@ class _TutorHomeScreenState extends State<TutorHomeScreen> {
             child: Column(
               children: [
                 CustomHomeNavbar(displayName: displayName.toUpperCase()),
-                const SizedBox(height: 20),
+                if (!_con2.isLoading &&
+                    _con2.userProfile.isNotEmpty &&
+                    !profileComplete)
+                  const SizedBox(height: 20),
 
                 // Profile Alert Card (Gatekeeper)
-                if (!profileComplete) _buildProfileAlertCard(),
+                if (!_con2.isLoading &&
+                    _con2.userProfile.isNotEmpty &&
+                    !profileComplete)
+                  _buildProfileAlertCard(),
 
                 const SizedBox(height: 32),
 
@@ -300,8 +306,7 @@ class _TutorHomeScreenState extends State<TutorHomeScreen> {
   }
 
   Widget _buildActiveFeedCards() {
-
-    if(_con.isLoading && _con.postTuition.isEmpty) {
+    if (_con.isLoading && _con.postTuition.isEmpty) {
       return Column(
         children: List.generate(3, (index) => const CardSkeleton()),
       );
@@ -310,10 +315,10 @@ class _TutorHomeScreenState extends State<TutorHomeScreen> {
     // If loading is done and list is still empty, show empty state
     if (!_con.isLoading && _con.postTuition.isEmpty) {
       return _buildEmptyState(
-          Icons.bookmark_border_rounded,
-          "No Tuitions Available",
-          "Check back later for new posts.",
-          "Browse Jobs"
+        Icons.bookmark_border_rounded,
+        "No Tuitions Available",
+        "Check back later for new posts.",
+        "Browse Jobs",
       );
     }
 
@@ -330,6 +335,10 @@ class _TutorHomeScreenState extends State<TutorHomeScreen> {
 
   Widget _buildTuitionCard(Map<String, dynamic> post) {
     String timeAgo = StudentUtils.formatTimeAgo(post['created_at'].toString());
+    final String postId = post['id'].toString();
+
+    final bool alreadyApplied = _con.appliedPostIds.contains(postId);
+
     return Container(
       decoration: BoxDecoration(
         color: AppColors.primaryDark,
@@ -337,12 +346,13 @@ class _TutorHomeScreenState extends State<TutorHomeScreen> {
         border: Border.all(color: AppColors.border, width: 1),
       ),
       child: InkWell(
-        onTap: (){
+        onTap: () {
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => TuitionDetails(tuitionId: post['id'].toString()),
-            )
+              builder: (context) =>
+                  TuitionDetails(tuitionId: post['id'].toString()),
+            ),
           );
         },
         child: Padding(
@@ -369,27 +379,38 @@ class _TutorHomeScreenState extends State<TutorHomeScreen> {
 
                   // saved button
                   GestureDetector(
-                    onTap: _con.isSave? null : () async {
-                      final String? result = await _con.toggleSave(
-                          post['id'].toString(),
-                          ()=> setState((){})
-                      );
-                      if (!mounted) return;
-                      if (result == null) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text("Connection error. Try again."))
-                        );
-                        return;
-                      }
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text(result, style: const TextStyle(color: AppColors.white)),
-                          backgroundColor: AppColors.inputBackground,
-                          behavior: SnackBarBehavior.floating,
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                        ),
-                      );
-                    },
+                    onTap: _con.isSave
+                        ? null
+                        : () async {
+                            final String? result = await _con.toggleSave(
+                              post['id'].toString(),
+                              () => setState(() {}),
+                            );
+                            if (!mounted) return;
+                            if (result == null) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text("Connection error. Try again."),
+                                ),
+                              );
+                              return;
+                            }
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text(
+                                  result,
+                                  style: const TextStyle(
+                                    color: AppColors.white,
+                                  ),
+                                ),
+                                backgroundColor: AppColors.inputBackground,
+                                behavior: SnackBarBehavior.floating,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                              ),
+                            );
+                          },
                     behavior: HitTestBehavior.opaque,
                     child: Container(
                       width: 44,
@@ -484,9 +505,19 @@ class _TutorHomeScreenState extends State<TutorHomeScreen> {
                     children: [
                       const SizedBox(width: 8),
                       ElevatedButton(
-                        onPressed: () {
-                          // Apply action
-                        },
+                        onPressed: (profileComplete && !alreadyApplied)?
+                            () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) =>
+                                  ApplyForTuitionScreen(postId: post['id']),
+                            ),
+                          ).then((value) {
+                            // Refresh data when coming back in case they applied
+                            _loadAllData();
+                          });
+                        } : null,
                         style: ElevatedButton.styleFrom(
                           backgroundColor: profileComplete
                               ? AppColors.accent
@@ -502,9 +533,9 @@ class _TutorHomeScreenState extends State<TutorHomeScreen> {
                           ),
                         ),
                         child: Text(
-                          'Apply',
+                          alreadyApplied ? 'Applied' : 'Apply',
                           style: TextStyle(
-                            color: profileComplete
+                            color: (profileComplete || !alreadyApplied)
                                 ? AppColors.black
                                 : Colors.white38,
                             fontSize: 14,

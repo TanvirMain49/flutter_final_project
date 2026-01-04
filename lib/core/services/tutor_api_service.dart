@@ -54,44 +54,113 @@ class TutorApiService {
   // save tuition
   Future<void> saveTuition(String postId) async {
     final userId = await _supabase.auth.currentUser?.id;
-    if(userId == null) return;
-    try{
+    if (userId == null) return;
+    try {
       await _supabase.from('save_post').insert({
         'user_id': userId,
-        'post_id': postId
+        'post_id': postId,
       });
-    } catch (e){
+    } catch (e) {
       debugPrint('saveTuition error: $e');
     }
   }
 
   //get save tuition
-  Future<List<Map<String, dynamic>>> fetchSavedPostIds() async{
-    final userId =  _supabase.auth.currentUser?.id;
-    if(userId == null) return [];
-    try{
-      final response = await _supabase.from('save_post').select('post_id').eq('user_id', userId);
+  Future<List<Map<String, dynamic>>> fetchSavedPostIds() async {
+    final userId = _supabase.auth.currentUser?.id;
+    if (userId == null) return [];
+    try {
+      final response = await _supabase
+          .from('save_post')
+          .select('post_id')
+          .eq('user_id', userId);
       return response;
-    } catch (e){
+    } catch (e) {
       debugPrint('fetchSavedPostIds error: $e');
-      return[];
+      return [];
     }
   }
 
   // delete save tuition post
   Future<void> deleteSavedPost(String postId) async {
     final userId = _supabase.auth.currentUser?.id;
-    try{
-      await _supabase
-          .from("save_post")
-          .delete()
-          .match({'user_id': userId!, 'post_id': postId});
-    } catch (e){
+    try {
+      await _supabase.from("save_post").delete().match({
+        'user_id': userId!,
+        'post_id': postId,
+      });
+    } catch (e) {
       throw 'An unexpected error occurred: $e';
       debugPrint('deleteSavedPost error: $e');
     }
   }
 
+
+  // post tuition
+  Future<void> postTuitionApplication({required String postId, String? message,}) async {
+    try {
+      // 1. Get the current logged-in user (Tutor)
+      final userId = _supabase.auth.currentUser?.id;
+
+      if (userId == null) {
+        throw 'User must be logged in to complete a tutor profile.';
+      }
+      await _supabase.from('tuition_application').insert({
+        'tuition_post_id': postId,
+        'tutor_id': userId,
+        'message': message,
+        'status': 'pending',
+      });
+
+    } on PostgrestException catch (e) {
+      // Handle database-specific errors (like duplicate applications)
+      debugPrint('Postgrest Error: ${e.message}');
+      throw e.message;
+    } catch (e) {
+      debugPrint('postTuition error: $e');
+      throw 'An unexpected error occurred.';
+    }
+  }
+
+  // cheek user if he applied it or not
+  Future<bool> checkIfApplied(String postId) async {
+    final userId = _supabase.auth.currentUser?.id;
+    if (userId == null) return false;
+
+    final response = await _supabase
+        .from('tuition_application')
+        .select()
+        .eq('tuition_post_id', postId)
+        .eq('tutor_id', userId)
+        .maybeSingle();
+
+    return response != null;
+  }
+
+  Future<List<Map<String, dynamic>>> syncAppliedPosts() async {
+    final userId = _supabase.auth.currentUser?.id;
+    if (userId == null) return [] ;
+
+    final response = await _supabase
+        .from('tuition_application')
+        .select('tuition_post_id')
+        .eq('tutor_id', userId);
+    return response;
+  }
+
+
+
+
+
+
+
+
+
+
+
+
+
+  // post tutor skill
   Future<void> tuitionSkillPost({
     required String subjectId,
     required String experienceAt,
@@ -109,18 +178,17 @@ class TutorApiService {
       }
       // 2. Map variables to the exact database column names
       final Map<String, dynamic> tutorData = {
-        'tutor_id': userId,           // UUID
-        'subject_id': subjectId,      // UUID
+        'tutor_id': userId, // UUID
+        'subject_id': subjectId, // UUID
         'experience_at': experienceAt, // text
-        'education_at': educationAt,   // text
-        'salary': salary,             // text
+        'education_at': educationAt, // text
+        'salary': salary, // text
         'experience_years': experienceYears, // text
         'availability': availability, // text
       };
 
       // 3. Perform the insert
       await _supabase.from('tutor_skills').insert(tutorData);
-
     } on PostgrestException catch (error) {
       // Handles specific Supabase errors like Foreign Key violations
       throw error.message;
@@ -128,6 +196,4 @@ class TutorApiService {
       throw 'An unexpected error occurred: $error';
     }
   }
-
-
 }

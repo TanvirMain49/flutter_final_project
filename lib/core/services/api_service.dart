@@ -63,10 +63,10 @@ class UserApiService {
     }
   }
 
-  Future<String?> getUserRole() async {
+  Future<String> getUserRole() async {
     try {
       final userId = _supabase.auth.currentUser?.id;
-      if (userId == null) return null;
+      if (userId == null) return "Guess";
 
       final response = await _supabase
           .from("users")
@@ -78,7 +78,7 @@ class UserApiService {
     } catch (e, stackTrace) {
       debugPrint('getUserProfile error: $e');
       debugPrintStack(stackTrace: stackTrace);
-      return null;
+      return "Guess";
     }
   }
 }
