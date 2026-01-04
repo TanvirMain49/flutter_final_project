@@ -4,6 +4,7 @@ import 'package:_6th_sem_project/features/student/controller/get_tuition_control
 import 'package:_6th_sem_project/features/student/screen/post_tuition.dart';
 import 'package:_6th_sem_project/features/student/screen/student_home.dart';
 import 'package:_6th_sem_project/features/profile/screen/user_profile.dart';
+import 'package:_6th_sem_project/features/tutor/screen/explore_tuition_screen.dart';
 import 'package:_6th_sem_project/features/tutor/screen/tutor_home.dart';
 import 'package:flutter/material.dart';
 
@@ -51,7 +52,7 @@ class _AppMainScreenState extends State<AppMainScreen> {
       } else {
         pages = [
           const TutorHomeScreen(),
-          const Scaffold(body: Center(child: Text("Tutor Search"))),
+          const ExploreTuitionScreen(),
           const SizedBox(),
           const Scaffold(body: Center(child: Text("Tutor Notification"))),
           const UserProfile(),

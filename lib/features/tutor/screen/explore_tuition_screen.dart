@@ -1,0 +1,157 @@
+import 'package:_6th_sem_project/core/widgets/Skeleton/card_skeleton.dart';
+import 'package:_6th_sem_project/core/widgets/search_field.dart';
+import 'package:_6th_sem_project/features/tutor/screen/tutor_Tuition_card.dart';
+import 'package:flutter/material.dart';
+import 'package:_6th_sem_project/core/constants/colors.dart';
+import 'package:_6th_sem_project/features/tutor/controller/tutor_data_controller.dart';
+// Assuming your TuitionCard is in a components folder
+// import 'package:_6th_sem_project/features/tutor/widgets/tuition_card.dart';
+
+class ExploreTuitionScreen extends StatefulWidget {
+  const ExploreTuitionScreen({super.key});
+
+  @override
+  State<ExploreTuitionScreen> createState() => _ExploreTuitionScreenState();
+}
+
+class _ExploreTuitionScreenState extends State<ExploreTuitionScreen> {
+  final _con = TutorDataController();
+  String selectedSubject = "All";
+
+  final List<String> subjects = [
+    "All", "Mathematics", "Physics", "English", "Chemistry", "Biology", "ICT"
+  ];
+
+  @override
+  void initState() {
+    super.initState();
+    _loadInitialData();
+  }
+
+  Future<void> _loadInitialData() async {
+    // Load posts and sync IDs globally once
+    await Future.wait([
+      _con.getTuition(() => setState(() {})),
+      _con.syncAppliedPosts(() => setState(() {})),
+      _con.syncSavedPosts(),
+    ]);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: AppColors.primaryDark,
+      appBar: AppBar(
+        backgroundColor: AppColors.primaryDark,
+        elevation: 0,
+        title: const Text(
+          "Explore Tuitions",
+          style: TextStyle(color: AppColors.white, fontWeight: FontWeight.bold),
+        ),
+        actions: [
+          IconButton(
+            onPressed: () => _loadInitialData(),
+            icon: const Icon(Icons.refresh, color: AppColors.accent),
+          )
+        ],
+      ),
+      body: Column(
+        children: [
+          const SizedBox(height: 10,),
+          Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: SearchField(
+                onTap: (){},
+              ),
+          ),
+
+          const SizedBox(height: 10,),
+
+          // 1. Horizontal Scroll Subjects Filter
+          _buildFilterRow(),
+
+          // 2. Main Content (List of Cards)
+          Expanded(
+            child: _con.isLoading
+                ?  Column(
+                children: List.generate(2, (index) => const CardSkeleton()),
+                )
+                : _con.postTuition.isEmpty
+                ? _buildEmptyState()
+                : RefreshIndicator(
+              onRefresh: _loadInitialData,
+              color: AppColors.accent,
+              child: ListView.separated(
+                padding: const EdgeInsets.all(16),
+                itemCount: _con.postTuition.length,
+                separatorBuilder: (context, index) => const SizedBox(height: 16),
+                itemBuilder: (context, index) {
+                  final post = _con.postTuition[index];
+                  return TuitionCard(
+                    post: post,
+                    profileComplete: true, // Pass actual profile logic here
+                    timeAgo: "2 hours ago", // Replace with actual time logic
+                  );
+                },
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildFilterRow() {
+    return Container(
+      height: 60,
+      padding: const EdgeInsets.symmetric(vertical: 10),
+      child: ListView.builder(
+        scrollDirection: Axis.horizontal,
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        itemCount: subjects.length,
+        itemBuilder: (context, index) {
+          final isSelected = selectedSubject == subjects[index];
+          return Padding(
+            padding: const EdgeInsets.only(right: 8),
+            child: ChoiceChip(
+              label: Text(subjects[index]),
+              selected: isSelected,
+              onSelected: (bool selected) {
+                setState(() {
+                  selectedSubject = subjects[index];
+                  // You can add filtering logic here: _con.filterBySubject(selectedSubject);
+                });
+              },
+              selectedColor: AppColors.accent,
+              backgroundColor: AppColors.inputBackground,
+              labelStyle: TextStyle(
+                color: isSelected ? AppColors.black : AppColors.white,
+                fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+              ),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(20),
+              ),
+              side: BorderSide.none,
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _buildEmptyState() {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(Icons.search_off, size: 64, color: AppColors.textMuted),
+          const SizedBox(height: 16),
+          const Text(
+            "No tuitions available right now",
+            style: TextStyle(color: AppColors.textMuted, fontSize: 16),
+          ),
+        ],
+      ),
+    );
+  }
+}

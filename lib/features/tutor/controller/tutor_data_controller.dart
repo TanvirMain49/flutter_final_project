@@ -2,11 +2,20 @@ import 'package:_6th_sem_project/core/services/tutor_api_service.dart';
 import 'package:flutter/material.dart';
 
 class TutorDataController {
-  final _tuitionApiService = TutorApiService();
+  // 1. Create a private static instance
+  static final TutorDataController _instance = TutorDataController._internal();
 
+  // 2. Factory constructor returns the same instance every time
+  factory TutorDataController() {
+    return _instance;
+  }
+
+  // 3. Private constructor
+  TutorDataController._internal();
+
+  final _tuitionApiService = TutorApiService();
   // Text-controller
   TextEditingController tutorMessageController = TextEditingController();
-
   List<Map<String, dynamic>> postTuition = [];
   List<Map<String, dynamic>> tutorApplications = [];
   List<String> savedPostIds = [];

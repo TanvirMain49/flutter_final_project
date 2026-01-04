@@ -1,5 +1,4 @@
 import 'dart:math';
-
 import 'package:_6th_sem_project/core/widgets/custom_home_navbar.dart';
 import 'package:_6th_sem_project/core/widgets/gradient_background.dart';
 import 'package:_6th_sem_project/core/constants/colors.dart';
@@ -8,6 +7,7 @@ import 'package:_6th_sem_project/features/profile/controller/profile_data_contro
 import 'package:_6th_sem_project/features/student/screen/tuition_details.dart';
 import 'package:_6th_sem_project/features/tutor/controller/tutor_data_controller.dart';
 import 'package:_6th_sem_project/features/tutor/screen/apply_tuition.dart';
+import 'package:_6th_sem_project/features/tutor/screen/tutor_Tuition_card.dart';
 import 'package:_6th_sem_project/utils/Student.utils.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:flutter/material.dart';
@@ -130,7 +130,6 @@ class _TutorHomeScreenState extends State<TutorHomeScreen> {
         ? userEmail.split('@')[0]
         : userEmail;
     bool hasSaved = !savedItems.isNotEmpty;
-
 
     return Scaffold(
       body: RefreshIndicator(
@@ -328,229 +327,13 @@ class _TutorHomeScreenState extends State<TutorHomeScreen> {
         final post = _con.postTuition[index];
         return Padding(
           padding: const EdgeInsets.only(bottom: 12),
-          child: _buildTuitionCard(post),
+          child: TuitionCard(
+            post: post,
+            profileComplete: profileComplete,
+            timeAgo: StudentUtils.formatTimeAgo(post['created_at'].toString()),
+          ),
         );
       }),
-    );
-  }
-
-  Widget _buildTuitionCard(Map<String, dynamic> post) {
-    String timeAgo = StudentUtils.formatTimeAgo(post['created_at'].toString());
-    final String postId = post['id'].toString();
-
-    final bool alreadyApplied = _con.appliedPostIds.contains(postId);
-
-    return Container(
-      decoration: BoxDecoration(
-        color: AppColors.primaryDark,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.border, width: 1),
-      ),
-      child: InkWell(
-        onTap: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) =>
-                  TuitionDetails(tuitionId: post['id'].toString()),
-            ),
-          );
-        },
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Title and Saved button
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Expanded(
-                    child: Text(
-                      post['post_title'],
-                      style: const TextStyle(
-                        color: AppColors.white,
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                      ),
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ),
-
-                  // saved button
-                  GestureDetector(
-                    onTap: _con.isSave
-                        ? null
-                        : () async {
-                            final String? result = await _con.toggleSave(
-                              post['id'].toString(),
-                              () => setState(() {}),
-                            );
-                            if (!mounted) return;
-                            if (result == null) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text("Connection error. Try again."),
-                                ),
-                              );
-                              return;
-                            }
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text(
-                                  result,
-                                  style: const TextStyle(
-                                    color: AppColors.white,
-                                  ),
-                                ),
-                                backgroundColor: AppColors.inputBackground,
-                                behavior: SnackBarBehavior.floating,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(10),
-                                ),
-                              ),
-                            );
-                          },
-                    behavior: HitTestBehavior.opaque,
-                    child: Container(
-                      width: 44,
-                      height: 44,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: AppColors.inputBackground,
-                      ),
-                      child: Center(
-                        child: Icon(
-                          _con.savedPostIds.contains(post['id'].toString())
-                              ? Icons.bookmark
-                              : Icons.bookmark_outline,
-                          color: AppColors.accent,
-                          size: 24,
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 12),
-              // Subject and Level
-              Row(
-                children: [
-                  _buildInfoChip(Icons.book, post['subjects']['name']),
-                  const SizedBox(width: 8),
-                  _buildInfoChip(Icons.school, post['grade']),
-                ],
-              ),
-              const SizedBox(height: 12),
-
-              // Location and Time
-              Row(
-                children: [
-                  const Icon(
-                    Icons.location_on_outlined,
-                    color: AppColors.textMuted,
-                    size: 14,
-                  ),
-                  const SizedBox(width: 4),
-                  Text(
-                    post['student_location'],
-                    style: TextStyle(color: AppColors.textMuted, fontSize: 14),
-                  ),
-                  const Spacer(),
-                  // ADD THIS PART:
-                  const Icon(
-                    Icons.people_outline,
-                    color: AppColors.textMuted,
-                    size: 15,
-                  ),
-                  const SizedBox(width: 4),
-                  Text(
-                    "400 applied",
-                    style: const TextStyle(
-                      color: AppColors.textMuted,
-                      fontSize: 13,
-                    ),
-                  ),
-                  const Text(
-                    " • ",
-                    style: TextStyle(color: AppColors.textMuted),
-                  ), // Separator
-                  Text(
-                    timeAgo,
-                    style: const TextStyle(
-                      color: AppColors.textMuted,
-                      fontSize: 13,
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 16),
-
-              Container(height: 1, color: AppColors.border),
-              const SizedBox(height: 12),
-
-              // Price and Actions
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    '\$${post['salary']}',
-                    style: const TextStyle(
-                      color: AppColors.accent,
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  Row(
-                    children: [
-                      const SizedBox(width: 8),
-                      ElevatedButton(
-                        onPressed: (profileComplete && !alreadyApplied)?
-                            () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) =>
-                                  ApplyForTuitionScreen(postId: post['id']),
-                            ),
-                          ).then((value) {
-                            // Refresh data when coming back in case they applied
-                            _loadAllData();                          });
-                        } : null,
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: profileComplete
-                              ? AppColors.accent
-                              : Colors.grey[800],
-                          disabledBackgroundColor: Colors.grey[800],
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          elevation: profileComplete ? 2 : 0,
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 16,
-                            vertical: 8,
-                          ),
-                        ),
-                        child: Text(
-                          alreadyApplied ? 'Applied' : 'Apply',
-                          style: TextStyle(
-                            color: (profileComplete || !alreadyApplied)
-                                ? AppColors.black
-                                : Colors.white38,
-                            fontSize: 14,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ],
-          ),
-        ),
-      ),
     );
   }
 
@@ -683,26 +466,26 @@ class _TutorHomeScreenState extends State<TutorHomeScreen> {
     );
   }
 
-// Helper function to format date
-//   String _formatDate(String dateString) {
-//     try {
-//       final dateTime = DateTime.parse(dateString);
-//       final now = DateTime.now();
-//       final difference = now.difference(dateTime);
-//
-//       if (difference.inDays == 0) {
-//         return 'today';
-//       } else if (difference.inDays == 1) {
-//         return 'yesterday';
-//       } else if (difference.inDays < 7) {
-//         return '${difference.inDays} days ago';
-//       } else {
-//         return '${dateTime.day}/${dateTime.month}/${dateTime.year}';
-//       }
-//     } catch (e) {
-//       return 'N/A';
-//     }
-//   }
+  // Helper function to format date
+  //   String _formatDate(String dateString) {
+  //     try {
+  //       final dateTime = DateTime.parse(dateString);
+  //       final now = DateTime.now();
+  //       final difference = now.difference(dateTime);
+  //
+  //       if (difference.inDays == 0) {
+  //         return 'today';
+  //       } else if (difference.inDays == 1) {
+  //         return 'yesterday';
+  //       } else if (difference.inDays < 7) {
+  //         return '${difference.inDays} days ago';
+  //       } else {
+  //         return '${dateTime.day}/${dateTime.month}/${dateTime.year}';
+  //       }
+  //     } catch (e) {
+  //       return 'N/A';
+  //     }
+  //   }
 
   Widget _buildSavedItemsList() {
     return SingleChildScrollView(
