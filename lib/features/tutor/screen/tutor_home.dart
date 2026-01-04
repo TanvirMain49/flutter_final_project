@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:_6th_sem_project/core/widgets/custom_home_navbar.dart';
 import 'package:_6th_sem_project/core/widgets/gradient_background.dart';
 import 'package:_6th_sem_project/core/constants/colors.dart';
@@ -103,6 +105,7 @@ class _TutorHomeScreenState extends State<TutorHomeScreen> {
         _con.getTuition(() {}),
         _con.syncSavedPosts(),
         _con.syncAppliedPosts(() {}),
+        _con.getTutorApplications(status: 'All', onUpdate: () {}),
         _con2.fetchUserProfile(() {}),
       ]);
     } catch (e) {
@@ -127,9 +130,7 @@ class _TutorHomeScreenState extends State<TutorHomeScreen> {
         ? userEmail.split('@')[0]
         : userEmail;
     bool hasSaved = !savedItems.isNotEmpty;
-    bool hasApplied = !myApplications.isNotEmpty;
 
-    debugPrint("Profile Complete: $profileComplete");
 
     return Scaffold(
       body: RefreshIndicator(
@@ -166,8 +167,8 @@ class _TutorHomeScreenState extends State<TutorHomeScreen> {
                 // My Applications Section
                 _buildSectionHeader('My Applications', () {}),
                 const SizedBox(height: 12),
-                hasApplied
-                    ? _buildApplicationsCards()
+                _con.tutorApplications.isNotEmpty
+                    ? _buildApplicationsCards(_con.tutorApplications)
                     : _buildEmptyState(
                         Icons.assignment_outlined,
                         "No Applications Yet",
@@ -553,9 +554,9 @@ class _TutorHomeScreenState extends State<TutorHomeScreen> {
     );
   }
 
-  Widget _buildApplicationsCards() {
+  Widget _buildApplicationsCards(List<Map<String, dynamic>> myApplications) {
     return Column(
-      children: List.generate(myApplications.length, (index) {
+      children: List.generate(min(myApplications.length, 3), (index) {
         final app = myApplications[index];
         return Padding(
           padding: const EdgeInsets.only(bottom: 12),
@@ -566,15 +567,34 @@ class _TutorHomeScreenState extends State<TutorHomeScreen> {
   }
 
   Widget _buildApplicationCard(Map<String, dynamic> app) {
+    // Extract nested data
+    final tuitionPost = app['tuition_post'] as Map<String, dynamic>?;
+    final subject = tuitionPost?['subject_id'] as Map<String, dynamic>?;
+
+    // Get values with fallback
+    final title = subject?['name'] ?? 'Unknown Subject';
+    final grade = tuitionPost?['grade'] ?? 'N/A';
+    final location = tuitionPost?['student_location'] ?? 'N/A';
+    final salary = tuitionPost?['salary'] ?? 'N/A';
+    final status = app['status'] ?? 'pending';
+    final createdAt = app['created_at'] ?? '';
+
+    // Format date
+    String formattedDate = StudentUtils.formatToMMDDYYYY(createdAt);
+
+    // Determine status color and icon
     Color statusColor = AppColors.accent;
     IconData statusIcon = Icons.hourglass_bottom;
 
-    if (app['status'] == 'In Review') {
+    if (status.toLowerCase() == 'pending') {
       statusColor = Colors.blue;
       statusIcon = Icons.pending;
-    } else if (app['status'] == 'Accepted') {
+    } else if (status.toLowerCase() == 'accepted') {
       statusColor = AppColors.success;
       statusIcon = Icons.check_circle;
+    } else if (status.toLowerCase() == 'rejected') {
+      statusColor = Colors.red;
+      statusIcon = Icons.cancel;
     }
 
     return Container(
@@ -592,8 +612,9 @@ class _TutorHomeScreenState extends State<TutorHomeScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  // Subject Title
                   Text(
-                    app['title'],
+                    title,
                     style: const TextStyle(
                       color: AppColors.white,
                       fontSize: 16,
@@ -603,16 +624,27 @@ class _TutorHomeScreenState extends State<TutorHomeScreen> {
                     overflow: TextOverflow.ellipsis,
                   ),
                   const SizedBox(height: 4),
+                  // Grade
                   Text(
-                    app['school'],
+                    grade,
                     style: const TextStyle(
                       color: AppColors.textMuted,
                       fontSize: 14,
                     ),
                   ),
                   const SizedBox(height: 4),
+                  // Location and Salary
                   Text(
-                    'Applied ${app['appliedDate']}',
+                    '$location • \$$salary',
+                    style: const TextStyle(
+                      color: AppColors.textMuted,
+                      fontSize: 12,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  // Applied Date
+                  Text(
+                    'Applied $formattedDate',
                     style: const TextStyle(
                       color: AppColors.textMuted,
                       fontSize: 12,
@@ -621,6 +653,7 @@ class _TutorHomeScreenState extends State<TutorHomeScreen> {
                 ],
               ),
             ),
+            // Status Badge
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
               decoration: BoxDecoration(
@@ -634,7 +667,7 @@ class _TutorHomeScreenState extends State<TutorHomeScreen> {
                   Icon(statusIcon, color: statusColor, size: 14),
                   const SizedBox(width: 4),
                   Text(
-                    app['status'],
+                    status[0].toUpperCase() + status.substring(1),
                     style: TextStyle(
                       color: statusColor,
                       fontSize: 11,
@@ -649,6 +682,27 @@ class _TutorHomeScreenState extends State<TutorHomeScreen> {
       ),
     );
   }
+
+// Helper function to format date
+//   String _formatDate(String dateString) {
+//     try {
+//       final dateTime = DateTime.parse(dateString);
+//       final now = DateTime.now();
+//       final difference = now.difference(dateTime);
+//
+//       if (difference.inDays == 0) {
+//         return 'today';
+//       } else if (difference.inDays == 1) {
+//         return 'yesterday';
+//       } else if (difference.inDays < 7) {
+//         return '${difference.inDays} days ago';
+//       } else {
+//         return '${dateTime.day}/${dateTime.month}/${dateTime.year}';
+//       }
+//     } catch (e) {
+//       return 'N/A';
+//     }
+//   }
 
   Widget _buildSavedItemsList() {
     return SingleChildScrollView(
