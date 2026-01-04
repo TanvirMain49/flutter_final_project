@@ -19,6 +19,7 @@ class _ApplyForTuitionScreenState extends State<ApplyForTuitionScreen> {
   final _con = TutorDataController();
   final _tuitionCon = GetTuitionController();
   final _profileCon = ProfileDataController();
+  late TextEditingController tutorMessageController = TextEditingController();
   bool isLoading = false;
 
   @override
@@ -43,18 +44,22 @@ class _ApplyForTuitionScreenState extends State<ApplyForTuitionScreen> {
 
   @override
   void dispose() {
-    _con.tutorMessageController.dispose();
+    tutorMessageController.dispose();
     super.dispose();
   }
 
   // Function to submit application
   void _submitApplication() async {
     // 1. Capture the result of the operation
-    final bool isSuccess = await _con.applyForTuition(widget.postId, () {
-      if (mounted) {
-        setState(() {});
-      }
-    });
+    final bool isSuccess = await _con.applyForTuition(
+      widget.postId,
+      tutorMessageController.text.trim(),
+      () {
+        if (mounted) {
+          setState(() {});
+        }
+      },
+    );
 
     if (!mounted) return;
 
@@ -264,7 +269,7 @@ class _ApplyForTuitionScreenState extends State<ApplyForTuitionScreen> {
         CustomTextField(
           label: 'Your message to the student',
           labelFontSize: 17,
-          controller: _con.tutorMessageController,
+          controller: tutorMessageController,
           hintText:
               "Introduce yourself and explain why you are good fit for this tuition...",
         ),

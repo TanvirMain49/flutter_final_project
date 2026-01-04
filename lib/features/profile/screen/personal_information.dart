@@ -32,7 +32,9 @@ class _ProfileScreenState extends State<PersonalProfileScreen> {
   @override
   Widget build(BuildContext context) {
     final user = _controller.userProfile;
-    final bool isTutor = user['role'] == 'tutor';
+    final bool isTutor = user['role'] == 'Tutor';
+
+    debugPrint("is tutor: $isTutor");
 
     return Scaffold(
       appBar: AppBar(

@@ -1,9 +1,9 @@
 import 'package:_6th_sem_project/core/constants/colors.dart';
-import 'package:_6th_sem_project/core/services/api_service.dart';
 import 'package:_6th_sem_project/core/widgets/Custom_avatar.dart';
 import 'package:_6th_sem_project/core/widgets/Skeleton/card_details_skeleton.dart';
 import 'package:_6th_sem_project/core/widgets/gradient_background.dart';
 import 'package:_6th_sem_project/core/widgets/primary_button.dart';
+import 'package:_6th_sem_project/features/profile/screen/personal_information.dart';
 import 'package:_6th_sem_project/features/student/controller/get_tuition_controller.dart';
 import 'package:_6th_sem_project/features/profile/screen/user_profile.dart';
 import 'package:_6th_sem_project/features/tutor/controller/tutor_data_controller.dart';
@@ -14,7 +14,12 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 class TuitionDetails extends StatefulWidget {
   final String tuitionId;
-  const TuitionDetails({super.key, required this.tuitionId});
+  final bool? isProfileComplete;
+  const TuitionDetails({
+    super.key,
+    required this.tuitionId,
+    this.isProfileComplete,
+  });
 
   @override
   State<TuitionDetails> createState() => _TuitionDetailsState();
@@ -37,10 +42,102 @@ class _TuitionDetailsState extends State<TuitionDetails> {
     });
   }
 
+  void _handleMenuAction(String value, String postId) async {
+    switch (value) {
+      case 'share':
+        // Trigger share logic
+        break;
+      case 'save':
+        final String? result = await _tutorCon.toggleSave(
+          postId,
+          () => setState(() {}),
+        );
+        if (!mounted) return;
+        if (result == null) {
+          _showSnack("Connection error. Please try again.", isError: true);
+        } else {
+          _showSnack(result);
+        }
+        break;
+      case 'edit':
+        // Navigator.push to your Edit Screen
+        break;
+      case 'delete':
+        _showDeleteDialog(postId);
+        break;
+      case 'report':
+        // Show report dialog
+        break;
+    }
+  }
+
+  void _showDeleteDialog(String postId) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: AppColors.primaryDark,
+        title: const Text(
+          "Delete Post?",
+          style: TextStyle(color: Colors.white),
+        ),
+        content: const Text(
+          "This action cannot be undone.",
+          style: TextStyle(color: AppColors.textMuted),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text("Cancel"),
+          ),
+          TextButton(
+            onPressed: () async {
+              // Add your delete logic here via controller
+              // await _controller.deletePost(postId);
+              Navigator.pop(context); // Close dialog
+              Navigator.pop(context); // Go back to list
+            },
+            child: const Text("Delete", style: TextStyle(color: Colors.red)),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showSnack(String message, {bool isError = false}) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Row(
+          children: [
+            Icon(
+              isError ? Icons.error_outline : Icons.check_circle_outline,
+              color: AppColors.white,
+              size: 20,
+            ),
+            const SizedBox(width: 12),
+            Text(
+              message,
+              style: const TextStyle(
+                color: AppColors.white,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ],
+        ),
+        backgroundColor: isError ? Colors.redAccent : AppColors.inputBackground,
+        behavior: SnackBarBehavior.floating,
+        margin: const EdgeInsets.all(16),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+        duration: const Duration(seconds: 2),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    debugPrint(_controller.tuitionDetails.toString());
     final data = _controller.tuitionDetails;
+
+    debugPrint("is profile complete Details: ${widget.isProfileComplete}");
+
 
     return Scaffold(
       backgroundColor: AppColors.primaryDark,
@@ -63,10 +160,93 @@ class _TuitionDetailsState extends State<TuitionDetails> {
           icon: const Icon(Icons.arrow_back_outlined, color: AppColors.white),
         ),
         actions: [
-          IconButton(
-            onPressed: () {},
-            icon: const Icon(Icons.share, color: AppColors.white),
-          ),
+          if (data != null) // Only show menu if data is loaded
+            PopupMenuButton<String>(
+              icon: const Icon(Icons.more_vert, color: AppColors.white),
+              color: AppColors.primaryDark,
+              onSelected: (value) =>
+                  _handleMenuAction(value, data['id'].toString()),
+              itemBuilder: (BuildContext context) {
+                // Compare current logged-in user ID with the Post's owner ID
+                final String? currentUserId = _supabase.auth.currentUser?.id;
+                final bool isOwner = data['users']?['id'] == currentUserId;
+
+                return [
+                  const PopupMenuItem(
+                    value: 'share',
+                    child: ListTile(
+                      leading: Icon(
+                        Icons.share,
+                        color: AppColors.white,
+                        size: 20,
+                      ),
+                      title: Text(
+                        'Share',
+                        style: TextStyle(color: AppColors.white),
+                      ),
+                    ),
+                  ),
+                  const PopupMenuItem(
+                    value: 'save',
+                    child: ListTile(
+                      leading: Icon(
+                        Icons.bookmark_outline,
+                        color: AppColors.white,
+                        size: 20,
+                      ),
+                      title: Text(
+                        'Save',
+                        style: TextStyle(color: AppColors.white),
+                      ),
+                    ),
+                  ),
+
+                  // Conditional Owner Options
+                  if (isOwner) ...[
+                    const PopupMenuItem(
+                      value: 'edit',
+                      child: ListTile(
+                        leading: Icon(Icons.edit, color: Colors.blue, size: 20),
+                        title: Text(
+                          'Edit Post',
+                          style: TextStyle(color: Colors.blue),
+                        ),
+                      ),
+                    ),
+                    const PopupMenuItem(
+                      value: 'delete',
+                      child: ListTile(
+                        leading: Icon(
+                          Icons.delete,
+                          color: Colors.red,
+                          size: 20,
+                        ),
+                        title: Text(
+                          'Delete Post',
+                          style: TextStyle(color: Colors.red),
+                        ),
+                      ),
+                    ),
+                  ],
+
+                  if (!isOwner)
+                    const PopupMenuItem(
+                      value: 'report',
+                      child: ListTile(
+                        leading: Icon(
+                          Icons.report_problem,
+                          color: Colors.orange,
+                          size: 20,
+                        ),
+                        title: Text(
+                          'Report',
+                          style: TextStyle(color: Colors.orange),
+                        ),
+                      ),
+                    ),
+                ];
+              },
+            ),
         ],
       ),
       body: GradientBackground(
@@ -346,6 +526,7 @@ class _TuitionDetailsState extends State<TuitionDetails> {
                   return _buildRoleBasedActions(
                     isOwner,
                     userRole,
+                    widget.isProfileComplete ?? false,
                     _tutorCon.hasApplied,
                     data['id'],
                   );
@@ -359,10 +540,13 @@ class _TuitionDetailsState extends State<TuitionDetails> {
   Widget _buildRoleBasedActions(
     bool isOwner,
     String userRole,
+    bool isProfileComplete,
     bool hasApplied,
     postId,
   ) {
     // Logic to determine if current user owns the post
+    debugPrint('userRole: $userRole');
+
     if (isOwner) {
       return PrimaryButton(
         text: "View Applications",
@@ -376,7 +560,7 @@ class _TuitionDetailsState extends State<TuitionDetails> {
     }
 
     // Handle other roles
-    switch (userRole) {
+    switch (userRole.toLowerCase()) {
       case 'tutor':
         return Row(
           children: [
@@ -385,18 +569,28 @@ class _TuitionDetailsState extends State<TuitionDetails> {
             Expanded(
               flex: 3,
               child: PrimaryButton(
-                text: hasApplied ? "Applied" : "Apply Now",
+                text: hasApplied
+                    ? "Applied"
+                    : !isProfileComplete ? "Complete Profile" : "Apply Now",
+
                 onPressed: hasApplied
                     ? null
                     : () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) =>
-                                ApplyForTuitionScreen(postId: postId),
-                          ),
-                        );
-                      },
+                  if (!isProfileComplete) {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => const PersonalProfileScreen()),
+                    );
+                    _showSnack("Please complete your profile to apply!");
+                  } else {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => ApplyForTuitionScreen(postId: postId),
+                      ),
+                    );
+                  }
+                },
               ),
             ),
           ],

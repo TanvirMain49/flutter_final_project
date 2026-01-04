@@ -2,20 +2,8 @@ import 'package:_6th_sem_project/core/services/tutor_api_service.dart';
 import 'package:flutter/material.dart';
 
 class TutorDataController {
-  // 1. Create a private static instance
-  static final TutorDataController _instance = TutorDataController._internal();
-
-  // 2. Factory constructor returns the same instance every time
-  factory TutorDataController() {
-    return _instance;
-  }
-
-  // 3. Private constructor
-  TutorDataController._internal();
-
   final _tuitionApiService = TutorApiService();
   // Text-controller
-  TextEditingController tutorMessageController = TextEditingController();
   List<Map<String, dynamic>> postTuition = [];
   List<Map<String, dynamic>> tutorApplications = [];
   List<String> savedPostIds = [];
@@ -106,13 +94,13 @@ class TutorDataController {
     }
   }
 
-  Future<bool> applyForTuition(String postId, VoidCallback onUpdate) async {
+  Future<bool> applyForTuition(String postId, String? tutorMessage, VoidCallback onUpdate) async {
     isApply = true;
     onUpdate();
     try {
       await _tuitionApiService.postTuitionApplication(
         postId: postId,
-        message: tutorMessageController.text.trim(),
+        message: tutorMessage,
       );
       return true; // Return true if API call succeeds
     } catch (e) {
@@ -136,7 +124,7 @@ class TutorDataController {
       if (response.isNotEmpty){
         appliedPostIds = response
             .map((item)=> item['tuition_post_id'].toString()).toList();
-        debugPrint("Applied posts synced: ${appliedPostIds.length}");
+        debugPrint("Applied posts synced: $appliedPostIds");
       }
     } catch (e){
       debugPrint("Controller syncAppliedPosts error: $e");

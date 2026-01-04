@@ -3,6 +3,7 @@ import 'package:_6th_sem_project/core/widgets/custom_home_navbar.dart';
 import 'package:_6th_sem_project/core/widgets/gradient_background.dart';
 import 'package:_6th_sem_project/core/constants/colors.dart';
 import 'package:_6th_sem_project/core/widgets/Skeleton/card_skeleton.dart';
+import 'package:_6th_sem_project/core/widgets/student_home_cart.dart';
 import 'package:_6th_sem_project/features/profile/controller/profile_data_controller.dart';
 import 'package:_6th_sem_project/features/student/screen/tuition_details.dart';
 import 'package:_6th_sem_project/features/tutor/controller/tutor_data_controller.dart';
@@ -325,13 +326,42 @@ class _TutorHomeScreenState extends State<TutorHomeScreen> {
     return Column(
       children: List.generate(_con.postTuition.length, (index) {
         final post = _con.postTuition[index];
+        final timeAgo = StudentUtils.formatTimeAgo(
+          post['created_at'],
+        );
+        final startTime = StudentUtils.formatToBDTime(
+          post['start_time'],
+        );
+        final endTime = StudentUtils.formatToBDTime(
+          post['end_time'],
+        );
         return Padding(
           padding: const EdgeInsets.only(bottom: 12),
-          child: TuitionCard(
-            post: post,
-            profileComplete: profileComplete,
-            timeAgo: StudentUtils.formatTimeAgo(post['created_at'].toString()),
-          ),
+          child: StudentHomeCard(
+              title: post['post_title'],
+              location: post['student_location'],
+              studyDays: post['preferred_day'],
+              price: post['salary'],
+              status: post['status'],
+              startTime: startTime,
+              endTime: endTime,
+              subject: post['subjects']['name'],
+              studentName: post['users']['full_name'],
+              postTime: timeAgo,
+              onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => TuitionDetails(
+                    isProfileComplete: profileComplete,
+                    tuitionId: post['id'].toString(),
+                  ),
+                ),
+              );
+            },
+
+          )
+
         );
       }),
     );

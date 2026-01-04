@@ -58,7 +58,7 @@ class _TuitionCardState extends State<TuitionCard> {
     final bool alreadyApplied = _con.appliedPostIds.contains(postId);
 
     debugPrint('PostId: $postId, postIdTitle: ${post['post_title']}');
-    debugPrint('SavedIds: ${_con.appliedPostIds}');
+    debugPrint('AppliedPostIds: ${_con.appliedPostIds}');
 
     return Container(
       decoration: BoxDecoration(
