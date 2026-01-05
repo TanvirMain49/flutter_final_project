@@ -100,11 +100,10 @@ class TutorDataController {
 
   Future<void> getSavedPosts(VoidCallback onUpdate) async {
     try{
-      isFetchSavePost = false;
+      isFetchSavePost = true;
       onUpdate();
       final response = await _tuitionApiService.fetchSavedPosts();
       savedPosts = response;
-      debugPrint("Saved Posts: $savedPosts");
     } catch (e){
       debugPrint("Controller getSavedPosts error: $e");
     } finally{

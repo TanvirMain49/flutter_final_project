@@ -18,7 +18,6 @@ class ExploreTuitionScreen extends StatefulWidget {
 
 class _ExploreTuitionScreenState extends State<ExploreTuitionScreen> {
   final _con = TutorDataController();
-  final _subController = GetTuitionController();
   String selectedSubject = "All";
   final searchController = TextEditingController();
 
@@ -43,6 +42,7 @@ class _ExploreTuitionScreenState extends State<ExploreTuitionScreen> {
     await Future.wait([
       _con.getTuition(() => setState(() {})),
       _con.syncSavedPosts(),
+      _con.isCompleteTutorProfile(() => setState(() {})),
     ]);
   }
 
@@ -135,6 +135,7 @@ class _ExploreTuitionScreenState extends State<ExploreTuitionScreen> {
                                 MaterialPageRoute(
                                   builder: (context) => TuitionDetails(
                                     tuitionId: post['id'].toString(),
+                                    isProfileComplete: _con.isCompleteProfile,
                                   ),
                                 ),
                               );

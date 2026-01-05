@@ -17,7 +17,6 @@ class SaveTuitionScreen extends StatefulWidget {
 class _SaveTuitionScreenState extends State<SaveTuitionScreen> {
   final _con = TutorDataController();
   final _con2 = ProfileDataController();
-  // bool get profileComplete => _con2.isTutor;
 
   @override
   void initState() {
@@ -34,6 +33,7 @@ class _SaveTuitionScreenState extends State<SaveTuitionScreen> {
       await Future.wait([
         _con.getSavedPosts((){}),
         _con2.fetchUserProfile((){}),
+        _con.isCompleteTutorProfile((){}),
       ]);
 
       // 2. Update the UI once after both are done
@@ -55,7 +55,6 @@ class _SaveTuitionScreenState extends State<SaveTuitionScreen> {
   @override
   Widget build(BuildContext context) {
 
-    // debugPrint('complete profile: $profileComplete');
     return Scaffold(
       backgroundColor: AppColors.primaryDark,
       appBar: AppBar(
@@ -71,7 +70,7 @@ class _SaveTuitionScreenState extends State<SaveTuitionScreen> {
         backgroundColor: AppColors.primary,
         centerTitle: true,
       ),
-      body: _con.isFetchSavePost || _con.savedPosts.isEmpty
+      body: _con.isFetchSavePost
           ? ListView.separated(
         padding: const EdgeInsets.all(16),
         itemCount: 3,
@@ -121,7 +120,7 @@ class _SaveTuitionScreenState extends State<SaveTuitionScreen> {
                       builder: (context) =>
                           TuitionDetails(
                             tuitionId: savedPost['id'].toString(),
-                            // isProfileComplete: _con2.needsCompletion,
+                            isProfileComplete: _con.isCompleteProfile,
                           ),
                     ),
                   );

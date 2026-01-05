@@ -66,13 +66,29 @@ class TutorApiService {
 
   // save tuition
   Future<void> saveTuition(String postId) async {
-    final userId = await _supabase.auth.currentUser?.id;
+    final userId = _supabase.auth.currentUser?.id;
     if (userId == null) return;
+
     try {
+      // 1. Check if it exists first
+      final existing = await _supabase
+          .from('save_post')
+          .select('id')
+          .eq('user_id', userId)
+          .eq('post_id', postId)
+          .maybeSingle();
+
+      if (existing != null) {
+        debugPrint("Post already saved. Skipping insert.");
+        return; // Stop here
+      }
+
+      // 2. Only insert if it doesn't exist
       await _supabase.from('save_post').insert({
         'user_id': userId,
         'post_id': postId,
       });
+
     } catch (e) {
       debugPrint('saveTuition error: $e');
     }
