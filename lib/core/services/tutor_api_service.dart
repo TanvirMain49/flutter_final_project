@@ -6,7 +6,7 @@ class TutorApiService {
   final _supabase = Supabase.instance.client;
 
   //get all tuition
-  Future<List<Map<String, dynamic>>?> getTuition({String? searchQuery}) async {
+  Future<List<Map<String, dynamic>>> getTuition({String? searchQuery}) async {
     try {
       var query = _supabase
           .from('tuition_post')
@@ -33,7 +33,7 @@ class TutorApiService {
       return List<Map<String, dynamic>>.from(response);
     } catch (e) {
       debugPrint('Error fetching tuitions: $e');
-      return null;
+      return [];
     }
   }
 

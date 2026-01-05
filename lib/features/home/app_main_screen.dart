@@ -1,6 +1,7 @@
 import 'package:_6th_sem_project/core/constants/colors.dart';
 import 'package:_6th_sem_project/core/services/api_service.dart';
 import 'package:_6th_sem_project/features/student/controller/get_tuition_controller.dart';
+import 'package:_6th_sem_project/features/student/screen/explore_tutor.dart';
 import 'package:_6th_sem_project/features/student/screen/post_tuition.dart';
 import 'package:_6th_sem_project/features/student/screen/student_home.dart';
 import 'package:_6th_sem_project/features/profile/screen/user_profile.dart';
@@ -44,7 +45,7 @@ class _AppMainScreenState extends State<AppMainScreen> {
       if (_role == 'student') {
         pages = [
           const StudentHomeScreen(),
-          const Scaffold(body: Center(child: Text("Student Search"))),
+          const ExploreTutorScreen(),
           const SizedBox(),
           const Scaffold(body: Center(child: Text("Student Notification"))),
           const UserProfile(),

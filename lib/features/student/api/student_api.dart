@@ -119,4 +119,24 @@ class StudentApiService {
     }
   }
 
+    //  get all tutor
+  Future<List<Map<String, dynamic>>> getAllTutor() async{
+    try{
+      return await _supabase
+          .from('users')
+          .select('''
+          *,
+          tutor_skills: tutor_skills(
+          *,
+          subjects: subject_id(
+            name
+          )
+          )
+          ''').eq('role', 'Tutor');
+    } catch(e){
+      debugPrint('getAllTutor error: $e');
+      rethrow;
+    }
+  }
+
 }

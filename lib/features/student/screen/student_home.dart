@@ -12,44 +12,6 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:flutter/material.dart';
 import 'dart:math' as math;
 
-final List<Map<String, dynamic>> tutorsData = [
-  {
-    'name': 'Sarah K.',
-    'subject': 'Mathematics',
-    'price': 25,
-    'rating': 4.9,
-    'imageUrl': 'https://randomuser.me/api/portraits/women/44.jpg',
-  },
-  {
-    'name': 'John D.',
-    'subject': 'Physics',
-    'price': 30,
-    'rating': 4.7,
-    'imageUrl': 'https://randomuser.me/api/portraits/men/34.jpg',
-  },
-  {
-    'name': 'Emma W.',
-    'subject': 'Chemistry',
-    'price': 28,
-    'rating': 4.8,
-    'imageUrl': 'https://randomuser.me/api/portraits/women/55.jpg',
-  },
-  {
-    'name': 'Mike B.',
-    'subject': 'English',
-    'price': 20,
-    'rating': 4.6,
-    'imageUrl': 'https://randomuser.me/api/portraits/men/45.jpg',
-  },
-  {
-    'name': 'Lucy A.',
-    'subject': 'Biology',
-    'price': 27,
-    'rating': 4.9,
-    'imageUrl': 'https://randomuser.me/api/portraits/women/66.jpg',
-  },
-];
-
 class StudentHomeScreen extends StatefulWidget {
   const StudentHomeScreen({super.key});
 
@@ -65,6 +27,9 @@ class _StudentHomeScreenState extends State<StudentHomeScreen> {
   void initState() {
     super.initState();
     controller.getTuition(() {
+      if (mounted) setState(() {});
+    });
+    controller.getAllTuition(() {
       if (mounted) setState(() {});
     });
   }
@@ -354,6 +319,7 @@ class _StudentHomeScreenState extends State<StudentHomeScreen> {
 
   // Recent Tutor
   Column recentTutor() {
+    // debugPrint('tutors: ${controller.tutors.toString()}');
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -384,17 +350,27 @@ class _StudentHomeScreenState extends State<StudentHomeScreen> {
           height: 110,
           child: ListView.builder(
             scrollDirection: Axis.horizontal,
-            itemCount: tutorsData.length,
+            itemCount: controller.tutors.length,
             shrinkWrap: true,
             physics: const BouncingScrollPhysics(),
             itemBuilder: (context, index) {
-              final tutor = tutorsData[index];
+              final tutor = controller.tutors[index];
+
+              // 1. Get the list of skills
+              final skillsList = tutor['tutor_skills'] as List? ?? [];
+
+              // 2. Safely get the first skill map if it exists
+              final firstSkill = skillsList.isNotEmpty ? skillsList[0] : null;
+
+              // 3. Extract the subject name and salary safely
+              final subjectName = firstSkill?['subjects']?['name'] ?? 'General';
+              final salary = firstSkill?['salary'] ?? 'N/A';
+
               return TutorHomeCard(
-                name: tutor['name'],
-                subject: tutor['subject'],
-                price: (tutor['price'] as num).toDouble(),
-                rating: tutor['rating'],
-                imageUrl: tutor['imageUrl'],
+                name: tutor['full_name'] ?? 'Unknown',
+                subject: subjectName,
+                price: salary,
+                gender: tutor['gender'] ?? 'N/A',
               );
             },
           ),
@@ -405,6 +381,7 @@ class _StudentHomeScreenState extends State<StudentHomeScreen> {
 
   //Tuition card
   Widget recentStudentReq() {
+    final filteredPosts = controller.tuitionData.where((post) => post['status'] != 'closed').toList();
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -438,10 +415,8 @@ class _StudentHomeScreenState extends State<StudentHomeScreen> {
 
         controller.isLoading
             ? const CircularProgressIndicator() // if loader is active show the loading animation
-            : controller.tuitionData == null ||
-                  controller
-                      .tuitionData!
-                      .isEmpty // cheek if data is empty or not
+            : filteredPosts == null ||
+            filteredPosts.isEmpty // cheek if data is empty or not
             ? const Center(
                 child: Text(
                   "No Tuition Posts Available",
@@ -457,11 +432,11 @@ class _StudentHomeScreenState extends State<StudentHomeScreen> {
                 shrinkWrap: true,
                 physics: const NeverScrollableScrollPhysics(),
                 padding: EdgeInsets.zero,
-                itemCount: math.min(controller.tuitionData!.length, 3),
+                itemCount: math.min(filteredPosts.length, 3),
                 separatorBuilder: (context, index) =>
                     const SizedBox(height: 12),
                 itemBuilder: (context, index) {
-                  final tuition = controller.tuitionData![index];
+                  final tuition = filteredPosts[index];
                   final timeAgo = StudentUtils.formatTimeAgo(
                     tuition['created_at'],
                   );

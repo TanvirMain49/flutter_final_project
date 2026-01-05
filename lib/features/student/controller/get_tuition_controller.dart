@@ -3,13 +3,14 @@ import 'package:_6th_sem_project/core/services/tutor_api_service.dart';
 import 'package:_6th_sem_project/features/student/api/student_api.dart';
 import 'package:flutter/material.dart';
 
-
 class GetTuitionController {
-  List<Map<String, dynamic>>? tuitionData;
-  List<Map<String, dynamic>> applicationTuition=[];
+  List<Map<String, dynamic>> tuitionData = [];
+  List<Map<String, dynamic>> applicationTuition = [];
+  List<Map<String, dynamic>> tutors = [];
   Map<String, dynamic>? tuitionDetails;
   bool isLoading = true;
   bool isApplicationLoading = true;
+  bool isAllTutorLoading = true;
   String? role;
 
   // 2. Create a function to load the role
@@ -22,14 +23,14 @@ class GetTuitionController {
   Future<void> getTuition(VoidCallback onUpdate) async {
     isLoading = true;
     onUpdate();
-    try{
+    try {
       final data = await TutorApiService().getTuition();
-      if(data== null || data.isEmpty) tuitionData;
+      if (data == null || data.isEmpty) tuitionData;
 
       tuitionData = data;
     } catch (e) {
       debugPrint('getTuition error: $e');
-    }finally{
+    } finally {
       isLoading = false;
       onUpdate();
     }
@@ -39,14 +40,14 @@ class GetTuitionController {
   Future<void> getTuitionDetails(String postId, VoidCallback onUpdate) async {
     isLoading = true;
     onUpdate();
-    try{
+    try {
       final data = await TutorApiService().getTuitionDetails(postId);
-      if(data != null){
+      if (data != null) {
         tuitionDetails = data;
       }
-    } catch (e){
+    } catch (e) {
       debugPrint('getTuitionDetails error: $e');
-    }finally{
+    } finally {
       isLoading = false;
       onUpdate();
     }
@@ -54,17 +55,17 @@ class GetTuitionController {
 
   //  get all applied post
   Future<void> getAllAppliedPost(String postId, VoidCallback onUpdate) async {
-  try{
-    isApplicationLoading = true;
-    onUpdate();
-    final data = await StudentApiService().getAllApplicationForPost(postId);
-    applicationTuition = data;
-    } catch (e){
-    debugPrint('getAllAppliedPost error: $e');
-  }finally{
-    isApplicationLoading = false;
-    onUpdate();
-  }
+    try {
+      isApplicationLoading = true;
+      onUpdate();
+      final data = await StudentApiService().getAllApplicationForPost(postId);
+      applicationTuition = data;
+    } catch (e) {
+      debugPrint('getAllAppliedPost error: $e');
+    } finally {
+      isApplicationLoading = false;
+      onUpdate();
+    }
   }
 
   Future<void> hireTutor({
@@ -94,4 +95,17 @@ class GetTuitionController {
     }
   }
 
+  Future<void> getAllTuition(VoidCallback onUpdate) async {
+    try {
+      isAllTutorLoading = true;
+      onUpdate();
+      final data = await StudentApiService().getAllTutor();
+      tutors = data;
+    } catch (e) {
+      debugPrint('getAllTutor error: $e');
+    } finally {
+      isAllTutorLoading = false;
+      onUpdate();
+    }
+  }
 }
