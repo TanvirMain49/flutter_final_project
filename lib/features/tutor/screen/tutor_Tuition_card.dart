@@ -26,11 +26,6 @@ class _TuitionCardState extends State<TuitionCard> {
   @override
   void initState() {
     super.initState();
-    if(_con.appliedPostIds.isEmpty){
-      _con.syncAppliedPosts(() {
-        if(mounted) setState(() {});
-      });
-    }
     if(_con.savedPostIds.isEmpty){
       _con.syncSavedPosts();
     }

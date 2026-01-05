@@ -94,6 +94,30 @@ class TutorApiService {
     }
   }
 
+  //get all save tuition for a user
+  Future<List<Map<String, dynamic>>> fetchSavedPosts() async {
+    try{
+      final userId = _supabase.auth.currentUser?.id;
+      if (userId == null) return [];
+      return await _supabase.from('save_post').select('''
+          *,
+          tuition_post:post_id (
+          *,
+          subjects: subject_id(
+            name
+          ),
+          users: student_id(
+            full_name
+          )
+          )
+      ''').eq('user_id', userId);
+    } catch (e){
+      debugPrint('fetchSavedPosts error: $e');
+      throw 'An unexpected error occurred: $e';
+      return [];
+    }
+  }
+
   // delete save tuition post
   Future<void> deleteSavedPost(String postId) async {
     final userId = _supabase.auth.currentUser?.id;
@@ -199,6 +223,24 @@ class TutorApiService {
     } catch (e) {
       debugPrint('Error: $e');
       throw 'An unexpected error occurred.';
+    }
+  }
+
+  Future<bool> isCompleteProfile() async {
+    final userId = _supabase.auth.currentUser?.id;
+    if (userId == null) return false;
+    try {
+      final respone = await _supabase
+          .from('tutor_skills')
+          .select('tutor_id')
+          .eq('tutor_id', userId)
+          .maybeSingle();
+      ;
+      if (respone != null && respone.isNotEmpty) return true;
+      return false;
+    } catch (e) {
+      debugPrint("Error checking profile completion: $e");
+      return false;
     }
   }
 

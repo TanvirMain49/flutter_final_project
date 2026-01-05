@@ -6,15 +6,19 @@ class TutorDataController {
   // Text-controller
   List<Map<String, dynamic>> postTuition = [];
   List<Map<String, dynamic>> tutorApplications = [];
+  List<Map<String, dynamic>> savedPosts = [];
+  // TODO: cheek if savePostIds is need or not later
   List<String> savedPostIds = [];
   List<String> appliedPostIds = [];
   String? errorMessage = '';
   String? successMessage = '';
+  bool isCompleteProfile = false;
   bool hasApplied = false;
   bool isLoading = false;
   bool isSave = false;
   bool isApply = false;
   bool isApplications = false;
+  bool isFetchSavePost = false;
 
 
   // get all tuition controller
@@ -94,6 +98,22 @@ class TutorDataController {
     }
   }
 
+  Future<void> getSavedPosts(VoidCallback onUpdate) async {
+    try{
+      isFetchSavePost = false;
+      onUpdate();
+      final response = await _tuitionApiService.fetchSavedPosts();
+      savedPosts = response;
+      debugPrint("Saved Posts: $savedPosts");
+    } catch (e){
+      debugPrint("Controller getSavedPosts error: $e");
+    } finally{
+      isFetchSavePost = false;
+      onUpdate();
+    }
+  }
+
+
   Future<bool> applyForTuition(String postId, String? tutorMessage, VoidCallback onUpdate) async {
     isApply = true;
     onUpdate();
@@ -118,19 +138,9 @@ class TutorDataController {
     onUpdate();
   }
 
-  Future<void> syncAppliedPosts(VoidCallback onUpdate) async{
-    try{
-      final response = await _tuitionApiService.syncAppliedPosts();
-      if (response.isNotEmpty){
-        appliedPostIds = response
-            .map((item)=> item['tuition_post_id'].toString()).toList();
-        debugPrint("Applied posts synced: $appliedPostIds");
-      }
-    } catch (e){
-      debugPrint("Controller syncAppliedPosts error: $e");
-    } finally {
-      onUpdate();
-    }
+  Future<void> isCompleteTutorProfile(VoidCallback refreshUI) async{
+    isCompleteProfile =  await _tuitionApiService.isCompleteProfile();
+    refreshUI();
   }
 
 //   get one user applications

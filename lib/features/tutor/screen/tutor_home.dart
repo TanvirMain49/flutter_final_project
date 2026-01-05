@@ -7,8 +7,6 @@ import 'package:_6th_sem_project/core/widgets/student_home_cart.dart';
 import 'package:_6th_sem_project/features/profile/controller/profile_data_controller.dart';
 import 'package:_6th_sem_project/features/student/screen/tuition_details.dart';
 import 'package:_6th_sem_project/features/tutor/controller/tutor_data_controller.dart';
-import 'package:_6th_sem_project/features/tutor/screen/apply_tuition.dart';
-import 'package:_6th_sem_project/features/tutor/screen/tutor_Tuition_card.dart';
 import 'package:_6th_sem_project/utils/Student.utils.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:flutter/material.dart';
@@ -25,7 +23,6 @@ class _TutorHomeScreenState extends State<TutorHomeScreen> {
   final _con2 = ProfileDataController();
 
   final user = Supabase.instance.client.auth.currentUser;
-  bool get profileComplete => _con2.isTutor;
 
   final List<Map<String, dynamic>> activeTuitionPosts = [
     {
@@ -105,7 +102,7 @@ class _TutorHomeScreenState extends State<TutorHomeScreen> {
       await Future.wait([
         _con.getTuition(() {}),
         _con.syncSavedPosts(),
-        _con.syncAppliedPosts(() {}),
+        _con.isCompleteTutorProfile((){}),
         _con.getTutorApplications(status: 'All', onUpdate: () {}),
         _con2.fetchUserProfile(() {}),
       ]);
@@ -131,6 +128,8 @@ class _TutorHomeScreenState extends State<TutorHomeScreen> {
         ? userEmail.split('@')[0]
         : userEmail;
     bool hasSaved = !savedItems.isNotEmpty;
+    bool profileComplete = _con.isCompleteProfile;
+
 
     return Scaffold(
       body: RefreshIndicator(
@@ -160,7 +159,7 @@ class _TutorHomeScreenState extends State<TutorHomeScreen> {
                 // Active Feed Section
                 _buildSectionHeader('Recent Tuition', () {}),
                 const SizedBox(height: 12),
-                _buildActiveFeedCards(),
+                _buildActiveFeedCards(profileComplete),
 
                 const SizedBox(height: 32),
 
@@ -306,7 +305,7 @@ class _TutorHomeScreenState extends State<TutorHomeScreen> {
     );
   }
 
-  Widget _buildActiveFeedCards() {
+  Widget _buildActiveFeedCards(bool profileComplete) {
     if (_con.isLoading && _con.postTuition.isEmpty) {
       return Column(
         children: List.generate(3, (index) => const CardSkeleton()),

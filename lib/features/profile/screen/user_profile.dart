@@ -7,6 +7,7 @@ import 'package:_6th_sem_project/features/profile/screen/personal_information.da
 import 'package:_6th_sem_project/features/profile/screen/user_setting.dart';
 import 'package:_6th_sem_project/features/student/screen/my_tuition_posts.dart';
 import 'package:_6th_sem_project/features/tutor/screen/my_application_page.dart';
+import 'package:_6th_sem_project/features/tutor/screen/save_tuition_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -298,6 +299,14 @@ class _UserProfileState extends State<UserProfile> {
                     icon: Icons.bookmark,
                     title: 'Saved Tuition',
                     subtitle: 'View saved opportunities',
+                    onTap:(){
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const SaveTuitionScreen(),
+                        )
+                      );
+                    }
                   ),
                 ],
                 const SizedBox(height: 24),

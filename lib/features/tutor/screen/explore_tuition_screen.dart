@@ -42,7 +42,6 @@ class _ExploreTuitionScreenState extends State<ExploreTuitionScreen> {
     // Load posts and sync IDs globally once
     await Future.wait([
       _con.getTuition(() => setState(() {})),
-      _con.syncAppliedPosts(() => setState(() {})),
       _con.syncSavedPosts(),
     ]);
   }
