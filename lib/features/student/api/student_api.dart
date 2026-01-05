@@ -60,4 +60,32 @@ class StudentApiService {
       return null;
     }
   }
+
+  //  get all application for one post
+  Future<List<Map<String, dynamic>>> getAllApplicationForPost(String postId) async {
+    try{
+      return await _supabase
+          .from('tuition_application')
+          .select('''
+    *,
+    users:tutor_id (
+      id,
+      full_name,
+      email,
+      phone_number,
+      tutor_skills (
+        experience_years,
+        education_at,
+        salary,
+        availability,
+        experience_at
+      )
+    )
+  ''')
+          .eq('tuition_post_id', postId);
+    } catch(e){
+      debugPrint('getAllApplicationForPost error: $e');
+      rethrow;
+    }
+  }
 }

@@ -1,12 +1,15 @@
 import 'package:_6th_sem_project/core/services/api_service.dart';
 import 'package:_6th_sem_project/core/services/tutor_api_service.dart';
+import 'package:_6th_sem_project/features/student/api/student_api.dart';
 import 'package:flutter/material.dart';
 
 
 class GetTuitionController {
   List<Map<String, dynamic>>? tuitionData;
+  List<Map<String, dynamic>> applicationTuition=[];
   Map<String, dynamic>? tuitionDetails;
   bool isLoading = true;
+  bool isApplicationLoading = true;
   String? role;
 
   // 2. Create a function to load the role
@@ -47,6 +50,22 @@ class GetTuitionController {
       isLoading = false;
       onUpdate();
     }
+  }
+
+  //  get all applied post
+  Future<void> getAllAppliedPost(String postId, VoidCallback onUpdate) async {
+  try{
+    isApplicationLoading = true;
+    onUpdate();
+    final data = await StudentApiService().getAllApplicationForPost(postId);
+    applicationTuition = data;
+    } catch (e){
+    debugPrint('getAllAppliedPost error: $e');
+  }finally{
+    isApplicationLoading = false;
+    onUpdate();
+  }
+
   }
 
 }

@@ -6,6 +6,7 @@ import 'package:_6th_sem_project/core/widgets/primary_button.dart';
 import 'package:_6th_sem_project/features/profile/screen/personal_information.dart';
 import 'package:_6th_sem_project/features/student/controller/get_tuition_controller.dart';
 import 'package:_6th_sem_project/features/profile/screen/user_profile.dart';
+import 'package:_6th_sem_project/features/student/screen/view_applications.dart';
 import 'package:_6th_sem_project/features/tutor/controller/tutor_data_controller.dart';
 import 'package:_6th_sem_project/features/tutor/screen/apply_tuition.dart';
 import 'package:_6th_sem_project/utils/Student.utils.dart';
@@ -553,7 +554,7 @@ class _TuitionDetailsState extends State<TuitionDetails> {
         onPressed: () {
           Navigator.push(
             context,
-            MaterialPageRoute(builder: (context) => UserProfile()),
+            MaterialPageRoute(builder: (context) => ViewApplicationScreen(postId: postId)),
           );
         },
       );
