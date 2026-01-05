@@ -54,6 +54,7 @@ class _SaveTuitionScreenState extends State<SaveTuitionScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final filteredPosts = _con.postTuition.where((post) => post['status'] != 'closed').toList();
 
     return Scaffold(
       backgroundColor: AppColors.primaryDark,
@@ -77,18 +78,18 @@ class _SaveTuitionScreenState extends State<SaveTuitionScreen> {
         separatorBuilder: (context, index) => const SizedBox(height: 16),
         itemBuilder: (context, index) => const CardSkeleton(),
       )
-          : _con.savedPosts.isEmpty
+          : filteredPosts.isEmpty
           ? _buildEmptyState()
           : RefreshIndicator(
         onRefresh: _loadInitialData,
         color: AppColors.primaryDark,
         child: ListView.separated(
           padding: const EdgeInsets.all(16),
-          itemCount: _con.savedPosts.length,
+          itemCount: filteredPosts.length,
           separatorBuilder: (context, index) =>
           const SizedBox(height: 16),
           itemBuilder: (context, index) {
-            final post = _con.savedPosts[index];
+            final post = filteredPosts[index];
             final savedPost = post['tuition_post'];
             debugPrint("SavePost: $savedPost");
             final timeAgo = StudentUtils.formatTimeAgo(

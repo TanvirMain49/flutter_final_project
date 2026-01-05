@@ -312,8 +312,13 @@ class _TutorHomeScreenState extends State<TutorHomeScreen> {
       );
     }
 
-    // If loading is done and list is still empty, show empty state
-    if (!_con.isLoading && _con.postTuition.isEmpty) {
+    // Filter posts where status is not 'closed'
+    final filteredPosts = _con.postTuition
+        .where((post) => post['status']?.toString().toLowerCase() != 'closed')
+        .toList();
+
+    // If loading is done and filtered list is still empty, show empty state
+    if (!_con.isLoading && filteredPosts.isEmpty) {
       return _buildEmptyState(
         Icons.bookmark_border_rounded,
         "No Tuitions Available",
@@ -323,8 +328,9 @@ class _TutorHomeScreenState extends State<TutorHomeScreen> {
     }
 
     return Column(
-      children: List.generate(_con.postTuition.length, (index) {
-        final post = _con.postTuition[index];
+      children: List.generate(filteredPosts.length, (index) {
+        final post = filteredPosts[index];
+        debugPrint('Post $post');
         final timeAgo = StudentUtils.formatTimeAgo(
           post['created_at'],
         );
@@ -337,17 +343,17 @@ class _TutorHomeScreenState extends State<TutorHomeScreen> {
         return Padding(
           padding: const EdgeInsets.only(bottom: 12),
           child: StudentHomeCard(
-              title: post['post_title'],
-              location: post['student_location'],
-              studyDays: post['preferred_day'],
-              price: post['salary'],
-              status: post['status'],
-              startTime: startTime,
-              endTime: endTime,
-              subject: post['subjects']['name'],
-              studentName: post['users']['full_name'],
-              postTime: timeAgo,
-              onTap: () {
+            title: post['post_title'],
+            location: post['student_location'],
+            studyDays: post['preferred_day'],
+            price: post['salary'],
+            status: post['status'],
+            startTime: startTime,
+            endTime: endTime,
+            subject: post['subjects']['name'],
+            studentName: post['users']['full_name'],
+            postTime: timeAgo,
+            onTap: () {
               Navigator.push(
                 context,
                 MaterialPageRoute(
@@ -358,9 +364,7 @@ class _TutorHomeScreenState extends State<TutorHomeScreen> {
                 ),
               );
             },
-
-          )
-
+          ),
         );
       }),
     );

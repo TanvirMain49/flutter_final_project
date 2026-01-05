@@ -1,4 +1,5 @@
 import 'package:_6th_sem_project/core/constants/colors.dart';
+import 'package:_6th_sem_project/core/widgets/Skeleton/card_skeleton.dart';
 import 'package:_6th_sem_project/core/widgets/gradient_background.dart';
 import 'package:_6th_sem_project/features/student/controller/get_tuition_controller.dart';
 import 'package:_6th_sem_project/features/student/screen/application_card.dart';
@@ -33,13 +34,15 @@ class _ApplicationsScreenState extends State<ViewApplicationScreen> {
     _con.hireTutor(
       applicationId: application['tutor_id'].toString(),
       postId: widget.postId,
-      onSuccess: () {ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('${application['full_name']} hired successfully!'),
-          backgroundColor: Colors.green,
-          duration: const Duration(seconds: 2),
-        ),
-      );},
+      onSuccess: () {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('${application['full_name']} hired successfully!'),
+            backgroundColor: Colors.green,
+            duration: const Duration(seconds: 2),
+          ),
+        );
+      },
       refreshUI: () => setState(() {}),
     );
   }
@@ -73,37 +76,41 @@ class _ApplicationsScreenState extends State<ViewApplicationScreen> {
           icon: Icon(Icons.arrow_back, color: AppColors.white),
         ),
       ),
-      body: _con.applicationTuition.isEmpty
-          ? RefreshIndicator(
-              onRefresh: _loadData,
-              color: AppColors.accent,
-              backgroundColor: AppColors.surface,
-              child: Center(
-                child: GradientBackground(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(Icons.inbox, size: 64, color: Colors.grey[300]),
-                      const SizedBox(height: 16),
-                      Text(
-                        'No applications',
-                        style: TextStyle(fontSize: 18, color: Colors.grey[600]),
-                      ),
-                    ],
-                  ),
-                ),
+      body: _con.isApplicationLoading || _con.applicationTuition.isEmpty?
+      Column(
+        children: List.generate(2, (index) => const CardSkeleton()),
+      ) :
+      _con.applicationTuition.isEmpty
+          ? Center(
+        child: GradientBackground(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(Icons.inbox, size: 64, color: Colors.grey[300]),
+              const SizedBox(height: 16),
+              Text(
+                'No applications',
+                style: TextStyle(fontSize: 18, color: Colors.grey[600]),
               ),
-            )
-          : ListView.builder(
-              itemCount: _con.applicationTuition.length,
-              itemBuilder: (context, index) {
-                return ApplicationCard(
-                  application: _con.applicationTuition[index],
-                  onHire: () => _handleHire(_con.applicationTuition[index]),
-                  onReject: () => _handleReject(_con.applicationTuition[index]),
-                );
-              },
-            ),
+            ],
+          ),
+        ),
+      )
+          : RefreshIndicator(
+        onRefresh: _loadData,
+        color: AppColors.accent,
+        backgroundColor: AppColors.surface,
+        child: ListView.builder(
+          itemCount: _con.applicationTuition.length,
+          itemBuilder: (context, index) {
+            return ApplicationCard(
+              application: _con.applicationTuition[index],
+              onHire: () => _handleHire(_con.applicationTuition[index]),
+              onReject: () => _handleReject(_con.applicationTuition[index]),
+            );
+          },
+        ),
+      ),
     );
   }
 }

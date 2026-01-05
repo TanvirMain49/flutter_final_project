@@ -8,7 +8,6 @@ import 'package:flutter/material.dart';
 import 'package:_6th_sem_project/core/constants/colors.dart';
 import 'package:_6th_sem_project/features/tutor/controller/tutor_data_controller.dart';
 
-
 class ExploreTuitionScreen extends StatefulWidget {
   const ExploreTuitionScreen({super.key});
 
@@ -48,6 +47,11 @@ class _ExploreTuitionScreenState extends State<ExploreTuitionScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // Filter posts where status is not 'closed'
+    final filteredPosts = _con.postTuition
+        .where((post) => post['status']?.toString().toLowerCase() != 'closed')
+        .toList();
+
     return Scaffold(
       backgroundColor: AppColors.primaryDark,
       appBar: AppBar(
@@ -72,18 +76,22 @@ class _ExploreTuitionScreenState extends State<ExploreTuitionScreen> {
             child: SearchField(
               controller: searchController,
               onChanged: (value) {
-                  _con.getTuition(() => setState(() {}),  searchQuery: value);
+                _con.getTuition(
+                      () => setState(() {}),
+                  searchQuery: value,
+                );
               },
               onClear: () {
                 searchController.clear();
                 _con.getTuition(
-                      () { if (mounted) setState(() {}); },
+                      () {
+                    if (mounted) setState(() {});
+                  },
                   searchQuery: '',
                 );
               },
-            )
+            ),
           ),
-
           const SizedBox(height: 10),
 
           // 1. Horizontal Scroll Subjects Filter
@@ -93,58 +101,58 @@ class _ExploreTuitionScreenState extends State<ExploreTuitionScreen> {
           Expanded(
             child: _con.isLoading
                 ? Column(
-                    children: List.generate(2, (index) => const CardSkeleton()),
-                  )
-                : _con.postTuition.isEmpty
+              children: List.generate(2, (index) => const CardSkeleton()),
+            )
+                : filteredPosts.isEmpty
                 ? _buildEmptyState()
                 : RefreshIndicator(
-                    onRefresh: _loadInitialData,
-                    color: AppColors.accent,
-                    child: ListView.separated(
-                      padding: const EdgeInsets.all(16),
-                      itemCount: _con.postTuition.length,
-                      separatorBuilder: (context, index) =>
-                          const SizedBox(height: 16),
-                      itemBuilder: (context, index) {
-                        final post = _con.postTuition[index];
-                        final timeAgo = StudentUtils.formatTimeAgo(
-                          post['created_at'],
-                        );
-                        final startTime = StudentUtils.formatToBDTime(
-                          post['start_time'],
-                        );
-                        final endTime = StudentUtils.formatToBDTime(
-                          post['end_time'],
-                        );
-                        return Padding(
-                          padding: const EdgeInsets.only(bottom: 12),
-                          child: StudentHomeCard(
-                            title: post['post_title'],
-                            location: post['student_location'],
-                            studyDays: post['preferred_day'],
-                            price: post['salary'],
-                            status: post['status'],
-                            startTime: startTime,
-                            endTime: endTime,
-                            subject: post['subjects']['name'],
-                            studentName: post['users']['full_name'],
-                            postTime: timeAgo,
-                            onTap: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => TuitionDetails(
-                                    tuitionId: post['id'].toString(),
-                                    isProfileComplete: _con.isCompleteProfile,
-                                  ),
-                                ),
-                              );
-                            },
+              onRefresh: _loadInitialData,
+              color: AppColors.accent,
+              child: ListView.separated(
+                padding: const EdgeInsets.all(16),
+                itemCount: filteredPosts.length,
+                separatorBuilder: (context, index) =>
+                const SizedBox(height: 16),
+                itemBuilder: (context, index) {
+                  final post = filteredPosts[index];
+                  final timeAgo = StudentUtils.formatTimeAgo(
+                    post['created_at'],
+                  );
+                  final startTime = StudentUtils.formatToBDTime(
+                    post['start_time'],
+                  );
+                  final endTime = StudentUtils.formatToBDTime(
+                    post['end_time'],
+                  );
+                  return Padding(
+                    padding: const EdgeInsets.only(bottom: 12),
+                    child: StudentHomeCard(
+                      title: post['post_title'],
+                      location: post['student_location'],
+                      studyDays: post['preferred_day'],
+                      price: post['salary'],
+                      status: post['status'],
+                      startTime: startTime,
+                      endTime: endTime,
+                      subject: post['subjects']['name'],
+                      studentName: post['users']['full_name'],
+                      postTime: timeAgo,
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => TuitionDetails(
+                              tuitionId: post['id'].toString(),
+                              isProfileComplete: _con.isCompleteProfile,
+                            ),
                           ),
                         );
                       },
                     ),
-                  ),
+                  );
+                },
+              ),
+            ),
           ),
         ],
       ),
@@ -203,5 +211,11 @@ class _ExploreTuitionScreenState extends State<ExploreTuitionScreen> {
         ],
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    searchController.dispose();
+    super.dispose();
   }
 }

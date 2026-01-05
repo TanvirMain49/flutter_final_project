@@ -109,7 +109,6 @@ class _MyApplicationsPageState extends State<MyApplicationsPage> {
                         String formattedDate = StudentUtils.formatToMMDDYYYY(
                           date.toString(),
                         );
-                        debugPrint("Tuition post Id: " + post['id']);
 
                         return _buildApplicationCard(
                           tuitionId: post['id'],
@@ -177,7 +176,7 @@ class _MyApplicationsPageState extends State<MyApplicationsPage> {
         20,
       ), // Increased padding for a more spacious feel
       decoration: BoxDecoration(
-        color: AppColors.primaryDark,
+        color: status == "REJECTED"? AppColors.surface : AppColors.primaryDark,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: AppColors.border),
       ),
@@ -191,8 +190,8 @@ class _MyApplicationsPageState extends State<MyApplicationsPage> {
               Expanded(
                 child: Text(
                   title,
-                  style: const TextStyle(
-                    color: AppColors.white,
+                  style: TextStyle(
+                    color: status == "REJECTED"? AppColors.textMuted :AppColors.white,
                     fontSize: 20, // Increased font size
                     fontWeight: FontWeight.bold,
                   ),
@@ -266,7 +265,7 @@ class _MyApplicationsPageState extends State<MyApplicationsPage> {
           PrimaryButton(
             text: 'View Details',
             icon: Icons.visibility_outlined,
-            onPressed: () {
+            onPressed: status=='REJECTED' ? null : () {
               Navigator.push(
                 context,
                 MaterialPageRoute(
