@@ -17,20 +17,31 @@ class _ApplicationsScreenState extends State<ViewApplicationScreen> {
   @override
   void initState() {
     super.initState();
-    _con.getAllAppliedPost(widget.postId, () {
+    _loadData();
+  }
+
+  Future<void> _loadData() async {
+    setState(() => {});
+    await _con.getAllAppliedPost(widget.postId, () {
       if (mounted) setState(() {});
     });
+    if (mounted) setState(() => {});
   }
 
   void _handleHire(Map<String, dynamic> application) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('${application['name']} hired successfully!'),
-        backgroundColor: Colors.green,
-        duration: const Duration(seconds: 2),
-      ),
+    debugPrint("tuition post Id: ${application['tutor_id']}  ${widget.postId}");
+    _con.hireTutor(
+      applicationId: application['tutor_id'].toString(),
+      postId: widget.postId,
+      onSuccess: () {ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('${application['full_name']} hired successfully!'),
+          backgroundColor: Colors.green,
+          duration: const Duration(seconds: 2),
+        ),
+      );},
+      refreshUI: () => setState(() {}),
     );
-    
   }
 
   void _handleReject(Map<String, dynamic> application) {
@@ -46,49 +57,53 @@ class _ApplicationsScreenState extends State<ViewApplicationScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.inputBackground,
+      backgroundColor: AppColors.primaryDark,
       appBar: AppBar(
         backgroundColor: AppColors.primary,
-        title: const Text('Tutor Applications', style: TextStyle(color: AppColors.white)),
+        title: const Text(
+          'Tutor Applications',
+          style: TextStyle(color: AppColors.white),
+        ),
         centerTitle: true,
         elevation: 2,
-        leading: IconButton(onPressed: (){
-          Navigator.pop(context);
-        }, icon: Icon(Icons.arrow_back, color: AppColors.white,)),
+        leading: IconButton(
+          onPressed: () {
+            Navigator.pop(context);
+          },
+          icon: Icon(Icons.arrow_back, color: AppColors.white),
+        ),
       ),
       body: _con.applicationTuition.isEmpty
-          ? Center(
-        child: GradientBackground(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(
-                Icons.inbox,
-                size: 64,
-                color: Colors.grey[300],
-              ),
-              const SizedBox(height: 16),
-              Text(
-                'No applications',
-                style: TextStyle(
-                  fontSize: 18,
-                  color: Colors.grey[600],
+          ? RefreshIndicator(
+              onRefresh: _loadData,
+              color: AppColors.accent,
+              backgroundColor: AppColors.surface,
+              child: Center(
+                child: GradientBackground(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(Icons.inbox, size: 64, color: Colors.grey[300]),
+                      const SizedBox(height: 16),
+                      Text(
+                        'No applications',
+                        style: TextStyle(fontSize: 18, color: Colors.grey[600]),
+                      ),
+                    ],
+                  ),
                 ),
               ),
-            ],
-          ),
-        ),
-      )
+            )
           : ListView.builder(
-        itemCount: _con.applicationTuition.length,
-        itemBuilder: (context, index) {
-          return ApplicationCard(
-            application: _con.applicationTuition[index],
-            onHire: () => _handleHire(_con.applicationTuition[index]),
-            onReject: () => _handleReject(_con.applicationTuition[index]),
-          );
-        },
-      ),
+              itemCount: _con.applicationTuition.length,
+              itemBuilder: (context, index) {
+                return ApplicationCard(
+                  application: _con.applicationTuition[index],
+                  onHire: () => _handleHire(_con.applicationTuition[index]),
+                  onReject: () => _handleReject(_con.applicationTuition[index]),
+                );
+              },
+            ),
     );
   }
 }

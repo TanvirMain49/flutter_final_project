@@ -65,7 +65,33 @@ class GetTuitionController {
     isApplicationLoading = false;
     onUpdate();
   }
+  }
 
+  Future<void> hireTutor({
+    required String applicationId,
+    required String postId,
+    required VoidCallback onSuccess,
+    required VoidCallback refreshUI,
+  }) async {
+    try {
+      isLoading = true;
+      refreshUI();
+
+      // 1. Mark selected application as 'hired'
+      // 2. Mark other applications for this post as 'rejected'
+      // 3. Update tuition_post status to 'closed'
+      final success = await StudentApiService().processHiring(
+        tutorId: applicationId,
+        postId: postId,
+      );
+      onSuccess();
+      await getAllAppliedPost(postId, refreshUI);
+    } catch (e) {
+      debugPrint('hireTutor error: $e');
+    } finally {
+      isLoading = false;
+      refreshUI();
+    }
   }
 
 }

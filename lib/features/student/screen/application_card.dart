@@ -34,9 +34,9 @@ class ApplicationCard extends StatelessWidget {
     final education = tutorSkills['education_at'] ?? 'N/A';
 
     return Card(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
       elevation: 4,
-      color: AppColors.primaryDark,
+      color: AppColors.primary,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: Padding(
         padding: const EdgeInsets.all(14),
@@ -109,7 +109,7 @@ class ApplicationCard extends StatelessWidget {
                 Expanded(child: _buildInfoItem(Icons.school_outlined, 'Graduate', education)),
               ],
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 20),
 
             // Optional short message
             if (message != null && message.toString().trim().isNotEmpty)
@@ -133,7 +133,7 @@ class ApplicationCard extends StatelessWidget {
               ),
 
             if (message != null && message.toString().trim().isNotEmpty)
-              const SizedBox(height: 12),
+              const SizedBox(height: 20),
 
             // Action Buttons
             Row(
