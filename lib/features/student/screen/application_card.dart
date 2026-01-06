@@ -120,7 +120,7 @@ class ApplicationCard extends StatelessWidget {
               children: [
                 Expanded(child: _buildInfoItem(Icons.work_outline, 'Experience', '$experience years')),
                 const SizedBox(width: 12),
-                Expanded(child: _buildInfoItem(Icons.attach_money, 'Expected Salary', '$salary/month')),
+                Expanded(child: _buildInfoItem(Icons.attach_money, 'Salary', '$salary/m')),
                 const SizedBox(width: 12),
                 Expanded(child: _buildInfoItem(Icons.school, 'Education', education)),
               ],
@@ -377,7 +377,7 @@ class ApplicationCard extends StatelessWidget {
         Row(
           children: [
             Icon(icon, size: 18, color: AppColors.accent),
-            const SizedBox(width: 6),
+            const SizedBox(width: 4),
             Text(
               label,
               style: TextStyle(
@@ -390,7 +390,7 @@ class ApplicationCard extends StatelessWidget {
         ),
         const SizedBox(height: 6),
         Padding(
-          padding: const EdgeInsets.only(left: 24),
+          padding: const EdgeInsets.only(left: 20),
           child: Text(
             value,
             style: const TextStyle(

@@ -19,7 +19,7 @@ class _ExploreTutorScreenState extends State<ExploreTutorScreen> {
 
   String selectedFilter = 'All';
   final List<String> filterOptions = [
-    'All', 'General Mathematics', 'Higher Mathematics', 'Physics', 'Chemistry', 'Biology', 'English', 'Accounting' 'ICT',
+    'All', 'General Mathematics', 'Higher Mathematics', 'Physics', 'Chemistry', 'Biology', 'English', 'Accounting', 'ICT',
   ];
 
   @override

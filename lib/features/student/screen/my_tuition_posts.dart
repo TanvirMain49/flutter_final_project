@@ -1,4 +1,6 @@
 import 'package:_6th_sem_project/core/constants/colors.dart';
+import 'package:_6th_sem_project/core/widgets/Skeleton/my_tuition_post_skeleton.dart';
+import 'package:_6th_sem_project/core/widgets/Skeleton/skeleton_box.dart';
 import 'package:_6th_sem_project/core/widgets/gradient_background.dart';
 import 'package:_6th_sem_project/core/widgets/primary_button.dart';
 import 'package:_6th_sem_project/features/profile/controller/profile_data_controller.dart';
@@ -69,7 +71,9 @@ class _MyTuitionPostsState extends State<MyTuitionPosts> {
                   children: [
                     // Total Posts Card
                     Expanded(
-                      child: Container(
+                      child: _dataCon.isLoading
+                          ? const SkeletonBox(height: 110, width: double.infinity) // Responsive width
+                          :Container(
                         padding: const EdgeInsets.all(16),
                         decoration: BoxDecoration(
                           color: AppColors.surface,
@@ -98,10 +102,10 @@ class _MyTuitionPostsState extends State<MyTuitionPosts> {
                             ),
                             const SizedBox(height: 12),
                             Text(
-                              "$totalPost",
-                              style: const TextStyle(
+                              _dataCon.isLoading? 'Loading...':"$totalPost",
+                              style: TextStyle(
                                 color: AppColors.white,
-                                fontSize: 28,
+                                fontSize:  _dataCon.isLoading ? 16 : 28,
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
@@ -112,7 +116,10 @@ class _MyTuitionPostsState extends State<MyTuitionPosts> {
                     const SizedBox(width: 12),
                     // Hired Card
                     Expanded(
-                      child: Container(
+
+                      child: _dataCon.isLoading
+                          ? const SkeletonBox(height: 110, width: double.infinity) // Responsive width
+                          :Container(
                         padding: const EdgeInsets.all(16),
                         decoration: BoxDecoration(
                           color: AppColors.surface,
@@ -140,11 +147,12 @@ class _MyTuitionPostsState extends State<MyTuitionPosts> {
                               ],
                             ),
                             const SizedBox(height: 12),
-                            const Text(
+                            Text(
+                              _dataCon.isLoading? 'Loading...':
                               '2',
                               style: TextStyle(
                                 color: AppColors.white,
-                                fontSize: 28,
+                                fontSize: _dataCon.isLoading ? 16 : 28,
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
@@ -156,9 +164,9 @@ class _MyTuitionPostsState extends State<MyTuitionPosts> {
                 ),
                 const SizedBox(height: 24),
                 // Posts List
-                const Text(
-                  'Posts',
-                  style: TextStyle(
+                Text(
+                  _dataCon.isLoading? '': 'Posts',
+                  style: const TextStyle(
                     color: AppColors.white,
                     fontSize: 16,
                     fontWeight: FontWeight.w500,
@@ -168,7 +176,7 @@ class _MyTuitionPostsState extends State<MyTuitionPosts> {
 
                 // List map--------------------------
                 _dataCon.isLoading
-                    ? const CircularProgressIndicator()
+                    ? const MyTuitionPostsSkeleton()
                     : _dataCon.myTuitionPosts.isEmpty
                     ? const Center(
                         child: Text(

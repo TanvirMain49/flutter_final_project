@@ -8,70 +8,109 @@ class ExploreTutorSkeleton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-      padding: const EdgeInsets.all(14),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppColors.primaryDark, // same as your card bg
-        borderRadius: BorderRadius.circular(16),
+        color: AppColors.primaryDark, // dark green, NOT black
+        borderRadius: BorderRadius.circular(18),
       ),
-      child: Row(
+      child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Left avatar
-          SkeletonBox(
-            height: 48,
-            width: 48,
-            borderRadius: BorderRadius.circular(12),
-          ),
+          // ───────── Top Row ─────────
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              SkeletonBox(
+                height: 48,
+                width: 48,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              const SizedBox(width: 12),
 
-          const SizedBox(width: 12),
-
-          // Right content
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Name
-                SkeletonBox(
-                  height: 16,
-                  width: 120,
-                  borderRadius: BorderRadius.circular(6),
-                ),
-
-                const SizedBox(height: 6),
-
-                // Subject
-                SkeletonBox(
-                  height: 14,
-                  width: 160,
-                  borderRadius: BorderRadius.circular(6),
-                ),
-
-                const SizedBox(height: 12),
-
-                // Bottom badges row
-                Row(
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    _pillSkeleton(width: 50),
-                    const SizedBox(width: 8),
-                    _pillSkeleton(width: 60),
-                    const SizedBox(width: 8),
-                    _pillSkeleton(width: 70),
+                    SkeletonBox(
+                      height: 16,
+                      width: 140,
+                      borderRadius: BorderRadius.circular(6),
+                    ),
+                    const SizedBox(height: 6),
+                    SkeletonBox(
+                      height: 14,
+                      width: 100,
+                      borderRadius: BorderRadius.circular(6),
+                    ),
                   ],
                 ),
-              ],
-            ),
+              ),
+
+              SkeletonBox(
+                height: 16,
+                width: 50,
+                borderRadius: BorderRadius.circular(6),
+              ),
+            ],
+          ),
+
+          const SizedBox(height: 14),
+
+          // Divider
+          SkeletonBox(
+            height: 1,
+            width: double.infinity,
+            borderRadius: BorderRadius.circular(2),
+          ),
+
+          const SizedBox(height: 14),
+
+          // ───────── Info Grid ─────────
+          Row(
+            children: [
+              Expanded(child: _infoItem()),
+              const SizedBox(width: 12),
+              Expanded(child: _infoItem()),
+            ],
+          ),
+          const SizedBox(height: 12),
+          Row(
+            children: [
+              Expanded(child: _infoItem()),
+              const SizedBox(width: 12),
+              Expanded(child: _infoItem()),
+            ],
+          ),
+
+          const SizedBox(height: 18),
+
+          // ───────── Button ─────────
+          SkeletonBox(
+            height: 44,
+            width: double.infinity,
+            borderRadius: BorderRadius.circular(12),
           ),
         ],
       ),
     );
   }
 
-  Widget _pillSkeleton({required double width}) {
-    return SkeletonBox(
-      height: 24,
-      width: width,
-      borderRadius: BorderRadius.circular(20),
+  Widget _infoItem() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        SkeletonBox(
+          height: 12,
+          width: 70,
+          borderRadius: BorderRadius.circular(6),
+        ),
+        const SizedBox(height: 6),
+        SkeletonBox(
+          height: 14,
+          width: 90,
+          borderRadius: BorderRadius.circular(6),
+        ),
+      ],
     );
   }
 }

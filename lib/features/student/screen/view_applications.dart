@@ -15,6 +15,7 @@ class ViewApplicationScreen extends StatefulWidget {
 
 class _ApplicationsScreenState extends State<ViewApplicationScreen> {
   final _con = GetTuitionController();
+
   @override
   void initState() {
     super.initState();
@@ -22,11 +23,9 @@ class _ApplicationsScreenState extends State<ViewApplicationScreen> {
   }
 
   Future<void> _loadData() async {
-    setState(() => {});
     await _con.getAllAppliedPost(widget.postId, () {
       if (mounted) setState(() {});
     });
-    if (mounted) setState(() => {});
   }
 
   void _handleHire(Map<String, dynamic> application) {
@@ -63,54 +62,65 @@ class _ApplicationsScreenState extends State<ViewApplicationScreen> {
       backgroundColor: AppColors.primaryDark,
       appBar: AppBar(
         backgroundColor: AppColors.primary,
-        title: const Text(
-          'Tutor Applications',
-          style: TextStyle(color: AppColors.white),
-        ),
+        title: const Text('Tutor Applications', style: TextStyle(color: AppColors.white)),
         centerTitle: true,
-        elevation: 2,
         leading: IconButton(
-          onPressed: () {
-            Navigator.pop(context);
-          },
-          icon: Icon(Icons.arrow_back, color: AppColors.white),
+          onPressed: () => Navigator.pop(context),
+          icon: const Icon(Icons.arrow_back, color: AppColors.white),
         ),
       ),
-      body: _con.isApplicationLoading || _con.applicationTuition.isEmpty?
-      Column(
-        children: List.generate(2, (index) => const CardSkeleton()),
-      ) :
-      _con.applicationTuition.isEmpty
-          ? Center(
-        child: GradientBackground(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(Icons.inbox, size: 64, color: Colors.grey[300]),
-              const SizedBox(height: 16),
-              Text(
-                'No applications',
-                style: TextStyle(fontSize: 18, color: Colors.grey[600]),
-              ),
-            ],
-          ),
+      body: _buildBody(),
+    );
+  }
+
+  Widget _buildBody() {
+    // 1. Loading State
+    if (_con.isApplicationLoading) {
+      return ListView.builder(
+        padding: const EdgeInsets.all(16),
+        itemCount: 3,
+        itemBuilder: (context, index) => const Padding(
+          padding: EdgeInsets.only(bottom: 12),
+          child: CardSkeleton(),
         ),
-      )
-          : RefreshIndicator(
-        onRefresh: _loadData,
-        color: AppColors.accent,
-        backgroundColor: AppColors.surface,
-        child: ListView.builder(
-          itemCount: _con.applicationTuition.length,
-          itemBuilder: (context, index) {
-            return ApplicationCard(
-              application: _con.applicationTuition[index],
-              onHire: () => _handleHire(_con.applicationTuition[index]),
-              onReject: () => _handleReject(_con.applicationTuition[index]),
-            );
-          },
+      );
+    }
+
+    // 2. Empty State
+    if (_con.applicationTuition.isEmpty) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.inbox, size: 64, color: Colors.grey[700]),
+            const SizedBox(height: 16),
+            const Text(
+              'No applications found',
+              style: TextStyle(fontSize: 18, color: AppColors.textMuted),
+            ),
+          ],
         ),
+      );
+    }
+
+    // 3. Data State
+    return RefreshIndicator(
+      onRefresh: _loadData,
+      color: AppColors.accent,
+      child: ListView.builder(
+        padding: const EdgeInsets.all(16),
+        itemCount: _con.applicationTuition.length,
+        itemBuilder: (context, index) {
+          final application = _con.applicationTuition[index];
+          return ApplicationCard(
+            application: application,
+            onHire: () => _handleHire(application),
+            onReject: () => _handleReject(application),
+          );
+        },
       ),
     );
   }
+
+// ... rest of your _handleHire and _handleReject methods
 }

@@ -1,5 +1,6 @@
 import 'package:_6th_sem_project/core/constants/colors.dart';
 import 'package:_6th_sem_project/core/widgets/Custom_avatar.dart';
+import 'package:_6th_sem_project/core/widgets/Skeleton/profile_skeleton.dart';
 import 'package:_6th_sem_project/core/widgets/gradient_background.dart';
 import 'package:_6th_sem_project/features/auth/screen/login_screen.dart';
 import 'package:_6th_sem_project/features/profile/controller/profile_data_controller.dart';
@@ -65,11 +66,7 @@ class _UserProfileState extends State<UserProfile> {
         ],
       ),
       body: _dataCon.isLoading
-          ? const Center(
-        child: GradientBackground(
-          child: CircularProgressIndicator(color: AppColors.accent),
-        ),
-      )
+          ? ProfileSkeleton()
           : GradientBackground(
         child: SingleChildScrollView(
           child: Padding(
@@ -381,59 +378,6 @@ class _UserProfileState extends State<UserProfile> {
     );
   }
 
-  Widget _buildInfoCard({
-    required IconData icon,
-    required String label,
-    required String value,
-  }) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: AppColors.surface,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.border, width: 1),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: AppColors.inputBackground,
-                  borderRadius: BorderRadius.circular(6),
-                ),
-                child: Icon(
-                  icon,
-                  color: AppColors.accent,
-                  size: 18,
-                ),
-              ),
-              const SizedBox(width: 8),
-              Text(
-                label,
-                style: TextStyle(
-                  color: AppColors.textMuted,
-                  fontSize: 11,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 8),
-          Text(
-            value,
-            style: const TextStyle(
-              color: AppColors.white,
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
 
   Widget _buildMenuItem({
     required IconData icon,
