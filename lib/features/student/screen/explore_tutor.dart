@@ -100,58 +100,73 @@ class _ExploreTutorScreenState extends State<ExploreTutorScreen> {
       body: Column(
         children: [
           // Search Bar
-          // Padding(
-          //   padding: const EdgeInsets.all(16),
-          //   child: SearchField(
-          //     controller: searchController,
-          //     onChanged: _filterTutors,
-          //     onClear: () {
-          //       searchController.clear();
-          //       _filterTutors('');
-          //     },
-          //   ),
-          // ),
+          Padding(
+            padding: const EdgeInsets.all(16),
+            child: SearchField(
+              controller: searchController,
+              onChanged: (value) {
+                controller.getAllTuition(
+                      () => setState(() {}),
+                  searchQuery: value,
+                  subject: selectedFilter == 'All' ? null : selectedFilter, // Keep existing filter
+                );
+              },
+              onClear: () {
+                searchController.clear();
+               controller.getAllTuition((){
+                  if (mounted) setState(() {});
+                }, searchQuery: '');
+              },
+            ),
+          ),
           //
           // // Filter Chips
-          // Padding(
-          //   padding: const EdgeInsets.symmetric(horizontal: 16),
-          //   child: SizedBox(
-          //     height: 50,
-          //     child: ListView.builder(
-          //       scrollDirection: Axis.horizontal,
-          //       itemCount: filterOptions.length,
-          //       itemBuilder: (context, index) {
-          //         final isSelected = selectedFilter == filterOptions[index];
-          //         return Padding(
-          //           padding: const EdgeInsets.only(right: 8),
-          //           child: ChoiceChip(
-          //             label: Text(filterOptions[index]),
-          //             selected: isSelected,
-          //             onSelected: (bool selected) {
-          //               setState(() {
-          //                 selectedFilter = filterOptions[index];
-          //                 _filterTutors(searchController.text);
-          //               });
-          //             },
-          //             selectedColor: AppColors.accent,
-          //             backgroundColor: AppColors.secondary,
-          //             labelStyle: TextStyle(
-          //               color:
-          //               isSelected ? AppColors.black : AppColors.white,
-          //               fontWeight: isSelected
-          //                   ? FontWeight.bold
-          //                   : FontWeight.normal,
-          //             ),
-          //             shape: RoundedRectangleBorder(
-          //               borderRadius: BorderRadius.circular(20),
-          //             ),
-          //             side: BorderSide.none,
-          //           ),
-          //         );
-          //       },
-          //     ),
-          //   ),
-          // ),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: SizedBox(
+              height: 50,
+              child: ListView.builder(
+                scrollDirection: Axis.horizontal,
+                itemCount: filterOptions.length,
+                itemBuilder: (context, index) {
+                  final isSelected = selectedFilter == filterOptions[index];
+                  return Padding(
+                    padding: const EdgeInsets.only(right: 8),
+                    child: ChoiceChip(
+                      label: Text(filterOptions[index]),
+                      selected: isSelected,
+                      onSelected: (bool selected) {
+                        if (selected) {
+                          setState(() {
+                            selectedFilter = filterOptions[index];
+                          });
+                          // Pass BOTH filters to the controller
+                          controller.getAllTuition(
+                                () => setState(() {}),
+                            subject: selectedFilter == 'All' ? null : selectedFilter,
+                            searchQuery: searchController.text, // Keep existing search text
+                          );
+                        }
+                      },
+                      selectedColor: AppColors.accent,
+                      backgroundColor: AppColors.secondary,
+                      labelStyle: TextStyle(
+                        color:
+                        isSelected ? AppColors.black : AppColors.white,
+                        fontWeight: isSelected
+                            ? FontWeight.bold
+                            : FontWeight.normal,
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      side: BorderSide.none,
+                    ),
+                  );
+                },
+              ),
+            ),
+          ),
 
           const SizedBox(height: 16),
 
@@ -197,17 +212,20 @@ class _ExploreTutorScreenState extends State<ExploreTutorScreen> {
                 final firstSkill = tutorSkills.isNotEmpty
                     ? tutorSkills[0] as Map<String, dynamic>
                     : null;
-
                 if (firstSkill == null) {
                   return const SizedBox.shrink();
                 }
+
+                final subjectMap = firstSkill['subjects'] as Map<String, dynamic>?;
+
+                debugPrint("Tutor: $tutor");
 
                 return Padding(
                   padding: const EdgeInsets.only(bottom: 16),
                   child: TutorCard(
                     name: tutor['full_name'] ?? 'Unknown',
-                    subject: firstSkill['subjects']['name'] ?? 'N/A',
-                    price: firstSkill?['salary'] ?? 'N/A',
+                    subject: subjectMap?['name'] ?? 'N/A',
+                    price: firstSkill['salary'] ?? 'N/A',
                     gender: tutor['gender'],
                     experience:
                     '${firstSkill['experience_years'] ?? 0} yrs',

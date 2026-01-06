@@ -95,11 +95,11 @@ class GetTuitionController {
     }
   }
 
-  Future<void> getAllTuition(VoidCallback onUpdate) async {
+  Future<void> getAllTuition(VoidCallback onUpdate, {String? searchQuery, String? subject}) async {
     try {
       isAllTutorLoading = true;
       onUpdate();
-      final data = await StudentApiService().getAllTutor();
+      final data = await StudentApiService().getAllTutor(searchQuery: searchQuery, subject: subject);
       tutors = data;
     } catch (e) {
       debugPrint('getAllTutor error: $e');

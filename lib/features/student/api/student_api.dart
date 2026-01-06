@@ -120,9 +120,9 @@ class StudentApiService {
   }
 
     //  get all tutor
-  Future<List<Map<String, dynamic>>> getAllTutor() async{
+  Future<List<Map<String, dynamic>>> getAllTutor({String? searchQuery, String? subject}) async{
     try{
-      return await _supabase
+      var query = _supabase
           .from('users')
           .select('''
           *,
@@ -132,7 +132,19 @@ class StudentApiService {
             name
           )
           )
-          ''').eq('role', 'Tutor');
+          ''')
+          .eq('role', 'Tutor');
+      if(subject != null){
+        query = query.eq('tutor_skills.subjects.name', subject);
+      }
+
+      if(searchQuery != null && searchQuery.isNotEmpty){
+        query = query.ilike('full_name', '%$searchQuery%');
+      }
+
+      final response = await query.order('created_at', ascending: false);
+      return List<Map<String, dynamic>>.from(response);
+
     } catch(e){
       debugPrint('getAllTutor error: $e');
       rethrow;
