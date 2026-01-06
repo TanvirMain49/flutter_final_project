@@ -126,18 +126,18 @@ class StudentApiService {
           .from('users')
           .select('''
           *,
-          tutor_skills: tutor_skills(
+          tutor_skills!inner(
           *,
-          subjects: subject_id(
+          subjects!inner(
             name
           )
           )
           ''')
           .eq('role', 'Tutor');
+
       if(subject != null){
         query = query.eq('tutor_skills.subjects.name', subject);
       }
-
       if(searchQuery != null && searchQuery.isNotEmpty){
         query = query.ilike('full_name', '%$searchQuery%');
       }
