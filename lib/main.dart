@@ -9,14 +9,14 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   try {
-    await dotenv.load(fileName: ".env"); // Load environment variables
+    await dotenv.load(fileName: ".env");
   } catch (e) {
     throw Exception('Error loading .env file: $e');
   }
 
   await Supabase.initialize(
-    url: dotenv.env['SUPABASE_URL']!,
-    anonKey: dotenv.env['SUPABASE_ANON_KEY']!,
+    url: 'https://qdbmhotvqpbqkuepqjsd.supabase.co',
+    anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFkYm1ob3R2cXBicWt1ZXBxanNkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjU4NjkwMjUsImV4cCI6MjA4MTQ0NTAyNX0.DUlcM5QZnI3j-VOTv1CYbf-CfPfxUQUOx24Oh8HIi1Q',
   );
 
   runApp(const MyApp());
@@ -25,47 +25,76 @@ void main() async {
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(title: 'Flutter Demo', home: AuthCheek());
+    return MaterialApp(
+      title: 'Tuition App',
+      theme: ThemeData(
+        useMaterial3: true,
+      ),
+      home: const AuthCheck(),
+      debugShowCheckedModeBanner: false,
+    );
   }
 }
 
+class AuthCheck extends StatefulWidget {
+  const AuthCheck({super.key});
 
-class AuthCheek extends StatelessWidget {
+  @override
+  State<AuthCheck> createState() => _AuthCheckState();
+}
+
+class _AuthCheckState extends State<AuthCheck> {
   final supabase = Supabase.instance.client;
-  AuthCheek({super.key});
+  bool _showSplash = true;
 
-  // This function mimics a splash delay
-  Future<bool> _waitAndCheck() async {
-    await Future.delayed(const Duration(seconds: 3));
-    return true;
+  @override
+  void initState() {
+    super.initState();
+    _hideSplashAfterDelay();
+  }
+
+  void _hideSplashAfterDelay() {
+    Future.delayed(const Duration(seconds: 3), () {
+      if (mounted) {
+        setState(() {
+          _showSplash = false;
+        });
+      }
+    });
   }
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder(
-      future: _waitAndCheck(),
-      builder: (context, futureSnapshot) {
-        // 1. While waiting (for 3 seconds), show the Splash Screen
-        if (futureSnapshot.connectionState == ConnectionState.waiting) {
-          return const SplashScreen();
+    // Show splash screen for 3 seconds
+    if (_showSplash) {
+      return const SplashScreen();
+    }
+
+    // After splash, listen to auth state changes
+    return StreamBuilder<AuthState>(
+      stream: supabase.auth.onAuthStateChange,
+      builder: (context, authSnapshot) {
+        // Handle errors
+        if (authSnapshot.hasError) {
+          return Scaffold(
+            body: Center(
+              child: Text('Error: ${authSnapshot.error}'),
+            ),
+          );
         }
 
-        // 2. After waiting, check the Auth State
-        return StreamBuilder<AuthState>(
-          stream: supabase.auth.onAuthStateChange,
-          builder: (context, authSnapshot) {
-            final session = authSnapshot.data?.session;
+        // Check auth state
+        final session = authSnapshot.data?.session;
 
-            if (session != null) {
-              return const AppMainScreen();
-            } else {
-              return const LoginScreen();
-            }
-          },
-        );
+        if (session != null) {
+          // User is logged in
+          return const AppMainScreen();
+        } else {
+          // User is logged out
+          return const LoginScreen();
+        }
       },
     );
   }

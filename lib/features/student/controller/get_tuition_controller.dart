@@ -8,6 +8,7 @@ class GetTuitionController {
   List<Map<String, dynamic>> applicationTuition = [];
   List<Map<String, dynamic>> tutors = [];
   Map<String, dynamic>? tuitionDetails;
+  Map<String, dynamic> tutorDetails={};
   bool isLoading = false;
   bool isApplicationLoading = false;
   bool isAllTutorLoading = false;
@@ -149,6 +150,22 @@ class GetTuitionController {
       isDeleteLoading = false;
     onUpdate();
     }
-
   }
+
+  Future<void> getTutorDetails(String tutorId, VoidCallback onUpdate) async {
+    isLoading = true;
+    onUpdate();
+
+    try {
+      // We select all user fields (*) and all related tutor_skill fields
+      final response = await StudentApiService().getTutorDetails(tutorId);
+      tutorDetails = response;
+    } catch (e) {
+      debugPrint('Error fetching tutor details: $e');
+    } finally {
+      isLoading = false;
+      onUpdate();
+    }
+  }
+
 }

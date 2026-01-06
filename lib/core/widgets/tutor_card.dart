@@ -10,6 +10,7 @@ class TutorCard extends StatelessWidget {
   final String? gender;
   final String experience;
   final String education;
+  final VoidCallback? onpressed;
 
   const TutorCard({
     super.key,
@@ -19,14 +20,15 @@ class TutorCard extends StatelessWidget {
     this.gender,
     required this.experience,
     required this.education,
+    this.onpressed,
   });
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(14),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppColors.secondary,
+        color: AppColors.primaryDark,
         borderRadius: BorderRadius.circular(14),
         border: Border.all(
           color: Colors.white.withOpacity(0.08),
@@ -181,7 +183,7 @@ class TutorCard extends StatelessWidget {
           const SizedBox(height: 12),
 
           // Action Buttons
-          PrimaryButton(text: 'View Profile', onPressed: (){},)
+          PrimaryButton(text: 'View Profile', onPressed: onpressed,)
         ],
       ),
     );

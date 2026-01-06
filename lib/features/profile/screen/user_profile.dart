@@ -1,4 +1,5 @@
 import 'package:_6th_sem_project/core/constants/colors.dart';
+import 'package:_6th_sem_project/core/services/auth_service.dart';
 import 'package:_6th_sem_project/core/widgets/Custom_avatar.dart';
 import 'package:_6th_sem_project/core/widgets/Skeleton/profile_skeleton.dart';
 import 'package:_6th_sem_project/core/widgets/gradient_background.dart';
@@ -333,7 +334,18 @@ class _UserProfileState extends State<UserProfile> {
               ),
             ),
             onPressed: () async {
-              await Supabase.instance.client.auth.signOut(scope: SignOutScope.global);
+              final bool confirm = await _showLogoutDialog(context);
+              if (!confirm) return;
+
+              AuthService().signOut();
+
+              if (context.mounted) {
+                Navigator.pushAndRemoveUntil(
+                  context,
+                  MaterialPageRoute(builder: (context) => const LoginScreen()),
+                      (route) => false,
+                );
+              }
             },
             child: const Row(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -407,5 +419,27 @@ class _UserProfileState extends State<UserProfile> {
         ),
       ),
     );
+  }
+
+  Future<bool> _showLogoutDialog(BuildContext context) async {
+    return await showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: AppColors.primaryDark,
+        title: const Text("Log Out", style: TextStyle(color: Colors.white)),
+        content: const Text("Are you sure you want to log out?",
+            style: TextStyle(color: AppColors.textMuted)),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text("Cancel"),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text("Log Out", style: TextStyle(color: Colors.red)),
+          ),
+        ],
+      ),
+    ) ?? false;
   }
 }

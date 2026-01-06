@@ -77,6 +77,31 @@ class StudentApiService {
     }
   }
 
+  Future<Map<String, dynamic>> getTutorDetails(String tutorId) async{
+    try {
+      // We select all user fields (*) and all related tutor_skill fields
+      final response = await _supabase
+          .from('users')
+          .select('''
+          *,
+          tutor_id : tutor_skills (
+            *,
+            subject_id: subjects (
+              name
+            )
+          )
+        ''')
+          .eq('id', tutorId)
+          .single();
+      return response;
+    } catch (e) {
+      debugPrint('Error fetching tutor details: $e');
+      return{};
+      rethrow;
+    }
+  }
+
+
   //  get all application for one post
   Future<List<Map<String, dynamic>>> getAllApplicationForPost(String postId) async {
     try{

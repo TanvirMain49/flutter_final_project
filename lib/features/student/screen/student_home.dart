@@ -1,3 +1,4 @@
+import 'package:_6th_sem_project/features/tutor/screen/tutor_details.dart';
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:_6th_sem_project/core/constants/colors.dart';
@@ -193,6 +194,14 @@ class _StudentHomeScreenState extends State<StudentHomeScreen> {
           gender: tutor['gender'],
           experience: '${skill['experience_years'] ?? 0} yrs',
           education: skill['education_at'] ?? 'N/A',
+          onpressed: (){
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => TutorDetails(tutorId: tutor['id']),
+              ),
+            );
+          }
         );
       },
     );
