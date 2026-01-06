@@ -11,7 +11,6 @@ class CardDetailsSkeleton extends StatelessWidget {
         padding: EdgeInsets.all(16),
         decoration: BoxDecoration(
           color: const Color(0xFF0F1C16),
-          borderRadius: BorderRadius.circular(16),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,

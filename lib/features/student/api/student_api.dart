@@ -61,6 +61,22 @@ class StudentApiService {
     }
   }
 
+  // update post
+  Future<void> updatePost({
+    required String postId,
+    required Map<String, dynamic> updatedData,
+  }) async {
+    try {
+      await _supabase
+          .from('tuition_post')
+          .update(updatedData)
+          .eq('id', postId);
+    } catch (e) {
+      debugPrint('Update error: $e');
+      rethrow;
+    }
+  }
+
   //  get all application for one post
   Future<List<Map<String, dynamic>>> getAllApplicationForPost(String postId) async {
     try{
@@ -174,6 +190,23 @@ class StudentApiService {
     } catch(e){
       debugPrint('getAllTutor error: $e');
       rethrow;
+    }
+  }
+
+//   delete post
+  Future<void> deletePost(String postId) async {
+    try {
+      final user = _supabase.auth.currentUser;
+      if (user == null) throw Exception("User not authenticated");
+
+      await _supabase
+          .from('tuition_post')
+          .delete()
+          .eq('id', postId)
+          .eq('student_id', user.id);
+    } catch (e) {
+      debugPrint('deletePost error: $e');
+      throw Exception('Failed to delete post');
     }
   }
 

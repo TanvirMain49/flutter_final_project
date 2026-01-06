@@ -112,6 +112,37 @@ class PostTuitionController {
     }
   }
 
+  Future<bool> updateTuition(String postId, VoidCallback onUpdate) async {
+    isLoadingPost = true;
+    onUpdate();
+    try{
+      final Map<String, dynamic> updatedData = {
+        'post_title': titleController.text.trim(),
+        'student_location': locationController.text.trim(),
+        'salary': budgetController.text.trim(),
+        'description': detailsController.text.trim(),
+        'grade': selectedGradeLevel,
+        'subject_id': selectedSubjectId,
+        'preferred_day': mySelectedDays.join(", "),
+        'start_time': formatTimeOfDay(startTime),
+        'end_time': formatTimeOfDay(endTime),
+        'updated_at': DateTime.now().toIso8601String(),
+      };
+      await StudentApiService().updatePost(
+        postId: postId,
+        updatedData: updatedData,
+      );
+      return true;
+    } catch (e){
+      debugPrint('updateTuition error: $e');
+      return false;
+    } finally {
+      isLoadingPost = false;
+      onUpdate();
+    }
+  }
+
+
 
   // --- Logic: Validation ---
   String? validateForm() {

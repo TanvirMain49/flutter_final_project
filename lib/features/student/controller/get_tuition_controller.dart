@@ -8,9 +8,10 @@ class GetTuitionController {
   List<Map<String, dynamic>> applicationTuition = [];
   List<Map<String, dynamic>> tutors = [];
   Map<String, dynamic>? tuitionDetails;
-  bool isLoading = true;
+  bool isLoading = false;
   bool isApplicationLoading = false;
-  bool isAllTutorLoading = true;
+  bool isAllTutorLoading = false;
+  bool isDeleteLoading = false;
   String? role;
 
   // 2. Create a function to load the role
@@ -135,5 +136,19 @@ class GetTuitionController {
       isAllTutorLoading = false;
       onUpdate();
     }
+  }
+
+  Future<void> deletePost(String postId, VoidCallback onUpdate) async{
+    try {
+      isDeleteLoading = true;
+      onUpdate();
+     await StudentApiService().deletePost(postId);
+    } catch (e) {
+    debugPrint('getAllTutor error: $e');
+    } finally {
+      isDeleteLoading = false;
+    onUpdate();
+    }
+
   }
 }

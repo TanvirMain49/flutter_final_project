@@ -10,7 +10,8 @@ import 'package:_6th_sem_project/features/student/controller/post_tuition_contro
 import 'package:flutter/material.dart';
 
 class PostTuitionScreen extends StatefulWidget {
-  const PostTuitionScreen({super.key});
+  final Map<String, dynamic>? initialData;
+  const PostTuitionScreen({super.key, this.initialData});
 
   @override
   State<PostTuitionScreen> createState() => _PostTuitionScreenState();
@@ -18,12 +19,37 @@ class PostTuitionScreen extends StatefulWidget {
 
 class _PostTuitionScreenState extends State<PostTuitionScreen> {
   late PostTuitionController _con;
+  late bool isEditing;
 
   @override
   void initState() {
     super.initState();
     _con = PostTuitionController();
+    isEditing = widget.initialData != null;
+    if (isEditing) {
+      _populateFields();
+    }
     _con.loadSubjects(() => setState(() {})); // Fetch data on start
+  }
+
+  void _populateFields() {
+    final data = widget.initialData!;
+    _con.titleController.text = data['post_title'] ?? '';
+    _con.locationController.text = data['student_location'] ?? '';
+    _con.budgetController.text = data['salary'] ?? '';
+    _con.detailsController.text = data['description'] ?? '';
+    _con.selectedGradeLevel = data['grade'];
+
+    // Pre-select the subject name for the dropdown
+    if (data['subjects'] != null) {
+      _con.subjectController.text = data['subjects']['name'];
+    }
+
+    // Handle days list
+    if (data['preferred_day'] != null) {
+      // Assuming it's a comma-separated string like "M, T, W"
+      _con.mySelectedDays = (data['preferred_day'] as String).split(', ');
+    }
   }
 
   @override
@@ -61,9 +87,9 @@ class _PostTuitionScreenState extends State<PostTuitionScreen> {
         backgroundColor: Colors.transparent,
         elevation: 0,
         centerTitle: true,
-        title: const Text(
-          "Post Tuition",
-          style: TextStyle(
+        title: Text(
+          isEditing ? "Update Tuition" : "Post Tuition",
+          style: const TextStyle(
             color: AppColors.white,
             fontWeight: FontWeight.bold,
             fontSize: 20,
@@ -117,8 +143,10 @@ class _PostTuitionScreenState extends State<PostTuitionScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         // Header Text
-        const Text(
-          "What do you need help with?",
+        Text(
+          isEditing
+              ? "Need to change something?"
+              : "What do you need help with?",
           style: TextStyle(
             color: AppColors.white,
             fontSize: 30,
@@ -127,8 +155,10 @@ class _PostTuitionScreenState extends State<PostTuitionScreen> {
         ),
         const SizedBox(height: 6),
         // Sub header text
-        const Text(
-          "Fill the details below so that we can match you with perfect tutor",
+        Text(
+          isEditing
+              ? "Update your tuition details to keep them accurate."
+              : "Fill the details below so that we can match you with the perfect tutor",
           style: TextStyle(color: AppColors.white60, fontSize: 14),
         ),
         const SizedBox(height: 30),
@@ -141,7 +171,7 @@ class _PostTuitionScreenState extends State<PostTuitionScreen> {
           icon: Icons.title,
         ),
 
-        const SizedBox(height: 20,),
+        const SizedBox(height: 20),
 
         // Subject -> selected Group
         _con.isLoadingSubjects
@@ -264,7 +294,6 @@ class _PostTuitionScreenState extends State<PostTuitionScreen> {
         ),
         const SizedBox(height: 30),
 
-
         // Title, subject and Grade
         _postReviewCart("Title, Subject & Grade", Icons.school_rounded, {
           "Title": _con.titleController.text,
@@ -282,7 +311,7 @@ class _PostTuitionScreenState extends State<PostTuitionScreen> {
         }),
         const SizedBox(height: 30),
 
-        !_con.detailsController.text.isEmpty
+        _con.detailsController.text.isNotEmpty
             ? _postReviewCart("Additional details", Icons.description, {
                 "Details": _con.detailsController.text,
               })
@@ -309,48 +338,48 @@ class _PostTuitionScreenState extends State<PostTuitionScreen> {
 
         const SizedBox(height: 12),
         PrimaryButton(
-          text: "Confirm & Post",
-          icon: Icons.check_circle_rounded,
+          text: isEditing ? "Confirm Update" : "Confirm & Post",
+          icon: isEditing ? Icons.update : Icons.check_circle_rounded,
           isLoading: _con.isLoadingPost,
-          onPressed: _con.isLoadingPost
-              ? null // Disable button while loading
-              : () async {
-                  // Trigger the post (this calls setState via the callback)
-                  final success = await _con.postTuition(() => setState(() {}));
-
-                  if (!mounted) return;
-
-                  if (!success) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text("Post Tuition failed. Please try again."),
-                        backgroundColor: Colors.redAccent,
-                      ),
-                    );
-                    return; // Exit if failed
-                  }
-
-                  // Success case
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text("Post Tuition Successfully"),
-                      backgroundColor: Colors.green,
-                    ),
-                  );
-
-                  Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const PostTuitionScreen(),
-                    ),
-                  );
-                },
+          onPressed: _con.isLoadingPost ? null : _handleFinalSubmission,
         ),
       ],
     );
   }
 
   // ---------- custom widget method--------------
+  Future<void> _handleFinalSubmission() async {
+    // 2. Logic to handle Update vs Create in Controller
+    bool success;
+    if (isEditing) {
+      success = await _con.updateTuition(
+        widget.initialData!['id'].toString(),
+        () => setState(() {}),
+      );
+    } else {
+      success = await _con.postTuition(() => setState(() {}));
+    }
+
+    if (!mounted) return;
+
+    if (success) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            isEditing
+                ? "Tuition Updated Successfully"
+                : "Post Tuition Successfully",
+          ),
+          backgroundColor: Colors.green,
+        ),
+      );
+      Navigator.pop(context, true);
+    } else {
+    _showError("Operation failed. Please try again.");
+    }
+
+  }
+
   // Post review Cart method
   Widget _postReviewCart(
     String title,
@@ -423,7 +452,8 @@ class _PostTuitionScreenState extends State<PostTuitionScreen> {
                   const SizedBox(width: 10),
                   Expanded(
                     child: Text(
-                      entry.value, //e.g subject, budget etc value -> Accounting, Biology
+                      entry
+                          .value, //e.g subject, budget etc value -> Accounting, Biology
                       textAlign: TextAlign.end,
                       style: const TextStyle(
                         color: AppColors.white,

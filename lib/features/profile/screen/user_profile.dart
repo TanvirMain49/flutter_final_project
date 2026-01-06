@@ -115,7 +115,7 @@ class _UserProfileState extends State<UserProfile> {
                       const SizedBox(height: 4),
                       // Role Display
                       Text(
-                        _dataCon.userProfile['role'] == 'student'
+                        _dataCon.userProfile['role'] == 'Student'
                             ? 'STUDENT'
                             : 'TUTOR',
                         style: const TextStyle(
@@ -175,7 +175,7 @@ class _UserProfileState extends State<UserProfile> {
                 // Account Settings Menu Items
                 _buildMenuItem(
                   icon: Icons.person,
-                  title: _dataCon.userProfile['role'] == 'student'? 'Student Profile': 'Personal & tutor Information',
+                  title: _dataCon.userProfile['role'] == 'Student'? 'Student Profile': 'Personal & tutor Information',
                   subtitle: 'Update your profile details',
                   onTap: (){
                     Navigator.push(
@@ -207,7 +207,7 @@ class _UserProfileState extends State<UserProfile> {
                 const SizedBox(height: 24),
 
                 // Dynamic Menu Items Based on Role
-                if (_dataCon.userProfile['role'] == 'student') ...[
+                if (_dataCon.userProfile['role'] == 'Student') ...[
                   Align(
                     alignment: Alignment.centerLeft,
                     child: Text(
