@@ -17,17 +17,11 @@ class ExploreTuitionScreen extends StatefulWidget {
 
 class _ExploreTuitionScreenState extends State<ExploreTuitionScreen> {
   final _con = TutorDataController();
-  String selectedSubject = "All";
   final searchController = TextEditingController();
+  String selectedSubject = "All";
 
   final List<String> subjects = [
-    "All",
-    "Mathematics",
-    "Physics",
-    "English",
-    "Chemistry",
-    "Biology",
-    "ICT",
+    'All', 'General Mathematics', 'Higher Mathematics', 'Physics', 'Chemistry', 'Biology', 'English', 'Accounting', 'ICT',
   ];
 
   @override
@@ -37,132 +31,69 @@ class _ExploreTuitionScreenState extends State<ExploreTuitionScreen> {
   }
 
   Future<void> _loadInitialData() async {
-    // Load posts and sync IDs globally once
     await Future.wait([
-      _con.getTuition(() => setState(() {})),
+      _con.getTuition(() => _safeSetState()),
       _con.syncSavedPosts(),
-      _con.isCompleteTutorProfile(() => setState(() {})),
+      _con.isCompleteTutorProfile(() => _safeSetState()),
     ]);
+  }
+
+  void _safeSetState() {
+    if (mounted) setState(() {});
   }
 
   @override
   Widget build(BuildContext context) {
-    // Filter posts where status is not 'closed'
-    final filteredPosts = _con.postTuition
-        .where((post) => post['status']?.toString().toLowerCase() != 'closed')
-        .toList();
-
     return Scaffold(
       backgroundColor: AppColors.primaryDark,
-      appBar: AppBar(
-        backgroundColor: AppColors.primaryDark,
-        elevation: 0,
-        title: const Text(
-          "Explore Tuitions",
-          style: TextStyle(color: AppColors.white, fontWeight: FontWeight.bold),
-        ),
-        actions: [
-          IconButton(
-            onPressed: () => _loadInitialData(),
-            icon: const Icon(Icons.refresh, color: AppColors.accent),
-          ),
-        ],
-      ),
+      appBar: _buildAppBar(),
       body: Column(
         children: [
-          const SizedBox(height: 10),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: SearchField(
-              controller: searchController,
-              onChanged: (value) {
-                _con.getTuition(
-                      () => setState(() {}),
-                  searchQuery: value,
-                );
-              },
-              onClear: () {
-                searchController.clear();
-                _con.getTuition(
-                      () {
-                    if (mounted) setState(() {});
-                  },
-                  searchQuery: '',
-                );
-              },
-            ),
-          ),
-          const SizedBox(height: 10),
-
-          // 1. Horizontal Scroll Subjects Filter
+          _buildSearchSection(),
           _buildFilterRow(),
-
-          // 2. Main Content (List of Cards)
-          Expanded(
-            child: _con.isLoading
-                ? Column(
-              children: List.generate(2, (index) => const CardSkeleton()),
-            )
-                : filteredPosts.isEmpty
-                ? _buildEmptyState()
-                : RefreshIndicator(
-              onRefresh: _loadInitialData,
-              color: AppColors.accent,
-              child: ListView.separated(
-                padding: const EdgeInsets.all(16),
-                itemCount: filteredPosts.length,
-                separatorBuilder: (context, index) =>
-                const SizedBox(height: 16),
-                itemBuilder: (context, index) {
-                  final post = filteredPosts[index];
-                  final timeAgo = StudentUtils.formatTimeAgo(
-                    post['created_at'],
-                  );
-                  final startTime = StudentUtils.formatToBDTime(
-                    post['start_time'],
-                  );
-                  final endTime = StudentUtils.formatToBDTime(
-                    post['end_time'],
-                  );
-                  return Padding(
-                    padding: const EdgeInsets.only(bottom: 12),
-                    child: StudentHomeCard(
-                      title: post['post_title'],
-                      location: post['student_location'],
-                      studyDays: post['preferred_day'],
-                      price: post['salary'],
-                      status: post['status'],
-                      startTime: startTime,
-                      endTime: endTime,
-                      subject: post['subjects']['name'],
-                      studentName: post['users']['full_name'],
-                      postTime: timeAgo,
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => TuitionDetails(
-                              tuitionId: post['id'].toString(),
-                              isProfileComplete: _con.isCompleteProfile,
-                            ),
-                          ),
-                        );
-                      },
-                    ),
-                  );
-                },
-              ),
-            ),
-          ),
+          Expanded(child: _buildMainContent()),
         ],
       ),
     );
   }
 
+  // --- UI Components ---
+
+  AppBar _buildAppBar() {
+    return AppBar(
+      backgroundColor: AppColors.primaryDark,
+      elevation: 0,
+      title: const Text(
+        "Explore Tuitions",
+        style: TextStyle(color: AppColors.white, fontWeight: FontWeight.bold),
+      ),
+      centerTitle: true,
+      actions: [
+        IconButton(
+          onPressed: _loadInitialData,
+          icon: const Icon(Icons.refresh, color: AppColors.white),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildSearchSection() {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 10, 16, 10),
+      child: SearchField(
+        controller: searchController,
+        onChanged: (value) => _con.getTuition(_safeSetState, searchQuery: value, filterQuery: selectedSubject),
+        onClear: () {
+          searchController.clear();
+          _con.getTuition(_safeSetState, searchQuery: '');
+        },
+      ),
+    );
+  }
+
   Widget _buildFilterRow() {
-    return Container(
-      height: 60,
-      padding: const EdgeInsets.symmetric(vertical: 10),
+    return SizedBox(
+      height: 50,
       child: ListView.builder(
         scrollDirection: Axis.horizontal,
         padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -175,10 +106,11 @@ class _ExploreTuitionScreenState extends State<ExploreTuitionScreen> {
               label: Text(subjects[index]),
               selected: isSelected,
               onSelected: (bool selected) {
-                setState(() {
-                  selectedSubject = subjects[index];
-                  // You can add filtering logic here: _con.filterBySubject(selectedSubject);
-                });
+                if (selected) {
+                  setState(() => selectedSubject = subjects[index]);
+                  // Trigger search/filter by subject
+                  _con.getTuition(_safeSetState, filterQuery: subjects[index] == "All" ? "" : subjects[index]);
+                }
               },
               selectedColor: AppColors.accent,
               backgroundColor: AppColors.inputBackground,
@@ -186,10 +118,76 @@ class _ExploreTuitionScreenState extends State<ExploreTuitionScreen> {
                 color: isSelected ? AppColors.black : AppColors.white,
                 fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
               ),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(20),
-              ),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
               side: BorderSide.none,
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _buildMainContent() {
+    // 1. Loading State
+    if (_con.isLoading) {
+      return ListView.builder(
+        padding: const EdgeInsets.all(16),
+        itemCount: 4,
+        itemBuilder: (_, __) => const Padding(
+          padding: EdgeInsets.only(bottom: 16),
+          child: CardSkeleton(),
+        ),
+      );
+    }
+
+    // Filter closed posts locally
+    final filteredPosts = _con.postTuition
+        .where((post) => post['status']?.toString().toLowerCase() != 'closed')
+        .toList();
+
+    // 2. Empty State
+    if (filteredPosts.isEmpty) {
+      return _buildEmptyState();
+    }
+
+    // 3. Data List
+    return RefreshIndicator(
+      onRefresh: _loadInitialData,
+      color: AppColors.accent,
+      child: ListView.separated(
+        padding: const EdgeInsets.all(16),
+        itemCount: filteredPosts.length,
+        separatorBuilder: (_, __) => const SizedBox(height: 4), // Small gap
+        itemBuilder: (context, index) {
+          final post = filteredPosts[index];
+          return _buildTuitionCard(post);
+        },
+      ),
+    );
+  }
+
+  Widget _buildTuitionCard(Map<String, dynamic> post) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12),
+      child: StudentHomeCard(
+        title: post['post_title'] ?? 'Untitled Post',
+        location: post['student_location'] ?? 'Location N/A',
+        studyDays: post['preferred_day'] ?? 'Not specified',
+        price: post['salary'] ?? 'Negotiable',
+        status: post['status'],
+        startTime: StudentUtils.formatToBDTime(post['start_time']),
+        endTime: StudentUtils.formatToBDTime(post['end_time']),
+        subject: post['subjects']?['name'] ?? 'General',
+        studentName: post['users']?['full_name'] ?? 'Student',
+        postTime: StudentUtils.formatTimeAgo(post['created_at']),
+        onTap: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => TuitionDetails(
+                tuitionId: post['id'].toString(),
+                isProfileComplete: _con.isCompleteProfile,
+              ),
             ),
           );
         },
@@ -202,10 +200,10 @@ class _ExploreTuitionScreenState extends State<ExploreTuitionScreen> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.search_off, size: 64, color: AppColors.textMuted),
+          Icon(Icons.search_off, size: 64, color: AppColors.textMuted.withOpacity(0.5)),
           const SizedBox(height: 16),
           const Text(
-            "No tuitions available right now",
+            "No tuitions found matching your criteria",
             style: TextStyle(color: AppColors.textMuted, fontSize: 16),
           ),
         ],

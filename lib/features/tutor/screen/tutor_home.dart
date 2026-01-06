@@ -23,66 +23,6 @@ class _TutorHomeScreenState extends State<TutorHomeScreen> {
   final _con2 = ProfileDataController();
 
   final user = Supabase.instance.client.auth.currentUser;
-
-  final List<Map<String, dynamic>> activeTuitionPosts = [
-    {
-      'title': 'Mathematics Tutoring - Grade 10',
-      'subject': 'Mathematics',
-      'level': 'Grade 10',
-      'location': 'Downtown Area',
-      'salary': '25',
-      'timeAgo': '2h ago',
-      'studentName': 'Ahmed Khan',
-      'status': 'Active',
-    },
-    {
-      'title': 'English Literature Classes',
-      'subject': 'English',
-      'level': 'Grade 12',
-      'location': 'Uptown District',
-      'salary': '30',
-      'timeAgo': '4h ago',
-      'studentName': 'Fatima Ali',
-      'status': 'Active',
-    },
-    {
-      'title': 'Physics Coaching - Advanced Level',
-      'subject': 'Physics',
-      'level': 'College',
-      'location': 'Central Hub',
-      'salary': '35',
-      'timeAgo': '6h ago',
-      'studentName': 'Hassan Mahmud',
-      'status': 'Pending',
-    },
-  ];
-
-  final List<Map<String, dynamic>> myApplications = [
-    {
-      'title': 'Biology Class - Online',
-      'school': 'Green Valley School',
-      'status': 'Applied',
-      'appliedDate': '2 days ago',
-    },
-    {
-      'title': 'Chemistry Tutor Needed',
-      'school': 'Riverside Academy',
-      'status': 'In Review',
-      'appliedDate': '5 days ago',
-    },
-    {
-      'title': 'Mathematics Expert',
-      'school': 'Elite Learning Center',
-      'status': 'Accepted',
-      'appliedDate': '1 week ago',
-    },
-  ];
-
-  final List<Map<String, String>> savedItems = [
-    {'title': 'Advanced Mathematics', 'jobs': '12 jobs'},
-    {'title': 'Online Classes', 'jobs': '8 jobs'},
-    {'title': 'Science Tutoring', 'jobs': '15 jobs'},
-  ];
   @override
   void initState() {
     super.initState();
@@ -101,9 +41,7 @@ class _TutorHomeScreenState extends State<TutorHomeScreen> {
       // to the SLOWEST single API call, not the sum of all three.
       await Future.wait([
         _con.getTuition(() {}),
-        _con.syncSavedPosts(),
         _con.isCompleteTutorProfile((){}),
-        _con.getTutorApplications(status: 'All', onUpdate: () {}),
         _con2.fetchUserProfile(() {}),
       ]);
     } catch (e) {
@@ -127,7 +65,6 @@ class _TutorHomeScreenState extends State<TutorHomeScreen> {
     late final displayName = userEmail.contains('@')
         ? userEmail.split('@')[0]
         : userEmail;
-    bool hasSaved = !savedItems.isNotEmpty;
     bool profileComplete = _con.isCompleteProfile;
 
 
@@ -162,54 +99,6 @@ class _TutorHomeScreenState extends State<TutorHomeScreen> {
                 _buildActiveFeedCards(profileComplete),
 
                 const SizedBox(height: 32),
-
-                // My Applications Section
-                _buildSectionHeader('My Applications', () {}),
-                const SizedBox(height: 12),
-                _con.tutorApplications.isNotEmpty
-                    ? _buildApplicationsCards(_con.tutorApplications)
-                    : _buildEmptyState(
-                        Icons.assignment_outlined,
-                        "No Applications Yet",
-                        "You haven't applied to any jobs. Start\napplying to find your perfect student!",
-                        "Apply Now",
-                      ),
-
-                const SizedBox(height: 32),
-
-                // Saved Items Section
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text(
-                        'Saved Items',
-                        style: TextStyle(
-                          color: AppColors.white,
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      const SizedBox(height: 12),
-                      // hasSaved
-                      //     ? _buildSavedItemsList()
-                      //     : _buildEmptyState(
-                      //         Icons.bookmark_border_rounded,
-                      //         "No Saved Jobs Yet",
-                      //         "Tap the bookmark icon on any job\npost to save it for later.",
-                      //         "Browse Jobs",
-                      //       ),
-                    ],
-                  ),
-                ),
-
-                const SizedBox(height: 32),
-
-                // Quick Stats Section
-                // _buildQuickStatsSection(),
-
-                const SizedBox(height: 24),
               ],
             ),
           ),
@@ -495,172 +384,6 @@ class _TutorHomeScreenState extends State<TutorHomeScreen> {
             ),
           ],
         ),
-      ),
-    );
-  }
-
-  // Helper function to format date
-  //   String _formatDate(String dateString) {
-  //     try {
-  //       final dateTime = DateTime.parse(dateString);
-  //       final now = DateTime.now();
-  //       final difference = now.difference(dateTime);
-  //
-  //       if (difference.inDays == 0) {
-  //         return 'today';
-  //       } else if (difference.inDays == 1) {
-  //         return 'yesterday';
-  //       } else if (difference.inDays < 7) {
-  //         return '${difference.inDays} days ago';
-  //       } else {
-  //         return '${dateTime.day}/${dateTime.month}/${dateTime.year}';
-  //       }
-  //     } catch (e) {
-  //       return 'N/A';
-  //     }
-  //   }
-
-  // Widget _buildSavedItemsList() {
-  //   return SingleChildScrollView(
-  //     scrollDirection: Axis.horizontal,
-  //     child: Row(
-  //       children: List.generate(3, (index) {
-  //         final item = savedItems[index];
-  //         return Padding(
-  //           padding: EdgeInsets.only(
-  //             right: index == savedItems.length - 1 ? 0 : 12,
-  //           ),
-  //           child: _buildSavedItemCard(item),
-  //         );
-  //       }),
-  //     ),
-  //   );
-  // }
-  //
-  // Widget _buildSavedItemCard(Map<String, String> item) {
-  //   return Container(
-  //     width: 160,
-  //     decoration: BoxDecoration(
-  //       color: AppColors.primaryDark,
-  //       borderRadius: BorderRadius.circular(12),
-  //       border: Border.all(color: AppColors.border, width: 1),
-  //     ),
-  //     child: Padding(
-  //       padding: const EdgeInsets.all(12),
-  //       child: Column(
-  //         crossAxisAlignment: CrossAxisAlignment.start,
-  //         children: [
-  //           Text(
-  //             item['title']!,
-  //             style: const TextStyle(
-  //               color: AppColors.white,
-  //               fontSize: 14,
-  //               fontWeight: FontWeight.bold,
-  //             ),
-  //             maxLines: 2,
-  //             overflow: TextOverflow.ellipsis,
-  //           ),
-  //           const SizedBox(height: 12),
-  //           Row(
-  //             mainAxisAlignment: MainAxisAlignment.spaceBetween,
-  //             children: [
-  //               Text(
-  //                 item['jobs']!,
-  //                 style: const TextStyle(
-  //                   color: AppColors.textMuted,
-  //                   fontSize: 12,
-  //                 ),
-  //               ),
-  //               const Icon(
-  //                 Icons.arrow_forward_ios,
-  //                 color: AppColors.accent,
-  //                 size: 14,
-  //               ),
-  //             ],
-  //           ),
-  //         ],
-  //       ),
-  //     ),
-  //   );
-  // }
-  //
-  // Widget _buildQuickStatsSection() {
-  //   return Container(
-  //     decoration: BoxDecoration(
-  //       color: AppColors.secondary,
-  //       borderRadius: BorderRadius.circular(12),
-  //       border: Border.all(color: AppColors.border, width: 1),
-  //     ),
-  //     child: Padding(
-  //       padding: const EdgeInsets.all(16),
-  //       child: Column(
-  //         crossAxisAlignment: CrossAxisAlignment.start,
-  //         children: [
-  //           const Text(
-  //             'Quick Stats',
-  //             style: TextStyle(
-  //               color: AppColors.white,
-  //               fontSize: 16,
-  //               fontWeight: FontWeight.bold,
-  //             ),
-  //           ),
-  //           const SizedBox(height: 16),
-  //           Row(
-  //             mainAxisAlignment: MainAxisAlignment.spaceAround,
-  //             children: [
-  //               _buildStatItem('Applied', '8', AppColors.accent),
-  //               Container(width: 1, height: 50, color: AppColors.border),
-  //               _buildStatItem('In Review', '3', Colors.blue),
-  //               Container(width: 1, height: 50, color: AppColors.border),
-  //               _buildStatItem('Accepted', '2', AppColors.success),
-  //             ],
-  //           ),
-  //         ],
-  //       ),
-  //     ),
-  //   );
-  // }
-
-  Widget _buildStatItem(String label, String count, Color color) {
-    return Column(
-      children: [
-        Text(
-          count,
-          style: TextStyle(
-            color: color,
-            fontSize: 22,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        const SizedBox(height: 4),
-        Text(
-          label,
-          style: const TextStyle(color: AppColors.textMuted, fontSize: 12),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildInfoChip(IconData icon, String label) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-      decoration: BoxDecoration(
-        color: AppColors.inputBackground,
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: Row(
-        children: [
-          Icon(icon, color: AppColors.accent, size: 14),
-          const SizedBox(width: 4),
-          Text(
-            label,
-            style: const TextStyle(
-              color: AppColors.white,
-              fontSize: 12,
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-        ],
       ),
     );
   }

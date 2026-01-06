@@ -6,13 +6,13 @@ class TutorApiService {
   final _supabase = Supabase.instance.client;
 
   //get all tuition
-  Future<List<Map<String, dynamic>>> getTuition({String? searchQuery}) async {
+  Future<List<Map<String, dynamic>>> getTuition({String? searchQuery, String? filterQuery}) async {
     try {
       var query = _supabase
           .from('tuition_post')
           .select('''
           *,
-          subjects: subject_id(
+          subjects!inner(
             name
           ),
           users: student_id(
@@ -27,6 +27,9 @@ class TutorApiService {
         );
       }
 
+      if (filterQuery != null && filterQuery.isNotEmpty && filterQuery != "All") {
+        query = query.eq('subjects.name', filterQuery);
+      }
       // Order by creation date (newest first)
       final response = await query.order('created_at', ascending: false);
 

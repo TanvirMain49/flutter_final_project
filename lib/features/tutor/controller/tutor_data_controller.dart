@@ -22,12 +22,12 @@ class TutorDataController {
 
 
   // get all tuition controller
-  Future<void> getTuition(VoidCallback onUpdate, {String? searchQuery}) async {
+  Future<void> getTuition(VoidCallback onUpdate, {String? searchQuery, String? filterQuery}) async {
     try {
       isLoading = true;
       errorMessage = '';
       onUpdate();
-      final response = await _tuitionApiService.getTuition(searchQuery: searchQuery);
+      final response = await _tuitionApiService.getTuition(searchQuery: searchQuery, filterQuery: filterQuery);
       if (response == null) errorMessage = 'No posts found';
       postTuition = response ?? [];
     } catch (e) {
