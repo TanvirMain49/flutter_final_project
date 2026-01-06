@@ -153,32 +153,6 @@ class _UserProfileState extends State<UserProfile> {
                           ),
                         ],
                       ),
-                      const SizedBox(height: 16),
-                      // Edit Profile Button
-                      SizedBox(
-                        width: double.infinity,
-                        child: ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: AppColors.accent,
-                            foregroundColor: Colors.black,
-                            padding:
-                            const EdgeInsets.symmetric(vertical: 12),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                          ),
-                          onPressed: () {
-                            // Navigator.push(context, MaterialPageRoute(builder: (context) => const PersonalInformationScreen()));
-                          },
-                          child: const Text(
-                            'Edit Profile',
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 14,
-                            ),
-                          ),
-                        ),
-                      ),
                     ],
                   ),
                 ),
@@ -286,7 +260,7 @@ class _UserProfileState extends State<UserProfile> {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => const MyApplicationsPage(),
+                          builder: (context) => const MyApplicationsScreen(),
                         ),
                       );
                     }

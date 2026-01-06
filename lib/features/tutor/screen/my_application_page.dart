@@ -7,14 +7,14 @@ import 'package:_6th_sem_project/features/tutor/controller/tutor_data_controller
 import 'package:_6th_sem_project/utils/Student.utils.dart';
 import 'package:flutter/material.dart';
 
-class MyApplicationsPage extends StatefulWidget {
-  const MyApplicationsPage({super.key});
+class MyApplicationsScreen extends StatefulWidget {
+  const MyApplicationsScreen({super.key});
 
   @override
-  State<MyApplicationsPage> createState() => _MyApplicationsPageState();
+  State<MyApplicationsScreen> createState() => _MyApplicationsPageState();
 }
 
-class _MyApplicationsPageState extends State<MyApplicationsPage> {
+class _MyApplicationsPageState extends State<MyApplicationsScreen> {
   final _con = TutorDataController();
   String selectedTab = 'All';
 
@@ -74,7 +74,7 @@ class _MyApplicationsPageState extends State<MyApplicationsPage> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   _buildTab('All', selectedTab == 'All'),
-                  _buildTab('Accepted', selectedTab == 'Accepted'),
+                  _buildTab('Hired', selectedTab == 'Hired'),
                   _buildTab('Pending', selectedTab == 'Pending'),
                   _buildTab('Rejected', selectedTab == 'Rejected'),
                 ],
