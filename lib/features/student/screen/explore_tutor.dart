@@ -1,5 +1,7 @@
 import 'package:_6th_sem_project/core/constants/colors.dart';
+import 'package:_6th_sem_project/core/widgets/Skeleton/explore_tutor_skeleton.dart';
 import 'package:_6th_sem_project/core/widgets/search_field.dart';
+import 'package:_6th_sem_project/core/widgets/tutor_card.dart';
 import 'package:_6th_sem_project/features/student/controller/get_tuition_controller.dart';
 import 'package:flutter/material.dart';
 
@@ -172,7 +174,18 @@ class _ExploreTutorScreenState extends State<ExploreTutorScreen> {
 
           // Tutor List
           Expanded(
-            child: controller.tutors.isEmpty
+            child: controller.isAllTutorLoading ?
+            ListView.builder(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              itemCount: 5, // number of skeleton cards
+              itemBuilder: (context, index) {
+                return const Padding(
+                  padding: EdgeInsets.only(bottom: 16),
+                  child: ExploreTutorSkeleton(),
+                );
+              },
+            ) :
+            controller.tutors.isEmpty
                 ? Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -207,8 +220,7 @@ class _ExploreTutorScreenState extends State<ExploreTutorScreen> {
               itemCount: controller.tutors.length,
               itemBuilder: (context, index) {
                 final tutor = controller.tutors[index];
-                final tutorSkills =
-                    tutor['tutor_skills'] as List? ?? [];
+                final tutorSkills = tutor['tutor_skills'] as List? ?? [];
                 final firstSkill = tutorSkills.isNotEmpty
                     ? tutorSkills[0] as Map<String, dynamic>
                     : null;
@@ -247,201 +259,4 @@ class _ExploreTutorScreenState extends State<ExploreTutorScreen> {
   }
 }
 
-// Tutor Card Widget
-class TutorCard extends StatelessWidget {
-  final String name;
-  final String subject;
-  final String price;
-  final String? gender;
-  final String experience;
-  final String education;
 
-  const TutorCard({
-    super.key,
-    required this.name,
-    required this.subject,
-    required this.price,
-    this.gender,
-    required this.experience,
-    required this.education,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: AppColors.secondary,
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(
-          color: Colors.white.withOpacity(0.1),
-          width: 1,
-        ),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Header with Avatar and Name
-          Row(
-            children: [
-              // Avatar with Gender Icon
-              Container(
-                width: 60,
-                height: 60,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(12),
-                  gradient: LinearGradient(
-                    colors: [
-                      AppColors.accent.withOpacity(0.2), // Themed background
-                      AppColors.accent.withOpacity(0.05),
-                    ],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                  ),
-                  border: Border.all(
-                    color: AppColors.accent.withOpacity(0.3),
-                    width: 1.5,
-                  ),
-                ),
-                child: const Center(
-                  child: Icon(
-                    Icons.school_rounded, // Standard Tutor/Education icon
-                    size: 30,
-                    color: AppColors.accent,
-                  ),
-                ),
-              ),
-              const SizedBox(width: 14),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      name,
-                      style: const TextStyle(
-                        color: AppColors.white,
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                      ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    const SizedBox(height: 4),
-                    Row(
-                      children: [
-                        Icon(
-                          Icons.school,
-                          size: 14,
-                          color: AppColors.accent,
-                        ),
-                        const SizedBox(width: 6),
-                        Expanded(
-                          child: Text(
-                            subject,
-                            style: TextStyle(
-                              color: AppColors.textMuted,
-                              fontSize: 13,
-                            ),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
-
-          // Details Row
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Expanded(
-                child: _buildDetailChip(
-                  Icons.trending_up,
-                  experience,
-                ),
-              ),
-              const SizedBox(width: 8),
-              Expanded(
-                child: _buildDetailChip(
-                  Icons.business,
-                  education,
-                ),
-              ),
-              const SizedBox(width: 8),
-              Expanded(
-                child: _buildPriceChip(price),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildDetailChip(IconData icon, String text) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
-      decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.05),
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(icon, size: 12, color: AppColors.accent),
-          const SizedBox(width: 4),
-          Expanded(
-            child: Text(
-              text,
-              style: const TextStyle(
-                color: AppColors.white,
-                fontSize: 11,
-                fontWeight: FontWeight.w500,
-              ),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildPriceChip(String price) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
-      decoration: BoxDecoration(
-        color: AppColors.accent.withOpacity(0.2),
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(
-          color: AppColors.accent.withOpacity(0.5),
-          width: 1,
-        ),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(Icons.attach_money, size: 12, color: AppColors.accent),
-          const SizedBox(width: 2),
-          Expanded(
-            child: Text(
-              '$price/hr',
-              style: const TextStyle(
-                color: AppColors.accent,
-                fontSize: 11,
-                fontWeight: FontWeight.bold,
-              ),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}

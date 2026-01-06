@@ -9,7 +9,7 @@ class GetTuitionController {
   List<Map<String, dynamic>> tutors = [];
   Map<String, dynamic>? tuitionDetails;
   bool isLoading = true;
-  bool isApplicationLoading = true;
+  bool isApplicationLoading = false;
   bool isAllTutorLoading = true;
   String? role;
 

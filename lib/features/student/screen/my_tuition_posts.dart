@@ -3,6 +3,7 @@ import 'package:_6th_sem_project/core/widgets/gradient_background.dart';
 import 'package:_6th_sem_project/core/widgets/primary_button.dart';
 import 'package:_6th_sem_project/features/profile/controller/profile_data_controller.dart';
 import 'package:_6th_sem_project/features/student/screen/post_tuition.dart';
+import 'package:_6th_sem_project/features/student/screen/view_applications.dart';
 import 'package:_6th_sem_project/utils/Student.utils.dart';
 import 'package:flutter/material.dart';
 
@@ -188,6 +189,7 @@ class _MyTuitionPostsState extends State<MyTuitionPosts> {
                             const SizedBox(height: 12),
                         itemBuilder: (context, index) {
                           final tuition = _dataCon.myTuitionPosts[index];
+                          debugPrint("tuition: $tuition");
                           // TODO: time ago
                           final timeAgo = StudentUtils.formatTimeAgo(
                             tuition!['created_at'],
@@ -207,6 +209,14 @@ class _MyTuitionPostsState extends State<MyTuitionPosts> {
                             rate: tuition['salary'],
                             startTime: startTime,
                             endTime: endTime,
+                            onPressed: (){
+                              Navigator.push(context, MaterialPageRoute(
+                                builder: (context) =>
+                                    ViewApplicationScreen(postId: tuition['id'],
+                                    )
+                                )
+                              );
+                            }
                           );
                         },
                       ),
@@ -393,9 +403,7 @@ class _MyTuitionPostsState extends State<MyTuitionPosts> {
           // ACTION BUTTONS
           PrimaryButton(
             text: "View Applicants",
-            onPressed: () {
-              onPressed;
-            },
+            onPressed: onPressed
           ),
         ],
       ),

@@ -2,6 +2,7 @@ import 'package:_6th_sem_project/core/constants/colors.dart';
 import 'package:_6th_sem_project/core/services/api_service.dart';
 import 'package:_6th_sem_project/features/student/controller/get_tuition_controller.dart';
 import 'package:_6th_sem_project/features/student/screen/explore_tutor.dart';
+import 'package:_6th_sem_project/features/student/screen/my_tuition_posts.dart';
 import 'package:_6th_sem_project/features/student/screen/post_tuition.dart';
 import 'package:_6th_sem_project/features/student/screen/student_home.dart';
 import 'package:_6th_sem_project/features/profile/screen/user_profile.dart';
@@ -47,7 +48,7 @@ class _AppMainScreenState extends State<AppMainScreen> {
           const StudentHomeScreen(),
           const ExploreTutorScreen(),
           const SizedBox(),
-          const Scaffold(body: Center(child: Text("Student Notification"))),
+          const MyTuitionPosts(),
           const UserProfile(),
         ];
       } else {
@@ -114,18 +115,18 @@ class _AppMainScreenState extends State<AppMainScreen> {
             });
           }
         },
-        items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: "Home"),
-          BottomNavigationBarItem(icon: Icon(Icons.search), label: "Search"),
-          BottomNavigationBarItem(
+        items: [
+          const BottomNavigationBarItem(icon: Icon(Icons.home), label: "Home"),
+          const BottomNavigationBarItem(icon: Icon(Icons.search), label: "Search"),
+          const BottomNavigationBarItem(
             icon: Icon(Icons.add_box_outlined),
             label: "Post",
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.notification_add_outlined),
-            label: "Notification",
+            icon: const Icon(Icons.work_outline),
+            label: _role == 'Tutor' ? "Applications" : "My Posts",
           ),
-          BottomNavigationBarItem(
+          const BottomNavigationBarItem(
             icon: Icon(Icons.supervised_user_circle_outlined),
             label: "Profile",
           ),

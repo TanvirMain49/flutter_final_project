@@ -192,14 +192,14 @@ class _TutorHomeScreenState extends State<TutorHomeScreen> {
                         ),
                       ),
                       const SizedBox(height: 12),
-                      hasSaved
-                          ? _buildSavedItemsList()
-                          : _buildEmptyState(
-                              Icons.bookmark_border_rounded,
-                              "No Saved Jobs Yet",
-                              "Tap the bookmark icon on any job\npost to save it for later.",
-                              "Browse Jobs",
-                            ),
+                      // hasSaved
+                      //     ? _buildSavedItemsList()
+                      //     : _buildEmptyState(
+                      //         Icons.bookmark_border_rounded,
+                      //         "No Saved Jobs Yet",
+                      //         "Tap the bookmark icon on any job\npost to save it for later.",
+                      //         "Browse Jobs",
+                      //       ),
                     ],
                   ),
                 ),
@@ -207,7 +207,7 @@ class _TutorHomeScreenState extends State<TutorHomeScreen> {
                 const SizedBox(height: 32),
 
                 // Quick Stats Section
-                _buildQuickStatsSection(),
+                // _buildQuickStatsSection(),
 
                 const SizedBox(height: 24),
               ],
@@ -520,106 +520,106 @@ class _TutorHomeScreenState extends State<TutorHomeScreen> {
   //     }
   //   }
 
-  Widget _buildSavedItemsList() {
-    return SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
-      child: Row(
-        children: List.generate(3, (index) {
-          final item = savedItems[index];
-          return Padding(
-            padding: EdgeInsets.only(
-              right: index == savedItems.length - 1 ? 0 : 12,
-            ),
-            child: _buildSavedItemCard(item),
-          );
-        }),
-      ),
-    );
-  }
-
-  Widget _buildSavedItemCard(Map<String, String> item) {
-    return Container(
-      width: 160,
-      decoration: BoxDecoration(
-        color: AppColors.primaryDark,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.border, width: 1),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(12),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              item['title']!,
-              style: const TextStyle(
-                color: AppColors.white,
-                fontSize: 14,
-                fontWeight: FontWeight.bold,
-              ),
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-            ),
-            const SizedBox(height: 12),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  item['jobs']!,
-                  style: const TextStyle(
-                    color: AppColors.textMuted,
-                    fontSize: 12,
-                  ),
-                ),
-                const Icon(
-                  Icons.arrow_forward_ios,
-                  color: AppColors.accent,
-                  size: 14,
-                ),
-              ],
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildQuickStatsSection() {
-    return Container(
-      decoration: BoxDecoration(
-        color: AppColors.secondary,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.border, width: 1),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text(
-              'Quick Stats',
-              style: TextStyle(
-                color: AppColors.white,
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            const SizedBox(height: 16),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: [
-                _buildStatItem('Applied', '8', AppColors.accent),
-                Container(width: 1, height: 50, color: AppColors.border),
-                _buildStatItem('In Review', '3', Colors.blue),
-                Container(width: 1, height: 50, color: AppColors.border),
-                _buildStatItem('Accepted', '2', AppColors.success),
-              ],
-            ),
-          ],
-        ),
-      ),
-    );
-  }
+  // Widget _buildSavedItemsList() {
+  //   return SingleChildScrollView(
+  //     scrollDirection: Axis.horizontal,
+  //     child: Row(
+  //       children: List.generate(3, (index) {
+  //         final item = savedItems[index];
+  //         return Padding(
+  //           padding: EdgeInsets.only(
+  //             right: index == savedItems.length - 1 ? 0 : 12,
+  //           ),
+  //           child: _buildSavedItemCard(item),
+  //         );
+  //       }),
+  //     ),
+  //   );
+  // }
+  //
+  // Widget _buildSavedItemCard(Map<String, String> item) {
+  //   return Container(
+  //     width: 160,
+  //     decoration: BoxDecoration(
+  //       color: AppColors.primaryDark,
+  //       borderRadius: BorderRadius.circular(12),
+  //       border: Border.all(color: AppColors.border, width: 1),
+  //     ),
+  //     child: Padding(
+  //       padding: const EdgeInsets.all(12),
+  //       child: Column(
+  //         crossAxisAlignment: CrossAxisAlignment.start,
+  //         children: [
+  //           Text(
+  //             item['title']!,
+  //             style: const TextStyle(
+  //               color: AppColors.white,
+  //               fontSize: 14,
+  //               fontWeight: FontWeight.bold,
+  //             ),
+  //             maxLines: 2,
+  //             overflow: TextOverflow.ellipsis,
+  //           ),
+  //           const SizedBox(height: 12),
+  //           Row(
+  //             mainAxisAlignment: MainAxisAlignment.spaceBetween,
+  //             children: [
+  //               Text(
+  //                 item['jobs']!,
+  //                 style: const TextStyle(
+  //                   color: AppColors.textMuted,
+  //                   fontSize: 12,
+  //                 ),
+  //               ),
+  //               const Icon(
+  //                 Icons.arrow_forward_ios,
+  //                 color: AppColors.accent,
+  //                 size: 14,
+  //               ),
+  //             ],
+  //           ),
+  //         ],
+  //       ),
+  //     ),
+  //   );
+  // }
+  //
+  // Widget _buildQuickStatsSection() {
+  //   return Container(
+  //     decoration: BoxDecoration(
+  //       color: AppColors.secondary,
+  //       borderRadius: BorderRadius.circular(12),
+  //       border: Border.all(color: AppColors.border, width: 1),
+  //     ),
+  //     child: Padding(
+  //       padding: const EdgeInsets.all(16),
+  //       child: Column(
+  //         crossAxisAlignment: CrossAxisAlignment.start,
+  //         children: [
+  //           const Text(
+  //             'Quick Stats',
+  //             style: TextStyle(
+  //               color: AppColors.white,
+  //               fontSize: 16,
+  //               fontWeight: FontWeight.bold,
+  //             ),
+  //           ),
+  //           const SizedBox(height: 16),
+  //           Row(
+  //             mainAxisAlignment: MainAxisAlignment.spaceAround,
+  //             children: [
+  //               _buildStatItem('Applied', '8', AppColors.accent),
+  //               Container(width: 1, height: 50, color: AppColors.border),
+  //               _buildStatItem('In Review', '3', Colors.blue),
+  //               Container(width: 1, height: 50, color: AppColors.border),
+  //               _buildStatItem('Accepted', '2', AppColors.success),
+  //             ],
+  //           ),
+  //         ],
+  //       ),
+  //     ),
+  //   );
+  // }
 
   Widget _buildStatItem(String label, String count, Color color) {
     return Column(
