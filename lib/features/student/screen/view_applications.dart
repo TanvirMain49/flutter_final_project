@@ -29,7 +29,6 @@ class _ApplicationsScreenState extends State<ViewApplicationScreen> {
   }
 
   void _handleHire(Map<String, dynamic> application) {
-    debugPrint("tuition post Id: ${application['tutor_id']}  ${widget.postId}");
     _con.hireTutor(
       applicationId: application['tutor_id'].toString(),
       postId: widget.postId,
@@ -47,12 +46,19 @@ class _ApplicationsScreenState extends State<ViewApplicationScreen> {
   }
 
   void _handleReject(Map<String, dynamic> application) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('${application['name']} rejected.'),
-        backgroundColor: Colors.red,
-        duration: const Duration(seconds: 2),
-      ),
+    _con.rejectTutor(
+        applicationId: application['tutor_id'].toString(),
+        postId: widget.postId,
+        onSuccess: (){
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('${application['full_name']} rejected.'),
+              backgroundColor: Colors.red,
+              duration: const Duration(seconds: 2),
+            ),
+          );
+        },
+        refreshUI: () => setState(() {})
     );
   }
 

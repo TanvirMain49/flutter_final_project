@@ -64,66 +64,76 @@ class _MyApplicationsPageState extends State<MyApplicationsScreen> {
         ),
         centerTitle: true,
       ),
-      body: GradientBackground(
-        child: Column(
-          children: [
-            // Tab Navigation
-            Container(
-              padding: const EdgeInsets.all(16.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  _buildTab('All', selectedTab == 'All'),
-                  _buildTab('Hired', selectedTab == 'Hired'),
-                  _buildTab('Pending', selectedTab == 'Pending'),
-                  _buildTab('Rejected', selectedTab == 'Rejected'),
-                ],
+      body: RefreshIndicator(
+        onRefresh: () async{
+          _con.getTutorApplications(
+            status: 'All',
+            onUpdate: () {
+              if (mounted) setState(() {});
+            },
+          );
+        },
+        child: GradientBackground(
+          child: Column(
+            children: [
+              // Tab Navigation
+              Container(
+                padding: const EdgeInsets.all(16.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    _buildTab('All', selectedTab == 'All'),
+                    _buildTab('Hired', selectedTab == 'Hired'),
+                    _buildTab('Pending', selectedTab == 'Pending'),
+                    _buildTab('Rejected', selectedTab == 'Rejected'),
+                  ],
+                ),
               ),
-            ),
-            const SizedBox(height: 10),
-            // Applications List
-            Expanded(
-              child: (_con.isApplications && allApplications.isEmpty)
-                  ? const ApplicationsLoadingList()
-                  : allApplications.isEmpty
-                  ? const Center(
-                      child: Text(
-                        "No applications found",
-                        style: TextStyle(color: AppColors.textMuted),
-                      ),
-                    )
-                  : ListView.separated(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 16.0,
-                        vertical: 10,
-                      ),
-                      itemCount: allApplications.length,
-                      separatorBuilder: (context, index) =>
-                          const SizedBox(height: 16),
-                      itemBuilder: (context, index) {
-                        final app = allApplications[index];
-                        final post = app['tuition_post'] ?? {};
+              const SizedBox(height: 10),
+              // Applications List
+              Expanded(
+                child: (_con.isApplications && allApplications.isEmpty)
+                    ? const ApplicationsLoadingList()
+                    : allApplications.isEmpty
+                    ? const Center(
+                        child: Text(
+                          "No applications found",
+                          style: TextStyle(color: AppColors.textMuted),
+                        ),
+                      )
+                    : ListView.separated(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 16.0,
+                          vertical: 10,
+                        ),
+                        itemCount: allApplications.length,
+                        separatorBuilder: (context, index) =>
+                            const SizedBox(height: 16),
+                        itemBuilder: (context, index) {
+                          final app = allApplications[index];
+                          final post = app['tuition_post'] ?? {};
 
-                        // Formatting the date from "2026-01-04T08:36..." to a readable format
-                        DateTime date = DateTime.parse(app['created_at']);
-                        String formattedDate = StudentUtils.formatToMMDDYYYY(
-                          date.toString(),
-                        );
+                          // Formatting the date from "2026-01-04T08:36..." to a readable format
+                          DateTime date = DateTime.parse(app['created_at']);
+                          String formattedDate = StudentUtils.formatToMMDDYYYY(
+                            date.toString(),
+                          );
 
-                        return _buildApplicationCard(
-                          tuitionId: post['id'],
-                          title: post['subject_id']?['name'] ?? 'N/A',
-                          grade: post['grade'] ?? 'N/A',
-                          location: post['student_location'] ?? 'N/A',
-                          price: '৳${post['salary'] ?? '0'}/month',
-                          appliedDate: formattedDate,
-                          status: app['status'].toString().toUpperCase(),
-                          statusColor: _getStatusColor(app['status']),
-                        );
-                      },
-                    ),
-            ),
-          ],
+                          return _buildApplicationCard(
+                            tuitionId: post['id'],
+                            title: post['subject_id']?['name'] ?? 'N/A',
+                            grade: post['grade'] ?? 'N/A',
+                            location: post['student_location'] ?? 'N/A',
+                            price: '৳${post['salary'] ?? '0'}/month',
+                            appliedDate: formattedDate,
+                            status: app['status'].toString().toUpperCase(),
+                            statusColor: _getStatusColor(app['status']),
+                          );
+                        },
+                      ),
+              ),
+            ],
+          ),
         ),
       ),
     );

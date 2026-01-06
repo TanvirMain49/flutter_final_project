@@ -99,7 +99,7 @@ class StudentApiService {
           .from('tuition_application')
           .update({'status': 'hired'})
           .eq('tutor_id', tutorId)
-          .eq('tuition_post_id', postId);;
+          .eq('tuition_post_id', postId);
 
       // 2. Automatically reject everyone else for this specific post
       await _supabase
@@ -118,6 +118,32 @@ class StudentApiService {
       debugPrint("Hiring Process Error: $e");
     }
   }
+
+    // reject tutor
+  Future<void> processRejecting({
+    required String tutorId,
+    required String postId,
+  }) async {
+    try {
+
+      // 1. reject the person for this specific post
+      await _supabase
+          .from('tuition_application')
+          .update({'status': 'rejected'})
+          .eq('tuition_post_id', postId)
+          .eq('tutor_id', tutorId); // Do not reject the person we just hired
+
+      // 3. Close the tuition post so it's no longer 'Open'
+      await _supabase
+          .from('tuition_post')
+          .update({'status': 'closed'})
+          .eq('id', postId);
+
+    } catch (e) {
+      debugPrint("Rejecting Process Error: $e");
+    }
+  }
+
 
     //  get all tutor
   Future<List<Map<String, dynamic>>> getAllTutor({String? searchQuery, String? subject}) async{
