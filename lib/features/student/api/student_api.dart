@@ -52,7 +52,8 @@ class StudentApiService {
         name
         )
         ''')
-          .eq('student_id', userId);
+          .eq('student_id', userId)
+          .order('created_at', ascending: false);
       if (response.isEmpty) return null;
       return response;
     } catch (e) {

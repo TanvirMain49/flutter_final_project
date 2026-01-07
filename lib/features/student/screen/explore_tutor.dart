@@ -1,3 +1,4 @@
+import 'package:_6th_sem_project/features/student/screen/student_home.dart';
 import 'package:flutter/material.dart';
 import 'package:_6th_sem_project/core/constants/colors.dart';
 import 'package:_6th_sem_project/core/widgets/Skeleton/explore_tutor_skeleton.dart';
@@ -19,7 +20,15 @@ class _ExploreTutorScreenState extends State<ExploreTutorScreen> {
 
   String selectedFilter = 'All';
   final List<String> filterOptions = [
-    'All', 'General Mathematics', 'Higher Mathematics', 'Physics', 'Chemistry', 'Biology', 'English', 'Accounting', 'ICT',
+    'All',
+    'General Mathematics',
+    'Higher Mathematics',
+    'Physics',
+    'Chemistry',
+    'Biology',
+    'English',
+    'Accounting',
+    'ICT',
   ];
 
   @override
@@ -29,11 +38,13 @@ class _ExploreTutorScreenState extends State<ExploreTutorScreen> {
   }
 
   void _fetchTutors() {
-    controller.getAllTuition(() {
-      if (mounted) setState(() {});
-    },
-        searchQuery: searchController.text,
-        subject: selectedFilter == 'All' ? null : selectedFilter);
+    controller.getAllTuition(
+      () {
+        if (mounted) setState(() {});
+      },
+      searchQuery: searchController.text,
+      subject: selectedFilter == 'All' ? null : selectedFilter,
+    );
   }
 
   @override
@@ -58,8 +69,19 @@ class _ExploreTutorScreenState extends State<ExploreTutorScreen> {
     return AppBar(
       backgroundColor: AppColors.primaryDark,
       elevation: 0,
-      title: const Text('Find Tutors',
-          style: TextStyle(color: AppColors.white, fontWeight: FontWeight.bold)),
+      leading: IconButton(
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => StudentHomeScreen()),
+          );
+        },
+        icon: Icon(Icons.arrow_back, color: AppColors.white),
+      ),
+      title: const Text(
+        'Find Tutors',
+        style: TextStyle(color: AppColors.white, fontWeight: FontWeight.bold),
+      ),
       centerTitle: true,
     );
   }
@@ -104,7 +126,9 @@ class _ExploreTutorScreenState extends State<ExploreTutorScreen> {
               color: isSelected ? AppColors.black : AppColors.white,
               fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
             ),
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(20),
+            ),
             side: BorderSide.none,
           );
         },
@@ -136,12 +160,27 @@ class _ExploreTutorScreenState extends State<ExploreTutorScreen> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.person_search, size: 64, color: AppColors.textMuted.withOpacity(0.5)),
+          Icon(
+            Icons.person_search,
+            size: 64,
+            color: AppColors.textMuted.withOpacity(0.5),
+          ),
           const SizedBox(height: 16),
-          const Text('No tutors found',
-              style: TextStyle(color: AppColors.textMuted, fontSize: 16, fontWeight: FontWeight.w500)),
-          Text('Try adjusting your filters',
-              style: TextStyle(color: AppColors.textMuted.withOpacity(0.7), fontSize: 13)),
+          const Text(
+            'No tutors found',
+            style: TextStyle(
+              color: AppColors.textMuted,
+              fontSize: 16,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+          Text(
+            'Try adjusting your filters',
+            style: TextStyle(
+              color: AppColors.textMuted.withOpacity(0.7),
+              fontSize: 13,
+            ),
+          ),
         ],
       ),
     );

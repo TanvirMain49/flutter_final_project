@@ -1,3 +1,4 @@
+import 'package:_6th_sem_project/features/profile/controller/profile_data_controller.dart';
 import 'package:_6th_sem_project/features/tutor/screen/tutor_details.dart';
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -48,7 +49,10 @@ class _StudentHomeScreenState extends State<StudentHomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final displayName = user?.email?.split('@')[0] ?? "Guest User";
+    late final userEmail = user?.email ?? "Guest User";
+    late final displayName = userEmail.contains('@')
+        ? userEmail.split('@')[0]
+        : userEmail;;
 
     return Scaffold(
       body: GradientBackground(
@@ -84,7 +88,8 @@ class _StudentHomeScreenState extends State<StudentHomeScreen> {
       child: Row(
         children: [
           Container(
-            width: 45, height: 45,
+            width: 45,
+            height: 45,
             decoration: BoxDecoration(
               color: AppColors.accent,
               borderRadius: BorderRadius.circular(10),
@@ -95,8 +100,18 @@ class _StudentHomeScreenState extends State<StudentHomeScreen> {
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text("Good morning,", style: TextStyle(fontSize: 12, color: Colors.grey[500])),
-              Text(name, style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
+              Text(
+                "Good morning,",
+                style: TextStyle(fontSize: 12, color: Colors.grey[500]),
+              ),
+              Text(
+                name,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
             ],
           ),
           const Spacer(),
@@ -123,18 +138,38 @@ class _StudentHomeScreenState extends State<StudentHomeScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text("Find a Tutor", style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
+          const Text(
+            "Find a Tutor",
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
           const SizedBox(height: 8),
-          const Text("Get matched with qualified tutors in minutes.", style: TextStyle(color: Colors.white60, fontSize: 14)),
+          const Text(
+            "Get matched with qualified tutors in minutes.",
+            style: TextStyle(color: Colors.white60, fontSize: 14),
+          ),
           const SizedBox(height: 20),
           ElevatedButton(
             style: ElevatedButton.styleFrom(
               backgroundColor: AppColors.accent,
               foregroundColor: Colors.black,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
             ),
-            onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const PostTuitionScreen())),
-            child: const Text("Post Request", style: TextStyle(fontWeight: FontWeight.bold)),
+            onPressed: () => Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const PostTuitionScreen(),
+              ),
+            ),
+            child: const Text(
+              "Post Request",
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
           ),
         ],
       ),
@@ -145,10 +180,20 @@ class _StudentHomeScreenState extends State<StudentHomeScreen> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        const Text("Available Tutors", style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold)),
+        const Text(
+          "Available Tutors",
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
         TextButton(
           onPressed: () {},
-          child: const Text("View all", style: TextStyle(color: AppColors.accent)),
+          child: const Text(
+            "View all",
+            style: TextStyle(color: AppColors.accent),
+          ),
         ),
       ],
     );
@@ -171,7 +216,10 @@ class _StudentHomeScreenState extends State<StudentHomeScreen> {
       return const Center(
         child: Padding(
           padding: EdgeInsets.only(top: 40),
-          child: Text("No Tutors Available", style: TextStyle(color: Colors.white70)),
+          child: Text(
+            "No Tutors Available",
+            style: TextStyle(color: Colors.white70),
+          ),
         ),
       );
     }
@@ -194,14 +242,14 @@ class _StudentHomeScreenState extends State<StudentHomeScreen> {
           gender: tutor['gender'],
           experience: '${skill['experience_years'] ?? 0} yrs',
           education: skill['education_at'] ?? 'N/A',
-          onpressed: (){
+          onpressed: () {
             Navigator.push(
               context,
               MaterialPageRoute(
                 builder: (context) => TutorDetails(tutorId: tutor['id']),
               ),
             );
-          }
+          },
         );
       },
     );

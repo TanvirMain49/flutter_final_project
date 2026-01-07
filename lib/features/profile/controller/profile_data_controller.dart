@@ -39,7 +39,6 @@ class ProfileDataController {
 
   /// Fetches the core user profile data including related tutor skills
   Future<void> fetchUserProfile(VoidCallback refreshUI, {bool forceRefresh = false}) async {
-    debugPrint("User: $userProfile");
     if (userProfile.isNotEmpty && !forceRefresh) return;
     try {
       _setLoading(true, refreshUI);

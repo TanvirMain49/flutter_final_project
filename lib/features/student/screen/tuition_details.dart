@@ -266,7 +266,9 @@ class _TuitionDetailsState extends State<TuitionDetails> {
             child: _buildInfoGrid(data, startTime, endTime),
           ),
           const SizedBox(height: 20),
-          Padding(
+          data['description'] == ""
+              ? const SizedBox.shrink()
+              : Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
             child: _buildDescriptionSection(data['description']),
           ),
@@ -295,20 +297,20 @@ class _TuitionDetailsState extends State<TuitionDetails> {
                 ),
               ),
               const SizedBox(height: 4),
-              Row(
-                children: [
-                  const Icon(Icons.star, size: 16, color: Colors.amber),
-                  const SizedBox(width: 4),
-                  Text(
-                    '4.9 • Reputation',
-                    style: TextStyle(
-                      color: AppColors.textMuted,
-                      fontSize: 12,
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 4),
+              // Row(
+              //   children: [
+              //     const Icon(Icons.star, size: 16, color: Colors.amber),
+              //     const SizedBox(width: 4),
+              //     Text(
+              //       '4.9 • Reputation',
+              //       style: TextStyle(
+              //         color: AppColors.textMuted,
+              //         fontSize: 12,
+              //       ),
+              //     ),
+              //   ],
+              // ),
+              // const SizedBox(height: 4),
               Text(
                 timeAgo,
                 style: TextStyle(color: AppColors.textMuted, fontSize: 12),

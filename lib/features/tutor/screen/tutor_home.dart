@@ -5,6 +5,7 @@ import 'package:_6th_sem_project/core/constants/colors.dart';
 import 'package:_6th_sem_project/core/widgets/Skeleton/card_skeleton.dart';
 import 'package:_6th_sem_project/core/widgets/student_home_cart.dart';
 import 'package:_6th_sem_project/features/profile/controller/profile_data_controller.dart';
+import 'package:_6th_sem_project/features/profile/screen/complete_profile_screen.dart';
 import 'package:_6th_sem_project/features/student/screen/tuition_details.dart';
 import 'package:_6th_sem_project/features/tutor/controller/tutor_data_controller.dart';
 import 'package:_6th_sem_project/utils/Student.utils.dart';
@@ -41,15 +42,12 @@ class _TutorHomeScreenState extends State<TutorHomeScreen> {
       // to the SLOWEST single API call, not the sum of all three.
       await Future.wait([
         _con.getTuition(() {}),
-        _con.isCompleteTutorProfile((){}),
+        _con.isCompleteTutorProfile(() {}),
         _con2.fetchUserProfile(() {}),
       ]);
     } catch (e) {
       debugPrint("Error loading home data: $e");
-      // Handle global error if necessary
     } finally {
-      // 3. Final UI Update
-      // Once all data is in memory, we trigger one single build cycle.
       if (mounted) setState(() {});
     }
   }
@@ -67,7 +65,6 @@ class _TutorHomeScreenState extends State<TutorHomeScreen> {
         : userEmail;
     bool profileComplete = _con.isCompleteProfile;
 
-
     return Scaffold(
       body: RefreshIndicator(
         color: AppColors.accent,
@@ -79,7 +76,7 @@ class _TutorHomeScreenState extends State<TutorHomeScreen> {
             physics: const AlwaysScrollableScrollPhysics(),
             child: Column(
               children: [
-                CustomHomeNavbar(displayName: displayName.toUpperCase()),
+                CustomHomeNavbar(displayName: displayName),
                 if (!_con2.isLoading &&
                     _con2.userProfile.isNotEmpty &&
                     !profileComplete)
@@ -108,60 +105,70 @@ class _TutorHomeScreenState extends State<TutorHomeScreen> {
   }
 
   Widget _buildProfileAlertCard() {
-    return Container(
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [AppColors.accent, AppColors.primaryDark],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-        borderRadius: BorderRadiusGeometry.circular(12),
-        boxShadow: [
-          BoxShadow(color: AppColors.accent.withOpacity(0.2), blurRadius: 4),
-        ],
-      ),
-
-      child: Padding(
-        padding: EdgeInsetsGeometry.all(16),
-        child: Row(
-          children: [
-            const Icon(Icons.info_outline, color: AppColors.black, size: 28),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text(
-                    'Complete Your Profile',
-                    style: TextStyle(
-                      color: AppColors.black,
-                      fontSize: 14,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    'Finish your profile to start applying!',
-                    style: TextStyle(
-                      color: AppColors.black.withOpacity(0.8),
-                      fontSize: 12,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(width: 12),
-            GestureDetector(
-              onTap: () {
-                // Navigate to profile completion
-              },
-              child: const Icon(
-                Icons.arrow_forward_ios,
-                color: AppColors.black,
-                size: 20,
-              ),
-            ),
+    return InkWell(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => const CompleteTutorProfileScreen(),
+          ),
+        );
+      },
+      child: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: [AppColors.accent, AppColors.primaryDark],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+          borderRadius: BorderRadiusGeometry.circular(12),
+          boxShadow: [
+            BoxShadow(color: AppColors.accent.withOpacity(0.2), blurRadius: 4),
           ],
+        ),
+
+        child: Padding(
+          padding: EdgeInsetsGeometry.all(16),
+          child: Row(
+            children: [
+              const Icon(Icons.info_outline, color: AppColors.black, size: 28),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      'Complete Your Profile',
+                      style: TextStyle(
+                        color: AppColors.black,
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      'Finish your profile to start applying!',
+                      style: TextStyle(
+                        color: AppColors.black.withOpacity(0.8),
+                        fontSize: 12,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 12),
+              GestureDetector(
+                onTap: () {
+                  // Navigate to profile completion
+                },
+                child: const Icon(
+                  Icons.arrow_forward_ios,
+                  color: AppColors.black,
+                  size: 20,
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -220,15 +227,9 @@ class _TutorHomeScreenState extends State<TutorHomeScreen> {
       children: List.generate(filteredPosts.length, (index) {
         final post = filteredPosts[index];
         debugPrint('Post $post');
-        final timeAgo = StudentUtils.formatTimeAgo(
-          post['created_at'],
-        );
-        final startTime = StudentUtils.formatToBDTime(
-          post['start_time'],
-        );
-        final endTime = StudentUtils.formatToBDTime(
-          post['end_time'],
-        );
+        final timeAgo = StudentUtils.formatTimeAgo(post['created_at']);
+        final startTime = StudentUtils.formatToBDTime(post['start_time']);
+        final endTime = StudentUtils.formatToBDTime(post['end_time']);
         return Padding(
           padding: const EdgeInsets.only(bottom: 12),
           child: StudentHomeCard(

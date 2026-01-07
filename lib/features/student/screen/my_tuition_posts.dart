@@ -216,7 +216,7 @@ class _MyTuitionPostsState extends State<MyTuitionPosts> {
                             );
                             return _buildPostCard(
                               status: tuition['status'] ?? 'Active',
-                              statusColor: AppColors.accent,
+                              statusColor:  _getStatusColor(tuition['status']),
                               title: tuition['post_title'],
                               subject: tuition['subjects']['name'],
                               days: tuition['preferred_day'],
@@ -288,7 +288,7 @@ class _MyTuitionPostsState extends State<MyTuitionPosts> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              // Status Badge (Active/Inactive)
+              // Status Badge (Active/Inactive/Closed)
               Container(
                 padding: const EdgeInsets.symmetric(
                   vertical: 6,
@@ -310,7 +310,7 @@ class _MyTuitionPostsState extends State<MyTuitionPosts> {
                     ),
                     const SizedBox(width: 8),
                     Text(
-                      status,
+                      status == 'active'? 'Active': 'Closed',
                       style: TextStyle(
                         color: statusColor,
                         fontSize: 12,
@@ -362,8 +362,7 @@ class _MyTuitionPostsState extends State<MyTuitionPosts> {
           const Divider(color: AppColors.border, thickness: 1),
           const SizedBox(height: 8),
 
-          // DETAILS: Location and Preferred Days
-          // Subject Row
+          // DETAILS: Subject
           Row(
             children: [
               const Icon(
@@ -383,7 +382,7 @@ class _MyTuitionPostsState extends State<MyTuitionPosts> {
           ),
           const SizedBox(height: 10),
 
-          // Preferred Days (Using 'grade' parameter as requested)
+          // Preferred Days
           Row(
             children: [
               const Icon(
@@ -393,7 +392,7 @@ class _MyTuitionPostsState extends State<MyTuitionPosts> {
               ),
               const SizedBox(width: 8),
               Text(
-                days, // Use this for preferred days (e.g., S, Su, M)
+                days,
                 style: const TextStyle(
                   color: AppColors.textMuted,
                   fontSize: 14,
@@ -404,7 +403,7 @@ class _MyTuitionPostsState extends State<MyTuitionPosts> {
 
           const SizedBox(height: 10),
 
-          // Preferred Days (Using 'grade' parameter as requested)
+          // Time Duration
           Row(
             children: [
               const Icon(
@@ -414,7 +413,7 @@ class _MyTuitionPostsState extends State<MyTuitionPosts> {
               ),
               const SizedBox(width: 8),
               Text(
-                "$startTime - $endTime", // Use this for preferred days (e.g., S, Su, M)
+                "$startTime - $endTime",
                 style: const TextStyle(
                   color: AppColors.textMuted,
                   fontSize: 14,
@@ -438,8 +437,7 @@ class _MyTuitionPostsState extends State<MyTuitionPosts> {
                       borderRadius: BorderRadius.circular(12),
                     ),
                   ),
-                  onPressed: onDetailsPressed
-                  ,
+                  onPressed: onDetailsPressed,
                   child: const Text(
                     "Details",
                     style: TextStyle(
@@ -450,9 +448,9 @@ class _MyTuitionPostsState extends State<MyTuitionPosts> {
                 ),
               ),
 
-              const SizedBox(width: 12), // Space between buttons
+              const SizedBox(width: 12),
 
-              // 2. View Applicants (Keep your PrimaryButton)
+              // 2. View Applicants (PrimaryButton)
               Expanded(
                 child: PrimaryButton(
                   text: "Applicants",
@@ -464,5 +462,21 @@ class _MyTuitionPostsState extends State<MyTuitionPosts> {
         ],
       ),
     );
+  }
+
+// Helper function to get status color based on status string
+  Color _getStatusColor(String status) {
+    switch (status.toLowerCase()) {
+      case 'active':
+        return const Color(0xFF4CAF84); // Green - Success
+      case 'pending':
+        return Colors.amber; // Amber/Yellow
+      case 'closed':
+        return Colors.red; // Red
+      case 'inactive':
+        return Colors.grey; // Grey
+      default:
+        return AppColors.textMuted;
+    }
   }
 }
