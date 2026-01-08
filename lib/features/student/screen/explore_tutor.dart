@@ -1,4 +1,5 @@
 import 'package:_6th_sem_project/features/student/screen/student_home.dart';
+import 'package:_6th_sem_project/features/tutor/screen/tutor_details.dart';
 import 'package:flutter/material.dart';
 import 'package:_6th_sem_project/core/constants/colors.dart';
 import 'package:_6th_sem_project/core/widgets/Skeleton/explore_tutor_skeleton.dart';
@@ -205,6 +206,15 @@ class _ExploreTutorScreenState extends State<ExploreTutorScreen> {
             gender: tutor['gender'],
             experience: '${skill['experience_years'] ?? 0} yrs',
             education: skill['education_at'] ?? 'N/A',
+            onpressed: (){
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context)=> TutorDetails(tutorId: tutor['id']
+                      )
+                  )
+              );
+            },
           ),
         );
       },

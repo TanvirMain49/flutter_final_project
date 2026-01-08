@@ -10,8 +10,8 @@ class TutorDataController {
   // TODO: cheek if savePostIds is need or not later
   List<String> savedPostIds = [];
   List<String> appliedPostIds = [];
-  String? errorMessage = '';
   String? successMessage = '';
+  bool isSavedPost = false;
   bool isCompleteProfile = false;
   bool hasApplied = false;
   bool isLoading = false;
@@ -25,14 +25,11 @@ class TutorDataController {
   Future<void> getTuition(VoidCallback onUpdate, {String? searchQuery, String? filterQuery}) async {
     try {
       isLoading = true;
-      errorMessage = '';
       onUpdate();
       final response = await _tuitionApiService.getTuition(searchQuery: searchQuery, filterQuery: filterQuery);
-      if (response == null) errorMessage = 'No posts found';
       postTuition = response ?? [];
     } catch (e) {
       debugPrint('getUserProfile error: $e');
-      errorMessage = "Failed to load profile: $e";
     } finally {
       isLoading = false;
       onUpdate();
@@ -42,26 +39,15 @@ class TutorDataController {
   Future<void> getTuitionDetails(VoidCallback onUpdate) async {
     try {
       isLoading = true;
-      errorMessage = '';
       onUpdate();
       final response = await _tuitionApiService.getTuition();
-      if (response == null) errorMessage = 'No posts found';
       postTuition = response!;
     } catch (e) {
       debugPrint('getUserProfile error: $e');
-      errorMessage = "Failed to load profile: $e";
     } finally {
       isLoading = false;
       onUpdate();
     }
-  }
-
-  Future<void> syncSavedPosts() async {
-    // 1. Fetch the raw data from your API service
-    final List<Map<String, dynamic>> data = await _tuitionApiService
-        .fetchSavedPostIds();
-    savedPostIds = data.map((item) => item['post_id'].toString()).toList();
-    // debugPrint("Synced Saved Posts: $savedPostIds");
   }
 
   Future<String?> toggleSave(String postId, VoidCallback onUpdate) async {
@@ -97,6 +83,18 @@ class TutorDataController {
       onUpdate();
     }
   }
+
+  Future<void> isSavedTuitionPost(String postId, VoidCallback onUpdate) async {
+    try {
+      isSavedPost = await _tuitionApiService.isSavedPost(postId);
+      // isSavedPost =  response;
+      onUpdate();
+    } catch (e) {
+      debugPrint('Check saved status error: $e');
+      isSavedPost =  false;
+    }
+  }
+
 
   Future<void> getSavedPosts(VoidCallback onUpdate) async {
     try{

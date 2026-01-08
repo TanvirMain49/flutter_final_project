@@ -1,7 +1,6 @@
 import 'package:_6th_sem_project/core/widgets/Skeleton/card_skeleton.dart';
 import 'package:_6th_sem_project/core/widgets/search_field.dart';
 import 'package:_6th_sem_project/core/widgets/student_home_cart.dart';
-import 'package:_6th_sem_project/features/student/controller/get_tuition_controller.dart';
 import 'package:_6th_sem_project/features/student/screen/tuition_details.dart';
 import 'package:_6th_sem_project/utils/Student.utils.dart';
 import 'package:flutter/material.dart';
@@ -33,7 +32,6 @@ class _ExploreTuitionScreenState extends State<ExploreTuitionScreen> {
   Future<void> _loadInitialData() async {
     await Future.wait([
       _con.getTuition(() => _safeSetState()),
-      _con.syncSavedPosts(),
       _con.isCompleteTutorProfile(() => _safeSetState()),
     ]);
   }
@@ -203,7 +201,7 @@ class _ExploreTuitionScreenState extends State<ExploreTuitionScreen> {
           Icon(Icons.search_off, size: 64, color: AppColors.textMuted.withOpacity(0.5)),
           const SizedBox(height: 16),
           const Text(
-            "No tuitions found matching your criteria",
+            "No tuition found matching your criteria",
             style: TextStyle(color: AppColors.textMuted, fontSize: 16),
           ),
         ],

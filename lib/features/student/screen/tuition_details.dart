@@ -42,6 +42,7 @@ class _TuitionDetailsState extends State<TuitionDetails> {
     await Future.wait([
       _controller.getTuitionDetails(widget.tuitionId, _safeSetState),
       _controller.initRole(),
+      _tutorCon.isSavedTuitionPost(widget.tuitionId, _safeSetState),
       _tutorCon.cheekIfApplied(widget.tuitionId, _safeSetState),
     ]);
   }
@@ -57,7 +58,7 @@ class _TuitionDetailsState extends State<TuitionDetails> {
       case 'save':
         final result = await _tutorCon.toggleSave(
           tuition['id'].toString(),
-              () => setState(() {}),
+          () => setState(() {}),
         );
         if (!mounted) return;
         _showSnack(
@@ -69,8 +70,7 @@ class _TuitionDetailsState extends State<TuitionDetails> {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) =>
-                PostTuitionScreen(initialData: tuition),
+            builder: (context) => PostTuitionScreen(initialData: tuition),
           ),
         ).then((_) => _loadAllData());
         break;
@@ -108,8 +108,7 @@ class _TuitionDetailsState extends State<TuitionDetails> {
               Navigator.pop(context);
               Navigator.pop(context);
             },
-            child:
-            const Text("Delete", style: TextStyle(color: Colors.red)),
+            child: const Text("Delete", style: TextStyle(color: Colors.red)),
           ),
         ],
       ),
@@ -136,8 +135,7 @@ class _TuitionDetailsState extends State<TuitionDetails> {
             ),
           ],
         ),
-        backgroundColor:
-        isError ? Colors.redAccent : AppColors.inputBackground,
+        backgroundColor: isError ? Colors.redAccent : AppColors.inputBackground,
         behavior: SnackBarBehavior.floating,
         margin: const EdgeInsets.all(16),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
@@ -161,8 +159,9 @@ class _TuitionDetailsState extends State<TuitionDetails> {
               : _buildContent(data),
         ),
       ),
-      bottomNavigationBar:
-      data == null ? const SizedBox.shrink() : _buildBottomBar(data),
+      bottomNavigationBar: data == null
+          ? const SizedBox.shrink()
+          : _buildBottomBar(data),
     );
   }
 
@@ -207,12 +206,16 @@ class _TuitionDetailsState extends State<TuitionDetails> {
           title: Text('Share', style: TextStyle(color: AppColors.white)),
         ),
       ),
-      const PopupMenuItem(
+      PopupMenuItem(
         value: 'save',
         child: ListTile(
-          leading:
-          Icon(Icons.bookmark_outline, color: AppColors.white, size: 20),
-          title: Text('Save', style: TextStyle(color: AppColors.white)),
+          leading: _tutorCon.isSavedPost
+              ? Icon(Icons.bookmark, color: AppColors.accent, size: 20)
+              : Icon(Icons.bookmark_outline, color: AppColors.white, size: 20),
+          title: Text(
+            _tutorCon.isSavedPost ? 'Saved' : 'Save',
+            style: TextStyle(color: AppColors.white),
+          ),
         ),
       ),
       if (isOwner) ...[
@@ -269,9 +272,9 @@ class _TuitionDetailsState extends State<TuitionDetails> {
           data['description'] == ""
               ? const SizedBox.shrink()
               : Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: _buildDescriptionSection(data['description']),
-          ),
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: _buildDescriptionSection(data['description']),
+                ),
           const SizedBox(height: 20),
         ],
       ),
@@ -297,20 +300,6 @@ class _TuitionDetailsState extends State<TuitionDetails> {
                 ),
               ),
               const SizedBox(height: 4),
-              // Row(
-              //   children: [
-              //     const Icon(Icons.star, size: 16, color: Colors.amber),
-              //     const SizedBox(width: 4),
-              //     Text(
-              //       '4.9 • Reputation',
-              //       style: TextStyle(
-              //         color: AppColors.textMuted,
-              //         fontSize: 12,
-              //       ),
-              //     ),
-              //   ],
-              // ),
-              // const SizedBox(height: 4),
               Text(
                 timeAgo,
                 style: TextStyle(color: AppColors.textMuted, fontSize: 12),
@@ -389,10 +378,10 @@ class _TuitionDetailsState extends State<TuitionDetails> {
   }
 
   Widget _buildInfoGrid(
-      Map<String, dynamic> data,
-      String startTime,
-      String endTime,
-      ) {
+    Map<String, dynamic> data,
+    String startTime,
+    String endTime,
+  ) {
     return Column(
       children: [
         Row(
@@ -513,9 +502,7 @@ class _TuitionDetailsState extends State<TuitionDetails> {
       padding: const EdgeInsets.fromLTRB(16, 10, 16, 30),
       decoration: BoxDecoration(
         color: AppColors.primaryDark,
-        border: Border(
-          top: BorderSide(color: Colors.white.withOpacity(0.05)),
-        ),
+        border: Border(top: BorderSide(color: Colors.white.withOpacity(0.05))),
       ),
       child: _buildRoleBasedActions(
         data['users']['id'] == _supabase.auth.currentUser?.id,
@@ -528,12 +515,12 @@ class _TuitionDetailsState extends State<TuitionDetails> {
   }
 
   Widget _buildRoleBasedActions(
-      bool isOwner,
-      String userRole,
-      bool isProfileComplete,
-      bool hasApplied,
-      String postId,
-      ) {
+    bool isOwner,
+    String userRole,
+    bool isProfileComplete,
+    bool hasApplied,
+    String postId,
+  ) {
     if (isOwner) {
       return PrimaryButton(
         text: "View Applications",
@@ -541,8 +528,7 @@ class _TuitionDetailsState extends State<TuitionDetails> {
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) =>
-                  ViewApplicationScreen(postId: postId),
+              builder: (context) => ViewApplicationScreen(postId: postId),
             ),
           );
         },
@@ -566,26 +552,27 @@ class _TuitionDetailsState extends State<TuitionDetails> {
                 onPressed: hasApplied
                     ? null
                     : () {
-                  if (!isProfileComplete) {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) =>
-                        const PersonalProfileScreen(),
-                      ),
-                    );
-                    _showSnack(
-                        "Please complete your profile to apply!");
-                  } else {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) =>
-                            ApplyForTuitionScreen(postId: postId),
-                      ),
-                    );
-                  }
-                },
+                        if (!isProfileComplete) {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) =>
+                                  const PersonalProfileScreen(),
+                            ),
+                          );
+                          _showSnack("Please complete your profile to apply!");
+                        } else {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => ApplyForTuitionScreen(postId: postId),
+                            ),
+                          ).then((_) {
+                            // Example: Refresh the saved status or post details
+                            _loadAllData();
+                          });
+                        }
+                      },
               ),
             ),
           ],
@@ -621,10 +608,6 @@ class _TuitionDetailsState extends State<TuitionDetails> {
       'S': 'Sat,',
       'U': 'Sun,',
     };
-    return days
-        .split(',')
-        .map((d) => dayMap[d.trim()] ?? d)
-        .join(' ')
-        .trim();
+    return days.split(',').map((d) => dayMap[d.trim()] ?? d).join(' ').trim();
   }
 }

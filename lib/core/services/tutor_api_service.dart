@@ -6,11 +6,12 @@ class TutorApiService {
   final _supabase = Supabase.instance.client;
 
   //get all tuition
-  Future<List<Map<String, dynamic>>> getTuition({String? searchQuery, String? filterQuery}) async {
+  Future<List<Map<String, dynamic>>> getTuition({
+    String? searchQuery,
+    String? filterQuery,
+  }) async {
     try {
-      var query = _supabase
-          .from('tuition_post')
-          .select('''
+      var query = _supabase.from('tuition_post').select('''
           *,
           subjects!inner(
             name
@@ -21,13 +22,15 @@ class TutorApiService {
         ''');
 
       // Apply search filter if provided
-      if(searchQuery != null && searchQuery.isNotEmpty){
+      if (searchQuery != null && searchQuery.isNotEmpty) {
         query = query.or(
-          'post_title.ilike.%$searchQuery%, description.ilike.%$searchQuery%'
+          'post_title.ilike.%$searchQuery%, description.ilike.%$searchQuery%',
         );
       }
 
-      if (filterQuery != null && filterQuery.isNotEmpty && filterQuery != "All") {
+      if (filterQuery != null &&
+          filterQuery.isNotEmpty &&
+          filterQuery != "All") {
         query = query.eq('subjects.name', filterQuery);
       }
       // Order by creation date (newest first)
@@ -91,7 +94,6 @@ class TutorApiService {
         'user_id': userId,
         'post_id': postId,
       });
-
     } catch (e) {
       debugPrint('saveTuition error: $e');
     }
@@ -115,10 +117,12 @@ class TutorApiService {
 
   //get all save tuition for a user
   Future<List<Map<String, dynamic>>> fetchSavedPosts() async {
-    try{
+    try {
       final userId = _supabase.auth.currentUser?.id;
       if (userId == null) return [];
-      return await _supabase.from('save_post').select('''
+      return await _supabase
+          .from('save_post')
+          .select('''
           *,
           tuition_post:post_id (
           *,
@@ -129,11 +133,30 @@ class TutorApiService {
             full_name
           )
           )
-      ''').eq('user_id', userId);
-    } catch (e){
+      ''')
+          .eq('user_id', userId);
+    } catch (e) {
       debugPrint('fetchSavedPosts error: $e');
       throw 'An unexpected error occurred: $e';
       return [];
+    }
+  }
+
+  // save tutor
+  Future<bool> isSavedPost(String postId) async {
+    try {
+      final userId = _supabase.auth.currentUser?.id;
+      if (userId == null) return false;
+      final response = await _supabase
+          .from('save_post')
+          .select()
+          .eq('user_id', userId)
+          .eq('post_id', postId)
+          .maybeSingle();
+      return response != null;
+    } catch (e) {
+      debugPrint('fetchSavedPosts error: $e');
+      throw 'An unexpected error occurred: $e';
     }
   }
 
@@ -151,9 +174,11 @@ class TutorApiService {
     }
   }
 
-
   // post tuition
-  Future<void> postTuitionApplication({required String postId, String? message,}) async {
+  Future<void> postTuitionApplication({
+    required String postId,
+    String? message,
+  }) async {
     try {
       // 1. Get the current logged-in user (Tutor)
       final userId = _supabase.auth.currentUser?.id;
@@ -167,7 +192,6 @@ class TutorApiService {
         'message': message,
         'status': 'pending',
       });
-
     } on PostgrestException catch (e) {
       // Handle database-specific errors (like duplicate applications)
       debugPrint('Postgrest Error: ${e.message}');
@@ -192,11 +216,11 @@ class TutorApiService {
 
     return response != null;
   }
-  
+
   // cheek which which id has been applied
   Future<List<Map<String, dynamic>>> syncAppliedPosts() async {
     final userId = _supabase.auth.currentUser?.id;
-    if (userId == null) return [] ;
+    if (userId == null) return [];
 
     final response = await _supabase
         .from('tuition_application')
@@ -205,8 +229,9 @@ class TutorApiService {
     return response;
   }
 
-
-  Future<List<Map<String, dynamic>>> getTutorApplications({String? status}) async {
+  Future<List<Map<String, dynamic>>> getTutorApplications({
+    String? status,
+  }) async {
     try {
       final userId = _supabase.auth.currentUser?.id;
       if (userId == null) return [];
@@ -235,7 +260,6 @@ class TutorApiService {
       // Get data ordered by newest first
       final response = await query.order('created_at', ascending: false);
       return List<Map<String, dynamic>>.from(response);
-
     } on PostgrestException catch (e) {
       debugPrint('Database Error: ${e.message}');
       throw e.message;
@@ -262,17 +286,6 @@ class TutorApiService {
       return false;
     }
   }
-
-
-
-
-
-
-
-
-
-
-
 
   // post tutor skill
   Future<void> tuitionSkillPost({
@@ -311,4 +324,3 @@ class TutorApiService {
     }
   }
 }
-

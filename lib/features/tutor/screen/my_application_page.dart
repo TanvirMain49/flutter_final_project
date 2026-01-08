@@ -20,10 +20,8 @@ class _MyApplicationsPageState extends State<MyApplicationsScreen> {
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     _con.getTutorApplications(
-      status: 'All',
       onUpdate: () {
         if (mounted) setState(() {});
       },
@@ -92,7 +90,7 @@ class _MyApplicationsPageState extends State<MyApplicationsScreen> {
               const SizedBox(height: 10),
               // Applications List
               Expanded(
-                child: (_con.isApplications && allApplications.isEmpty)
+                child: (_con.isApplications)
                     ? const ApplicationsLoadingList()
                     : allApplications.isEmpty
                     ? const Center(
@@ -145,6 +143,8 @@ class _MyApplicationsPageState extends State<MyApplicationsScreen> {
         if (selectedTab == label) return;
         setState(() {
           selectedTab = label;
+          _con.tutorApplications = [];
+          _con.isApplications = true;
         });
         _con.getTutorApplications(
           status: label,
