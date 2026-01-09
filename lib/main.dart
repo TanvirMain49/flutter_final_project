@@ -2,7 +2,6 @@ import 'package:_6th_sem_project/features/auth/screen/login_screen.dart';
 import 'package:_6th_sem_project/features/home/app_main_screen.dart';
 import 'package:_6th_sem_project/features/splash/splash_screen.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'dart:ui';
 
@@ -16,16 +15,10 @@ class MyCustomScrollBehavior extends MaterialScrollBehavior {
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-
-  try {
-    await dotenv.load(fileName: ".env");
-  } catch (e) {
-    throw Exception('Error loading .env file: $e');
-  }
-
   await Supabase.initialize(
     url: 'https://qdbmhotvqpbqkuepqjsd.supabase.co',
-    anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFkYm1ob3R2cXBicWt1ZXBxanNkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjU4NjkwMjUsImV4cCI6MjA4MTQ0NTAyNX0.DUlcM5QZnI3j-VOTv1CYbf-CfPfxUQUOx24Oh8HIi1Q',
+    anonKey:
+        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFkYm1ob3R2cXBicWt1ZXBxanNkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjU4NjkwMjUsImV4cCI6MjA4MTQ0NTAyNX0.DUlcM5QZnI3j-VOTv1CYbf-CfPfxUQUOx24Oh8HIi1Q',
   );
 
   runApp(const MyApp());
@@ -39,9 +32,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       scrollBehavior: MyCustomScrollBehavior(),
       title: 'Tuition App',
-      theme: ThemeData(
-        useMaterial3: true,
-      ),
+      theme: ThemeData(useMaterial3: true),
       home: const AuthCheck(),
       debugShowCheckedModeBanner: false,
     );
@@ -89,9 +80,7 @@ class _AuthCheckState extends State<AuthCheck> {
         // Handle errors
         if (authSnapshot.hasError) {
           return Scaffold(
-            body: Center(
-              child: Text('Error: ${authSnapshot.error}'),
-            ),
+            body: Center(child: Text('Error: ${authSnapshot.error}')),
           );
         }
 

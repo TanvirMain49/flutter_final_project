@@ -11,7 +11,6 @@ import 'package:_6th_sem_project/features/student/screen/my_tuition_posts.dart';
 import 'package:_6th_sem_project/features/tutor/screen/my_application_page.dart';
 import 'package:_6th_sem_project/features/tutor/screen/save_tuition_screen.dart';
 import 'package:flutter/material.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 
 enum UserRole { student, tutor }
 
@@ -39,12 +38,7 @@ class _UserProfileState extends State<UserProfile> {
       appBar: AppBar(
         backgroundColor: AppColors.primaryDark,
         elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: AppColors.white),
-          onPressed: () {
-            Navigator.pop(context);
-          },
-        ),
+        automaticallyImplyLeading: false,
         title: const Text(
           'Profile',
           style: TextStyle(
@@ -69,258 +63,260 @@ class _UserProfileState extends State<UserProfile> {
       body: _dataCon.isLoading
           ? ProfileSkeleton()
           : GradientBackground(
-        child: SingleChildScrollView(
-          child: Padding(
-            padding: const EdgeInsets.all(20.0),
-            child: Column(
-              children: [
-                // Profile Card with Avatar, Name, Role, Rating
-                Container(
-                  padding: const EdgeInsets.all(20),
-                  decoration: BoxDecoration(
-                    color: AppColors.primary,
-                    borderRadius: BorderRadius.circular(16),
-                    border: Border.all(color: AppColors.border, width: 1),
-                  ),
+              child: SingleChildScrollView(
+                child: Padding(
+                  padding: const EdgeInsets.all(20.0),
                   child: Column(
                     children: [
-                      // Avatar with online indicator
-                      Stack(
-                        alignment: Alignment.bottomRight,
-                        children: [
-                          CustomAvatar(),
-                          Container(
-                            width: 20,
-                            height: 20,
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              color: AppColors.accent,
-                              border: Border.all(
-                                color: AppColors.primary,
-                                width: 2,
+                      // Profile Card with Avatar, Name, Role, Rating
+                      Container(
+                        padding: const EdgeInsets.all(20),
+                        decoration: BoxDecoration(
+                          color: AppColors.primary,
+                          borderRadius: BorderRadius.circular(16),
+                          border: Border.all(color: AppColors.border, width: 1),
+                        ),
+                        child: Column(
+                          children: [
+                            // Avatar with online indicator
+                            Stack(
+                              alignment: Alignment.bottomRight,
+                              children: [
+                                CustomAvatar(),
+                                Container(
+                                  width: 20,
+                                  height: 20,
+                                  decoration: BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    color: AppColors.accent,
+                                    border: Border.all(
+                                      color: AppColors.primary,
+                                      width: 2,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 16),
+                            // Name
+                            Text(
+                              _dataCon.userProfile['full_name'] ?? 'Unknown',
+                              style: const TextStyle(
+                                color: AppColors.white,
+                                fontSize: 20,
+                                fontWeight: FontWeight.w600,
                               ),
                             ),
+                            const SizedBox(height: 4),
+                            // Role Display
+                            Text(
+                              _dataCon.userProfile['role'] == 'Student'
+                                  ? 'STUDENT'
+                                  : 'TUTOR',
+                              style: const TextStyle(
+                                color: AppColors.accent,
+                                fontSize: 12,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            const SizedBox(height: 8),
+                            // Rating
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                const Icon(
+                                  Icons.star,
+                                  color: Color(0xFFfbbf24),
+                                  size: 16,
+                                ),
+                                const SizedBox(width: 4),
+                                Text(
+                                  '4.9',
+                                  style: TextStyle(
+                                    color: AppColors.white,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 14,
+                                  ),
+                                ),
+                                const SizedBox(width: 4),
+                                Text(
+                                  '· 120 Reviews',
+                                  style: TextStyle(
+                                    color: AppColors.textMuted,
+                                    fontSize: 12,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 24),
+
+                      // Account Settings Section Header
+                      Align(
+                        alignment: Alignment.centerLeft,
+                        child: Text(
+                          'ACCOUNT SETTINGS',
+                          style: TextStyle(
+                            color: AppColors.textMuted,
+                            fontSize: 11,
+                            fontWeight: FontWeight.bold,
                           ),
-                        ],
-                      ),
-                      const SizedBox(height: 16),
-                      // Name
-                      Text(
-                        _dataCon.userProfile['full_name'] ?? 'Unknown',
-                        style: const TextStyle(
-                          color: AppColors.white,
-                          fontSize: 20,
-                          fontWeight: FontWeight.w600,
                         ),
                       ),
-                      const SizedBox(height: 4),
-                      // Role Display
-                      Text(
-                        _dataCon.userProfile['role'] == 'Student'
-                            ? 'STUDENT'
-                            : 'TUTOR',
-                        style: const TextStyle(
-                          color: AppColors.accent,
-                          fontSize: 12,
-                          fontWeight: FontWeight.bold,
-                        ),
+                      const SizedBox(height: 12),
+
+                      // Account Settings Menu Items
+                      _buildMenuItem(
+                        icon: Icons.person,
+                        title: _dataCon.userProfile['role'] == 'Student'
+                            ? 'Student Profile'
+                            : 'Personal & tutor Information',
+                        subtitle: 'Update your profile details',
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) =>
+                                  const PersonalProfileScreen(),
+                            ),
+                          );
+                        },
                       ),
                       const SizedBox(height: 8),
-                      // Rating
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          const Icon(
-                            Icons.star,
-                            color: Color(0xFFfbbf24),
-                            size: 16,
-                          ),
-                          const SizedBox(width: 4),
-                          Text(
-                            '4.9',
-                            style: TextStyle(
-                              color: AppColors.white,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 14,
-                            ),
-                          ),
-                          const SizedBox(width: 4),
-                          Text(
-                            '· 120 Reviews',
+                      _buildMenuItem(
+                        icon: Icons.credit_card,
+                        title: 'Payments & Payouts',
+                        subtitle: 'Manage payment methods',
+                      ),
+                      const SizedBox(height: 8),
+                      _buildMenuItem(
+                        icon: Icons.lock,
+                        title: 'Security & Privacy',
+                        subtitle: 'Control your privacy settings',
+                      ),
+                      const SizedBox(height: 8),
+                      _buildMenuItem(
+                        icon: Icons.tune,
+                        title: 'App Preferences',
+                        subtitle: 'Customize your experience',
+                      ),
+                      const SizedBox(height: 24),
+
+                      // Dynamic Menu Items Based on Role
+                      if (_dataCon.userProfile['role'] == 'Student') ...[
+                        Align(
+                          alignment: Alignment.centerLeft,
+                          child: Text(
+                            'MY TUITION',
                             style: TextStyle(
                               color: AppColors.textMuted,
-                              fontSize: 12,
+                              fontSize: 11,
+                              fontWeight: FontWeight.bold,
                             ),
                           ),
-                        ],
+                        ),
+                        const SizedBox(height: 12),
+                        _buildMenuItem(
+                          icon: Icons.assignment,
+                          title: 'My Tuition Posts',
+                          subtitle: 'Manage your requests',
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => const MyTuitionPosts(),
+                              ),
+                            );
+                          },
+                        ),
+                        const SizedBox(height: 8),
+                        _buildMenuItem(
+                          icon: Icons.bookmark,
+                          title: 'Saved Tutors',
+                          subtitle: 'View favorite tutors',
+                        ),
+                      ] else ...[
+                        Align(
+                          alignment: Alignment.centerLeft,
+                          child: Text(
+                            'MY TUITION',
+                            style: TextStyle(
+                              color: AppColors.textMuted,
+                              fontSize: 11,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+                        _buildMenuItem(
+                          icon: Icons.assignment,
+                          title: 'My Applied Tuition',
+                          subtitle: 'Manage your applied tuition',
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) =>
+                                    const MyApplicationsScreen(),
+                              ),
+                            );
+                          },
+                        ),
+                        const SizedBox(height: 8),
+                        _buildMenuItem(
+                          icon: Icons.bookmark,
+                          title: 'Saved Tuition',
+                          subtitle: 'View saved opportunities',
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => const SaveTuitionScreen(),
+                              ),
+                            );
+                          },
+                        ),
+                      ],
+                      const SizedBox(height: 24),
+
+                      // More Section
+                      Align(
+                        alignment: Alignment.centerLeft,
+                        child: Text(
+                          'MORE',
+                          style: TextStyle(
+                            color: AppColors.textMuted,
+                            fontSize: 11,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
                       ),
+                      const SizedBox(height: 12),
+                      _buildMenuItem(
+                        icon: Icons.emoji_events,
+                        title: 'Achievement & Badges',
+                        subtitle: 'View your earned awards',
+                      ),
+                      const SizedBox(height: 8),
+                      _buildMenuItem(
+                        icon: Icons.auto_graph,
+                        title: 'Learning Process',
+                        subtitle: 'Track your improvement',
+                      ),
+                      const SizedBox(height: 24),
                     ],
                   ),
                 ),
-                const SizedBox(height: 24),
-
-                // Account Settings Section Header
-                Align(
-                  alignment: Alignment.centerLeft,
-                  child: Text(
-                    'ACCOUNT SETTINGS',
-                    style: TextStyle(
-                      color: AppColors.textMuted,
-                      fontSize: 11,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 12),
-
-                // Account Settings Menu Items
-                _buildMenuItem(
-                  icon: Icons.person,
-                  title: _dataCon.userProfile['role'] == 'Student'? 'Student Profile': 'Personal & tutor Information',
-                  subtitle: 'Update your profile details',
-                  onTap: (){
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const PersonalProfileScreen(),
-                      ),
-                    );
-                  }
-                ),
-                const SizedBox(height: 8),
-                _buildMenuItem(
-                  icon: Icons.credit_card,
-                  title: 'Payments & Payouts',
-                  subtitle: 'Manage payment methods',
-                ),
-                const SizedBox(height: 8),
-                _buildMenuItem(
-                  icon: Icons.lock,
-                  title: 'Security & Privacy',
-                  subtitle: 'Control your privacy settings',
-                ),
-                const SizedBox(height: 8),
-                _buildMenuItem(
-                  icon: Icons.tune,
-                  title: 'App Preferences',
-                  subtitle: 'Customize your experience',
-                ),
-                const SizedBox(height: 24),
-
-                // Dynamic Menu Items Based on Role
-                if (_dataCon.userProfile['role'] == 'Student') ...[
-                  Align(
-                    alignment: Alignment.centerLeft,
-                    child: Text(
-                      'MY TUITION',
-                      style: TextStyle(
-                        color: AppColors.textMuted,
-                        fontSize: 11,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-                  _buildMenuItem(
-                    icon: Icons.assignment,
-                    title: 'My Tuition Posts',
-                    subtitle: 'Manage your requests',
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const MyTuitionPosts(),
-                        ),
-                      );
-                    },
-                  ),
-                  const SizedBox(height: 8),
-                  _buildMenuItem(
-                    icon: Icons.bookmark,
-                    title: 'Saved Tutors',
-                    subtitle: 'View favorite tutors',
-                  ),
-                ] else ...[
-                  Align(
-                    alignment: Alignment.centerLeft,
-                    child: Text(
-                      'MY TUITION',
-                      style: TextStyle(
-                        color: AppColors.textMuted,
-                        fontSize: 11,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-                  _buildMenuItem(
-                    icon: Icons.assignment,
-                    title: 'My Applied Tuition',
-                    subtitle: 'Manage your applied tuition',
-                    onTap: (){
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const MyApplicationsScreen(),
-                        ),
-                      );
-                    }
-                  ),
-                  const SizedBox(height: 8),
-                  _buildMenuItem(
-                    icon: Icons.bookmark,
-                    title: 'Saved Tuition',
-                    subtitle: 'View saved opportunities',
-                    onTap:(){
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const SaveTuitionScreen(),
-                        )
-                      );
-                    }
-                  ),
-                ],
-                const SizedBox(height: 24),
-
-                // More Section
-                Align(
-                  alignment: Alignment.centerLeft,
-                  child: Text(
-                    'MORE',
-                    style: TextStyle(
-                      color: AppColors.textMuted,
-                      fontSize: 11,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 12),
-                _buildMenuItem(
-                  icon: Icons.emoji_events,
-                  title: 'Achievement & Badges',
-                  subtitle: 'View your earned awards',
-                ),
-                const SizedBox(height: 8),
-                _buildMenuItem(
-                  icon: Icons.auto_graph,
-                  title: 'Learning Process',
-                  subtitle: 'Track your improvement',
-                ),
-                const SizedBox(height: 24),
-              ],
+              ),
             ),
-          ),
-        ),
-      ),
 
       bottomNavigationBar: Container(
         padding: const EdgeInsets.fromLTRB(16, 10, 16, 10),
         decoration: const BoxDecoration(
           color: Colors.black,
-          border: Border(
-            top: BorderSide(color: AppColors.border, width: 1),
-          ),
+          border: Border(top: BorderSide(color: AppColors.border, width: 1)),
         ),
         child: SizedBox(
           width: double.infinity,
@@ -343,7 +339,7 @@ class _UserProfileState extends State<UserProfile> {
                 Navigator.pushAndRemoveUntil(
                   context,
                   MaterialPageRoute(builder: (context) => const LoginScreen()),
-                      (route) => false,
+                  (route) => false,
                 );
               }
             },
@@ -363,7 +359,6 @@ class _UserProfileState extends State<UserProfile> {
       ),
     );
   }
-
 
   Widget _buildMenuItem({
     required IconData icon,
@@ -423,23 +418,29 @@ class _UserProfileState extends State<UserProfile> {
 
   Future<bool> _showLogoutDialog(BuildContext context) async {
     return await showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        backgroundColor: AppColors.primaryDark,
-        title: const Text("Log Out", style: TextStyle(color: Colors.white)),
-        content: const Text("Are you sure you want to log out?",
-            style: TextStyle(color: AppColors.textMuted)),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: const Text("Cancel"),
+          context: context,
+          builder: (context) => AlertDialog(
+            backgroundColor: AppColors.primaryDark,
+            title: const Text("Log Out", style: TextStyle(color: Colors.white)),
+            content: const Text(
+              "Are you sure you want to log out?",
+              style: TextStyle(color: AppColors.textMuted),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context, false),
+                child: const Text("Cancel"),
+              ),
+              TextButton(
+                onPressed: () => Navigator.pop(context, true),
+                child: const Text(
+                  "Log Out",
+                  style: TextStyle(color: Colors.red),
+                ),
+              ),
+            ],
           ),
-          TextButton(
-            onPressed: () => Navigator.pop(context, true),
-            child: const Text("Log Out", style: TextStyle(color: Colors.red)),
-          ),
-        ],
-      ),
-    ) ?? false;
+        ) ??
+        false;
   }
 }

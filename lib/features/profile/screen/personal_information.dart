@@ -107,7 +107,7 @@ class _ProfileScreenState extends State<PersonalProfileScreen> {
           //   label: 'Edit Profile',
           //   onPressed: () => _navigateToCompleteProfile(),
           // ),
-          PrimaryButton(text: "Edit Profile", onPressed: ()=> _navigateToCompleteProfile(),)
+          // PrimaryButton(text: "Edit Profile", onPressed: ()=> _navigateToCompleteProfile(),)
         ],
       ),
     );
@@ -219,9 +219,9 @@ class _ProfileScreenState extends State<PersonalProfileScreen> {
       children: [
         // Senior Tip: Later we will join the subject name, for now displaying ID
         _buildInfoRow(
-            'Expertise',
-            data['experience_at'] ?? 'N/A',
-            Icons.psychology_outlined // Updated Logo for skills/experience at
+          'Expertise',
+          data['experience_at'] ?? 'N/A',
+          Icons.psychology_outlined, // Updated Logo for skills/experience at
         ),
         _buildDivider(),
         _buildInfoRow(
@@ -251,8 +251,8 @@ class _ProfileScreenState extends State<PersonalProfileScreen> {
         // ),
         PrimaryButton(
           text: "Edit Tutor Profile",
-          onPressed: ()=> _navigateToCompleteProfile(),
-        )
+          onPressed: () => _navigateToCompleteProfile(),
+        ),
       ],
     );
   }

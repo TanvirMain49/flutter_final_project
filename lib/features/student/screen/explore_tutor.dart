@@ -70,15 +70,6 @@ class _ExploreTutorScreenState extends State<ExploreTutorScreen> {
     return AppBar(
       backgroundColor: AppColors.primaryDark,
       elevation: 0,
-      leading: IconButton(
-        onPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => StudentHomeScreen()),
-          );
-        },
-        icon: Icon(Icons.arrow_back, color: AppColors.white),
-      ),
       title: const Text(
         'Find Tutors',
         style: TextStyle(color: AppColors.white, fontWeight: FontWeight.bold),
@@ -206,13 +197,12 @@ class _ExploreTutorScreenState extends State<ExploreTutorScreen> {
             gender: tutor['gender'],
             experience: '${skill['experience_years'] ?? 0} yrs',
             education: skill['education_at'] ?? 'N/A',
-            onpressed: (){
+            onpressed: () {
               Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context)=> TutorDetails(tutorId: tutor['id']
-                      )
-                  )
+                context,
+                MaterialPageRoute(
+                  builder: (context) => TutorDetails(tutorId: tutor['id']),
+                ),
               );
             },
           ),

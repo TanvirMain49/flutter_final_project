@@ -18,7 +18,7 @@ class SignupDetailsScreen extends StatefulWidget {
 class _SignupDetailsScreenState extends State<SignupDetailsScreen> {
   final nameController = TextEditingController();
   final phoneNumberController = TextEditingController();
-  String role = 'student';
+  String role = 'Student';
   String gender = 'male';
 
   // Dispose controllers to free up resources when
@@ -75,7 +75,7 @@ class _SignupDetailsScreenState extends State<SignupDetailsScreen> {
                 /// Role dropdown menu
                 CustomDropdown(
                   label: "Select Role",
-                  items: const ["Student", "Tutor",],
+                  items: const ["Student", "Tutor"],
                   onChange: (String value) {
                     role = value;
                   },
@@ -86,7 +86,7 @@ class _SignupDetailsScreenState extends State<SignupDetailsScreen> {
                 /// Gender dropdown menu
                 CustomDropdown(
                   label: "Select Gender",
-                  items: const ["Male", "Female",],
+                  items: const ["Male", "Female"],
                   onChange: (String value) {
                     gender = value;
                   },

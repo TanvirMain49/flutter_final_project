@@ -33,7 +33,7 @@ class _MyTuitionPostsState extends State<MyTuitionPosts> {
   Widget build(BuildContext context) {
     final totalPost = _dataCon.myTuitionPosts.length;
     return RefreshIndicator(
-      onRefresh: () async{
+      onRefresh: () async {
         await _dataCon.fetchMyTuitionPosts(() {
           if (mounted) setState(() {});
         });
@@ -43,10 +43,6 @@ class _MyTuitionPostsState extends State<MyTuitionPosts> {
         appBar: AppBar(
           backgroundColor: AppColors.primary,
           elevation: 0,
-          leading: IconButton(
-            icon: const Icon(Icons.arrow_back, color: AppColors.white),
-            onPressed: () => Navigator.pop(context),
-          ),
           title: const Text(
             'My Tuition Posts',
             style: TextStyle(
@@ -79,99 +75,106 @@ class _MyTuitionPostsState extends State<MyTuitionPosts> {
                       // Total Posts Card
                       Expanded(
                         child: _dataCon.isLoading
-                            ? const SkeletonBox(height: 110, width: double.infinity) // Responsive width
-                            :Container(
-                          padding: const EdgeInsets.all(16),
-                          decoration: BoxDecoration(
-                            color: AppColors.surface,
-                            borderRadius: BorderRadius.circular(12),
-                            border: Border.all(color: AppColors.border),
-                          ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Row(
-                                children: [
-                                  Icon(
-                                    Icons.description_outlined,
-                                    color: AppColors.accent,
-                                    size: 22,
-                                  ),
-                                  const SizedBox(width: 8),
-                                  const Text(
-                                    'Total Posts',
-                                    style: TextStyle(
-                                      color: AppColors.textMuted,
-                                      fontSize: 14,
+                            ? const SkeletonBox(
+                                height: 110,
+                                width: double.infinity,
+                              ) // Responsive width
+                            : Container(
+                                padding: const EdgeInsets.all(16),
+                                decoration: BoxDecoration(
+                                  color: AppColors.surface,
+                                  borderRadius: BorderRadius.circular(12),
+                                  border: Border.all(color: AppColors.border),
+                                ),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Row(
+                                      children: [
+                                        Icon(
+                                          Icons.description_outlined,
+                                          color: AppColors.accent,
+                                          size: 22,
+                                        ),
+                                        const SizedBox(width: 8),
+                                        const Text(
+                                          'Total Posts',
+                                          style: TextStyle(
+                                            color: AppColors.textMuted,
+                                            fontSize: 14,
+                                          ),
+                                        ),
+                                      ],
                                     ),
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(height: 12),
-                              Text(
-                                _dataCon.isLoading? 'Loading...':"$totalPost",
-                                style: TextStyle(
-                                  color: AppColors.white,
-                                  fontSize:  _dataCon.isLoading ? 16 : 28,
-                                  fontWeight: FontWeight.bold,
+                                    const SizedBox(height: 12),
+                                    Text(
+                                      _dataCon.isLoading
+                                          ? 'Loading...'
+                                          : "$totalPost",
+                                      style: TextStyle(
+                                        color: AppColors.white,
+                                        fontSize: _dataCon.isLoading ? 16 : 28,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ],
                                 ),
                               ),
-                            ],
-                          ),
-                        ),
                       ),
                       const SizedBox(width: 12),
                       // Hired Card
                       Expanded(
                         child: _dataCon.isLoading
-                            ? const SkeletonBox(height: 110, width: double.infinity) // Responsive width
-                            :Container(
-                          padding: const EdgeInsets.all(16),
-                          decoration: BoxDecoration(
-                            color: AppColors.surface,
-                            borderRadius: BorderRadius.circular(12),
-                            border: Border.all(color: AppColors.border),
-                          ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Row(
-                                children: [
-                                  Icon(
-                                    Icons.check_circle,
-                                    color: AppColors.success,
-                                    size: 22,
-                                  ),
-                                  const SizedBox(width: 8),
-                                  const Text(
-                                    'Hired',
-                                    style: TextStyle(
-                                      color: AppColors.textMuted,
-                                      fontSize: 14,
+                            ? const SkeletonBox(
+                                height: 110,
+                                width: double.infinity,
+                              ) // Responsive width
+                            : Container(
+                                padding: const EdgeInsets.all(16),
+                                decoration: BoxDecoration(
+                                  color: AppColors.surface,
+                                  borderRadius: BorderRadius.circular(12),
+                                  border: Border.all(color: AppColors.border),
+                                ),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Row(
+                                      children: [
+                                        Icon(
+                                          Icons.check_circle,
+                                          color: AppColors.success,
+                                          size: 22,
+                                        ),
+                                        const SizedBox(width: 8),
+                                        const Text(
+                                          'Hired',
+                                          style: TextStyle(
+                                            color: AppColors.textMuted,
+                                            fontSize: 14,
+                                          ),
+                                        ),
+                                      ],
                                     ),
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(height: 12),
-                              Text(
-                                _dataCon.isLoading? 'Loading...':
-                                '2',
-                                style: TextStyle(
-                                  color: AppColors.white,
-                                  fontSize: _dataCon.isLoading ? 16 : 28,
-                                  fontWeight: FontWeight.bold,
+                                    const SizedBox(height: 12),
+                                    Text(
+                                      _dataCon.isLoading ? 'Loading...' : '2',
+                                      style: TextStyle(
+                                        color: AppColors.white,
+                                        fontSize: _dataCon.isLoading ? 16 : 28,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ],
                                 ),
                               ),
-                            ],
-                          ),
-                        ),
                       ),
                     ],
                   ),
                   const SizedBox(height: 24),
                   // Posts List
                   Text(
-                    _dataCon.isLoading? '': 'Posts',
+                    _dataCon.isLoading ? '' : 'Posts',
                     style: const TextStyle(
                       color: AppColors.white,
                       fontSize: 16,
@@ -216,7 +219,7 @@ class _MyTuitionPostsState extends State<MyTuitionPosts> {
                             );
                             return _buildPostCard(
                               status: tuition['status'] ?? 'Active',
-                              statusColor:  _getStatusColor(tuition['status']),
+                              statusColor: _getStatusColor(tuition['status']),
                               title: tuition['post_title'],
                               subject: tuition['subjects']['name'],
                               days: tuition['preferred_day'],
@@ -224,25 +227,28 @@ class _MyTuitionPostsState extends State<MyTuitionPosts> {
                               startTime: startTime,
                               endTime: endTime,
                               onApplicantsPressed: () {
-                                Navigator.push(context, MaterialPageRoute(
-                                    builder: (context) =>
-                                        ViewApplicationScreen(
-                                          postId: tuition['id'],
-                                        )
-                                )
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => ViewApplicationScreen(
+                                      postId: tuition['id'],
+                                    ),
+                                  ),
                                 );
                               },
                               onDetailsPressed: () {
-                                Navigator.push(context, MaterialPageRoute(
-                                    builder: (context) =>
-                                        TuitionDetails(
-                                          tuitionId: tuition['id'],
-                                        )
-                                )
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => TuitionDetails(
+                                      tuitionId: tuition['id'],
+                                    ),
+                                  ),
                                 );
                               },
                             );
-                          }),
+                          },
+                        ),
                 ],
               ),
             ),
@@ -253,7 +259,9 @@ class _MyTuitionPostsState extends State<MyTuitionPosts> {
           onPressed: () {
             Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) => const PostTuitionScreen()),
+              MaterialPageRoute(
+                builder: (context) => const PostTuitionScreen(),
+              ),
             );
           },
           child: const Icon(Icons.add, color: AppColors.white),
@@ -272,7 +280,7 @@ class _MyTuitionPostsState extends State<MyTuitionPosts> {
     required String startTime,
     required String endTime,
     VoidCallback? onApplicantsPressed,
-    VoidCallback? onDetailsPressed
+    VoidCallback? onDetailsPressed,
   }) {
     return Container(
       decoration: BoxDecoration(
@@ -310,7 +318,7 @@ class _MyTuitionPostsState extends State<MyTuitionPosts> {
                     ),
                     const SizedBox(width: 8),
                     Text(
-                      status == 'active'? 'Active': 'Closed',
+                      status == 'active' ? 'Active' : 'Closed',
                       style: TextStyle(
                         color: statusColor,
                         fontSize: 12,
@@ -464,7 +472,7 @@ class _MyTuitionPostsState extends State<MyTuitionPosts> {
     );
   }
 
-// Helper function to get status color based on status string
+  // Helper function to get status color based on status string
   Color _getStatusColor(String status) {
     switch (status.toLowerCase()) {
       case 'active':

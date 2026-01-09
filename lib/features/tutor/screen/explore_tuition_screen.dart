@@ -20,7 +20,15 @@ class _ExploreTuitionScreenState extends State<ExploreTuitionScreen> {
   String selectedSubject = "All";
 
   final List<String> subjects = [
-    'All', 'General Mathematics', 'Higher Mathematics', 'Physics', 'Chemistry', 'Biology', 'English', 'Accounting', 'ICT',
+    'All',
+    'General Mathematics',
+    'Higher Mathematics',
+    'Physics',
+    'Chemistry',
+    'Biology',
+    'English',
+    'Accounting',
+    'ICT',
   ];
 
   @override
@@ -66,6 +74,7 @@ class _ExploreTuitionScreenState extends State<ExploreTuitionScreen> {
         style: TextStyle(color: AppColors.white, fontWeight: FontWeight.bold),
       ),
       centerTitle: true,
+      automaticallyImplyLeading: false,
       actions: [
         IconButton(
           onPressed: _loadInitialData,
@@ -80,7 +89,11 @@ class _ExploreTuitionScreenState extends State<ExploreTuitionScreen> {
       padding: const EdgeInsets.fromLTRB(16, 10, 16, 10),
       child: SearchField(
         controller: searchController,
-        onChanged: (value) => _con.getTuition(_safeSetState, searchQuery: value, filterQuery: selectedSubject),
+        onChanged: (value) => _con.getTuition(
+          _safeSetState,
+          searchQuery: value,
+          filterQuery: selectedSubject,
+        ),
         onClear: () {
           searchController.clear();
           _con.getTuition(_safeSetState, searchQuery: '');
@@ -107,7 +120,12 @@ class _ExploreTuitionScreenState extends State<ExploreTuitionScreen> {
                 if (selected) {
                   setState(() => selectedSubject = subjects[index]);
                   // Trigger search/filter by subject
-                  _con.getTuition(_safeSetState, filterQuery: subjects[index] == "All" ? "" : subjects[index]);
+                  _con.getTuition(
+                    _safeSetState,
+                    filterQuery: subjects[index] == "All"
+                        ? ""
+                        : subjects[index],
+                  );
                 }
               },
               selectedColor: AppColors.accent,
@@ -116,7 +134,9 @@ class _ExploreTuitionScreenState extends State<ExploreTuitionScreen> {
                 color: isSelected ? AppColors.black : AppColors.white,
                 fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
               ),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(20),
+              ),
               side: BorderSide.none,
             ),
           );
@@ -198,7 +218,11 @@ class _ExploreTuitionScreenState extends State<ExploreTuitionScreen> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.search_off, size: 64, color: AppColors.textMuted.withOpacity(0.5)),
+          Icon(
+            Icons.search_off,
+            size: 64,
+            color: AppColors.textMuted.withOpacity(0.5),
+          ),
           const SizedBox(height: 16),
           const Text(
             "No tuition found matching your criteria",

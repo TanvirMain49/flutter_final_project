@@ -50,55 +50,55 @@ class _TutorDetailsState extends State<TutorDetails> {
       body: tutor == null || tutor.isEmpty
           ? const TutorProfileSkeleton()
           : GradientBackground(
-        child: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Hero Avatar Section
-              _buildAvatarSection(tutor),
-              const SizedBox(height: 24),
+              child: SingleChildScrollView(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Hero Avatar Section
+                    _buildAvatarSection(tutor),
+                    const SizedBox(height: 24),
 
-              // Name and Subject
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: _buildNameAndSubject(tutor),
-              ),
-              const SizedBox(height: 20),
+                    // Name and Subject
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      child: _buildNameAndSubject(tutor),
+                    ),
+                    const SizedBox(height: 20),
 
-              // Key Information Cards
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: _buildKeyInfoCards(tutor),
-              ),
-              const SizedBox(height: 24),
+                    // Key Information Cards
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      child: _buildKeyInfoCards(tutor),
+                    ),
+                    const SizedBox(height: 24),
 
-              // About Section
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: _buildAboutSection(tutor),
-              ),
-              const SizedBox(height: 24),
+                    // About Section
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      child: _buildAboutSection(tutor),
+                    ),
+                    const SizedBox(height: 24),
 
-              // Availability Section
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: _buildAvailabilitySection(tutor),
-              ),
-              const SizedBox(height: 24),
+                    // Availability Section
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      child: _buildAvailabilitySection(tutor),
+                    ),
+                    const SizedBox(height: 24),
 
-              // Contact Section
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: _buildContactSection(tutor),
+                    // Contact Section
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      child: _buildContactSection(tutor),
+                    ),
+                    const SizedBox(height: 30),
+                  ],
+                ),
               ),
-              const SizedBox(height: 30),
-            ],
-          ),
-        ),
-      ),
-      bottomNavigationBar: tutor == null
-          ? const SizedBox.shrink()
-          : _buildBottomActionBar(tutor),
+            ),
+      // bottomNavigationBar: tutor == null
+      //     ? const SizedBox.shrink()
+      //     : _buildBottomActionBar(tutor),
     );
   }
 
@@ -146,8 +146,7 @@ class _TutorDetailsState extends State<TutorDetails> {
   }
 
   Widget _buildNameAndSubject(Map<String, dynamic> tutor) {
-    final subject =
-    (tutor['tutor_id'] as List?)?.isNotEmpty == true
+    final subject = (tutor['tutor_id'] as List?)?.isNotEmpty == true
         ? tutor['tutor_id'][0]['subject_id']['name']
         : 'N/A';
 
@@ -194,10 +193,7 @@ class _TutorDetailsState extends State<TutorDetails> {
       decoration: BoxDecoration(
         color: AppColors.secondary,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: AppColors.border.withOpacity(0.3),
-          width: 1,
-        ),
+        border: Border.all(color: AppColors.border.withOpacity(0.3), width: 1),
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -301,20 +297,17 @@ class _TutorDetailsState extends State<TutorDetails> {
   }
 
   Widget _buildInfoCard(
-      String title,
-      String value,
-      Color color,
-      IconData icon,
-      ) {
+    String title,
+    String value,
+    Color color,
+    IconData icon,
+  ) {
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
         color: AppColors.secondary,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: AppColors.border.withOpacity(0.3),
-          width: 1,
-        ),
+        border: Border.all(color: AppColors.border.withOpacity(0.3), width: 1),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -436,28 +429,30 @@ class _TutorDetailsState extends State<TutorDetails> {
           spacing: 8,
           runSpacing: 8,
           children: availableDays
-              .map((day) => Container(
-            padding: const EdgeInsets.symmetric(
-              horizontal: 12,
-              vertical: 8,
-            ),
-            decoration: BoxDecoration(
-              color: AppColors.accent.withOpacity(0.15),
-              borderRadius: BorderRadius.circular(8),
-              border: Border.all(
-                color: AppColors.accent.withOpacity(0.3),
-                width: 1,
-              ),
-            ),
-            child: Text(
-              day,
-              style: const TextStyle(
-                color: AppColors.accent,
-                fontSize: 12,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-          ))
+              .map(
+                (day) => Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 8,
+                  ),
+                  decoration: BoxDecoration(
+                    color: AppColors.accent.withOpacity(0.15),
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(
+                      color: AppColors.accent.withOpacity(0.3),
+                      width: 1,
+                    ),
+                  ),
+                  child: Text(
+                    day,
+                    style: const TextStyle(
+                      color: AppColors.accent,
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+              )
               .toList(),
         ),
       ],
@@ -504,10 +499,7 @@ class _TutorDetailsState extends State<TutorDetails> {
       decoration: BoxDecoration(
         color: AppColors.secondary,
         borderRadius: BorderRadius.circular(10),
-        border: Border.all(
-          color: AppColors.border.withOpacity(0.3),
-          width: 1,
-        ),
+        border: Border.all(color: AppColors.border.withOpacity(0.3), width: 1),
       ),
       child: Row(
         children: [
@@ -558,10 +550,7 @@ class _TutorDetailsState extends State<TutorDetails> {
               label: const Text('Message'),
               style: OutlinedButton.styleFrom(
                 foregroundColor: AppColors.accent,
-                side: const BorderSide(
-                  color: AppColors.accent,
-                  width: 1.5,
-                ),
+                side: const BorderSide(color: AppColors.accent, width: 1.5),
                 padding: const EdgeInsets.symmetric(vertical: 13),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),

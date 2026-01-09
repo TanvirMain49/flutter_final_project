@@ -3,7 +3,6 @@ import 'package:_6th_sem_project/core/widgets/app_logo.dart';
 import 'package:_6th_sem_project/core/widgets/gradient_background.dart';
 import 'package:_6th_sem_project/core/widgets/input_field.dart';
 import 'package:_6th_sem_project/core/widgets/primary_button.dart';
-import 'package:_6th_sem_project/features/auth/controller/auth.controller.dart';
 import 'package:_6th_sem_project/features/auth/screen/login_screen.dart';
 import 'package:_6th_sem_project/features/auth/screen/singnup_detail_screen.dart';
 import 'package:flutter/material.dart';
