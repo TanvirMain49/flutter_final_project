@@ -59,12 +59,14 @@ class _TuitionDetailsState extends State<TuitionDetails> {
         final result = await _tutorCon.toggleSave(
           tuition['id'].toString(),
           () => setState(() {}),
+          _tutorCon.isSavedPost,
         );
         if (!mounted) return;
         _showSnack(
           result ?? "Connection error. Please try again.",
           isError: result == null,
         );
+        await _loadAllData();
         break;
       case 'edit':
         Navigator.push(
@@ -565,7 +567,8 @@ class _TuitionDetailsState extends State<TuitionDetails> {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => ApplyForTuitionScreen(postId: postId),
+                              builder: (context) =>
+                                  ApplyForTuitionScreen(postId: postId),
                             ),
                           ).then((_) {
                             // Example: Refresh the saved status or post details

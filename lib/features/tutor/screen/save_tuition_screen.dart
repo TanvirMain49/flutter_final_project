@@ -31,17 +31,15 @@ class _SaveTuitionScreenState extends State<SaveTuitionScreen> {
       // 1. Run both requests.
       // Use Future.wait if you want them to run at the same time for speed.
       await Future.wait([
-        _con.getSavedPosts((){}),
-        _con2.fetchUserProfile((){}),
-        _con.isCompleteTutorProfile((){}),
+        _con.getSavedPosts(() {}),
+        _con2.fetchUserProfile(() {}),
+        _con.isCompleteTutorProfile(() {}),
       ]);
 
       // 2. Update the UI once after both are done
       if (mounted) setState(() {});
-
     } catch (e) {
       if (mounted) {
-        debugPrint("Error loading data: $e"); // Always good to log it
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Error loading data. Please try again.'),
@@ -54,100 +52,95 @@ class _SaveTuitionScreenState extends State<SaveTuitionScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final filteredPosts = _con.postTuition.where((post) => post['status'] != 'closed').toList();
+    final filteredPosts = _con.savedPosts
+        .where((post) => post['status'] != 'closed')
+        .toList();
 
     return Scaffold(
       backgroundColor: AppColors.primaryDark,
       appBar: AppBar(
-        title: const Text('Saved Tuition', style: TextStyle(
-          color: AppColors.white
-        ),
+        title: const Text(
+          'Saved Tuition',
+          style: TextStyle(color: AppColors.white),
         ),
         leading: IconButton(
-            onPressed: (){
-              Navigator.pop(context);
-            },
-            icon: Icon(Icons.arrow_back, color: AppColors.white,)),
+          onPressed: () {
+            Navigator.pop(context);
+          },
+          icon: Icon(Icons.arrow_back, color: AppColors.white),
+        ),
         backgroundColor: AppColors.primary,
         centerTitle: true,
       ),
       body: _con.isFetchSavePost
           ? ListView.separated(
-        padding: const EdgeInsets.all(16),
-        itemCount: 3,
-        separatorBuilder: (context, index) => const SizedBox(height: 16),
-        itemBuilder: (context, index) => const CardSkeleton(),
-      )
+              padding: const EdgeInsets.all(16),
+              itemCount: 3,
+              separatorBuilder: (context, index) => const SizedBox(height: 16),
+              itemBuilder: (context, index) => const CardSkeleton(),
+            )
           : filteredPosts.isEmpty
           ? _buildEmptyState()
           : RefreshIndicator(
-        onRefresh: _loadInitialData,
-        color: AppColors.primaryDark,
-        child: ListView.separated(
-          padding: const EdgeInsets.all(16),
-          itemCount: filteredPosts.length,
-          separatorBuilder: (context, index) =>
-          const SizedBox(height: 16),
-          itemBuilder: (context, index) {
-            final post = filteredPosts[index];
-            final savedPost = post['tuition_post'];
-            debugPrint("SavePost: $savedPost");
-            final timeAgo = StudentUtils.formatTimeAgo(
-              savedPost['created_at'],
-            );
-            final startTime = StudentUtils.formatToBDTime(
-              savedPost['start_time'],
-            );
-            final endTime = StudentUtils.formatToBDTime(
-              savedPost['end_time'],
-            );
-
-            return StudentHomeCard(
-              title: savedPost['post_title'] ?? 'N/A',
-              location: savedPost['student_location'] ?? 'N/A',
-              studyDays: savedPost['preferred_day'] ?? 'N/A',
-              price: savedPost['salary'] ?? 'N/A',
-              status: savedPost['status'] ?? 'N/A',
-              startTime: startTime,
-              endTime: endTime,
-              subject: savedPost['subjects']?['name'] ?? 'N/A',
-              studentName: savedPost['users']?['full_name'] ?? 'N/A',
-              postTime: timeAgo,
-              onTap: () {
-                if (savedPost['id'] != null) {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) =>
-                          TuitionDetails(
-                            tuitionId: savedPost['id'].toString(),
-                            isProfileComplete: _con.isCompleteProfile,
-                          ),
-                    ),
+              onRefresh: _loadInitialData,
+              color: AppColors.primaryDark,
+              child: ListView.separated(
+                padding: const EdgeInsets.all(16),
+                itemCount: filteredPosts.length,
+                separatorBuilder: (context, index) =>
+                    const SizedBox(height: 16),
+                itemBuilder: (context, index) {
+                  final post = filteredPosts[index];
+                  final savedPost = post['tuition_post'];
+                  final timeAgo = StudentUtils.formatTimeAgo(
+                    savedPost['created_at'],
                   );
-                }
-              },
-            );
-          },
-        ),
-      ),
+                  final startTime = StudentUtils.formatToBDTime(
+                    savedPost['start_time'],
+                  );
+                  final endTime = StudentUtils.formatToBDTime(
+                    savedPost['end_time'],
+                  );
+
+                  return StudentHomeCard(
+                    title: savedPost['post_title'] ?? 'N/A',
+                    location: savedPost['student_location'] ?? 'N/A',
+                    studyDays: savedPost['preferred_day'] ?? 'N/A',
+                    price: savedPost['salary'] ?? 'N/A',
+                    status: savedPost['status'] ?? 'N/A',
+                    startTime: startTime,
+                    endTime: endTime,
+                    subject: savedPost['subjects']?['name'] ?? 'N/A',
+                    studentName: savedPost['users']?['full_name'] ?? 'N/A',
+                    postTime: timeAgo,
+                    onTap: () {
+                      if (savedPost['id'] != null) {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => TuitionDetails(
+                              tuitionId: savedPost['id'].toString(),
+                              isProfileComplete: _con.isCompleteProfile,
+                            ),
+                          ),
+                        ).then((_) => _loadInitialData());
+                      }
+                    },
+                  );
+                },
+              ),
+            ),
     );
   }
 
   Widget _buildEmptyState() {
     return Container(
-      decoration: BoxDecoration(
-        color: AppColors.primaryDark
-      ),
+      decoration: BoxDecoration(color: AppColors.primaryDark),
       child: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(
-              Icons.bookmark_border,
-              size: 80,
-              color: Colors.grey[400],
-            ),
+            Icon(Icons.bookmark_border, size: 80, color: Colors.grey[400]),
             const SizedBox(height: 16),
             Text(
               'No Saved Tuitions',
@@ -160,10 +153,7 @@ class _SaveTuitionScreenState extends State<SaveTuitionScreen> {
             const SizedBox(height: 8),
             Text(
               'Save tuition posts to view them here',
-              style: TextStyle(
-                fontSize: 14,
-                color: Colors.grey[600],
-              ),
+              style: TextStyle(fontSize: 14, color: Colors.grey[600]),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 24),
@@ -172,10 +162,11 @@ class _SaveTuitionScreenState extends State<SaveTuitionScreen> {
                 // Navigate to home or explore screen
                 Navigator.pop(context);
               },
-              icon: const Icon(Icons.explore, color: AppColors.black,),
-              label: const Text('Explore Tuition', style: TextStyle(
-                color: AppColors.black
-              ),),
+              icon: const Icon(Icons.explore, color: AppColors.black),
+              label: const Text(
+                'Explore Tuition',
+                style: TextStyle(color: AppColors.black),
+              ),
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.accent,
                 padding: const EdgeInsets.symmetric(

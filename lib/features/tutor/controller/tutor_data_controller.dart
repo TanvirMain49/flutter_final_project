@@ -7,7 +7,6 @@ class TutorDataController {
   List<Map<String, dynamic>> postTuition = [];
   List<Map<String, dynamic>> tutorApplications = [];
   List<Map<String, dynamic>> savedPosts = [];
-  // TODO: cheek if savePostIds is need or not later
   List<String> savedPostIds = [];
   List<String> appliedPostIds = [];
   String? successMessage = '';
@@ -20,14 +19,20 @@ class TutorDataController {
   bool isApplications = false;
   bool isFetchSavePost = false;
 
-
   // get all tuition controller
-  Future<void> getTuition(VoidCallback onUpdate, {String? searchQuery, String? filterQuery}) async {
+  Future<void> getTuition(
+    VoidCallback onUpdate, {
+    String? searchQuery,
+    String? filterQuery,
+  }) async {
     try {
       isLoading = true;
       onUpdate();
-      final response = await _tuitionApiService.getTuition(searchQuery: searchQuery, filterQuery: filterQuery);
-      postTuition = response ?? [];
+      final response = await _tuitionApiService.getTuition(
+        searchQuery: searchQuery,
+        filterQuery: filterQuery,
+      );
+      postTuition = response;
     } catch (e) {
       debugPrint('getUserProfile error: $e');
     } finally {
@@ -41,7 +46,7 @@ class TutorDataController {
       isLoading = true;
       onUpdate();
       final response = await _tuitionApiService.getTuition();
-      postTuition = response!;
+      postTuition = response;
     } catch (e) {
       debugPrint('getUserProfile error: $e');
     } finally {
@@ -50,17 +55,21 @@ class TutorDataController {
     }
   }
 
-  Future<String?> toggleSave(String postId, VoidCallback onUpdate) async {
-    final bool wasSaved = savedPostIds.contains(postId);
+  Future<String?> toggleSave(
+    String postId,
+    VoidCallback onUpdate,
+    bool wasSaved,
+  ) async {
+    // final bool wasSaved = savedPostIds.contains(postId);
     isSave = true;
     onUpdate();
 
     // locally save the id so that we can update the ui fast
-    if (wasSaved) {
-      savedPostIds.remove(postId);
-    } else {
-      savedPostIds.add(postId);
-    }
+    // if (wasSaved) {
+    //   savedPostIds.remove(postId);
+    // } else {
+    //   savedPostIds.add(postId);
+    // }
     try {
       if (wasSaved) {
         await _tuitionApiService.deleteSavedPost(postId);
@@ -91,27 +100,29 @@ class TutorDataController {
       onUpdate();
     } catch (e) {
       debugPrint('Check saved status error: $e');
-      isSavedPost =  false;
+      isSavedPost = false;
     }
   }
 
-
   Future<void> getSavedPosts(VoidCallback onUpdate) async {
-    try{
+    try {
       isFetchSavePost = true;
       onUpdate();
       final response = await _tuitionApiService.fetchSavedPosts();
       savedPosts = response;
-    } catch (e){
+    } catch (e) {
       debugPrint("Controller getSavedPosts error: $e");
-    } finally{
+    } finally {
       isFetchSavePost = false;
       onUpdate();
     }
   }
 
-
-  Future<bool> applyForTuition(String postId, String? tutorMessage, VoidCallback onUpdate) async {
+  Future<bool> applyForTuition(
+    String postId,
+    String? tutorMessage,
+    VoidCallback onUpdate,
+  ) async {
     isApply = true;
     onUpdate();
     try {
@@ -135,26 +146,29 @@ class TutorDataController {
     onUpdate();
   }
 
-  Future<void> isCompleteTutorProfile(VoidCallback refreshUI) async{
-    isCompleteProfile =  await _tuitionApiService.isCompleteProfile();
+  Future<void> isCompleteTutorProfile(VoidCallback refreshUI) async {
+    isCompleteProfile = await _tuitionApiService.isCompleteProfile();
     refreshUI();
   }
 
-//   get one user applications
-Future<void> getTutorApplications({String? status,required VoidCallback onUpdate}) async {
-  try {
-    isApplications = true;
-    onUpdate();
-    final response = await _tuitionApiService.getTutorApplications(status: status);
-    tutorApplications = response;
-
-  } catch (e) {
-    debugPrint('getUserProfile error: $e');
-    throw "Failed to load profile: $e";
-  } finally {
-    isApplications = false;
-    onUpdate();
+  //   get one user applications
+  Future<void> getTutorApplications({
+    String? status,
+    required VoidCallback onUpdate,
+  }) async {
+    try {
+      isApplications = true;
+      onUpdate();
+      final response = await _tuitionApiService.getTutorApplications(
+        status: status,
+      );
+      tutorApplications = response;
+    } catch (e) {
+      debugPrint('getUserProfile error: $e');
+      throw "Failed to load profile: $e";
+    } finally {
+      isApplications = false;
+      onUpdate();
+    }
   }
-}
-
 }
